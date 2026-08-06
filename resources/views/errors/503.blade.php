@@ -1,0 +1,12 @@
+@extends('errors.layout')
+
+@section('title', '503 - Layanan Sementara Tidak Tersedia')
+@section('status_code', '503')
+@section('status_variant', 'warning')
+@section('status_title', 'Layanan sedang tidak tersedia sementara')
+@section('status_message', 'Sistem mungkin sedang dalam maintenance atau ada proses teknis yang membuat layanan belum bisa digunakan sesaat.')
+@section('status_hint', 'Silakan coba beberapa saat lagi. Jika ini terjadi saat jam kerja aktif, pastikan tidak ada mode maintenance yang belum dimatikan.')
+@section('hero_title', 'Sistem sedang dijaga agar kembali stabil')
+@section('hero_message', 'Halaman ini cocok dipakai saat maintenance terencana maupun ketika infrastruktur sedang dipulihkan.')
+@section('primary_action_label', 'Muat Ulang')
+@section('primary_action_url', url()->current())

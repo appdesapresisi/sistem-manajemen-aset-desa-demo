@@ -1,0 +1,53 @@
+DOKUMENTASI SISTEM MANAJEMEN ASET
+
+Sistem Manajemen Aset Merupakan Sistem yang bertujuan untuk merekap semua aset yang ada di desa yang dilengkapi dengan export laporan secara fleksibel dan sesuai template dari Permendagri. Sistem ini memiliki beberapa fitur utama yaitu, Manajemen User, Manajemen Pejabat, Manajemen Jenis Inventaris, Manajemen Aset Desa, dan Export Data. Selain itu terdapat beberapa fitur pendukung untuk master data yaitu, ruangan, dropdown dan bidang. Berikut penjelasan mengenai setiap fitur yang ada di sistem:
+
+A. Fitur Manajemen User
+Fitur Manajemen User merupakan fitur untuk mengelola data user. Data user ini dibuat agar user terkait memiliki akun untuk login ke sistem manajemen aset. Pengelolaan data user yang dapat dilakukan di sistem adalah melihat list user, membuat user, mengedit user, melihat detail data dan menghapus data dari user. Pada fitur ini terdapat role yang dapat dipilih pada sistem, yaitu:
+- Super Admin, role yang memiliki semua hak akses di semua fitur pada sistem manajemen aset, mulai dari melihat list data, menambahkan data, mengedit data, melihat detail data dan menghapus data.
+- Admin, role yang hanya memiliki beberapa hak akses pada sistem manajemen aset. Saat ini role Admin memiliki beberapa kategori lagi yaitu Sekretaris Desa, Kaur, Perbekel, Kasi, Kelian Banjar dan Staf. Role ini memiliki hak akses untuk melihat list data dan detail data khusus di fitur yang termasuk master data seperti fitur manajemen user, manajemen pejabat, manajemen jenis inventaris, ruangan, dropdown dan bidang. Selain itu role Admin memiliki hak akses untuk melihat list data, menambah data, memperbarui data, melihat detail data dan menghapus data pada fitur manajemen aset.
+
+Hak akses lainnya yang bisa dilakukan oleh role Super Admin dan Admin adalah untuk melakukan export data baik itu format excel maupun format pdf. Alur penggunaan fitur manajemen user akan dijelaskan sebagai berikut:
+
+1. Melihat List User
+Pada sidebar di sebelah kiri silakan klik Users untuk melihat list user di sistem manajemen aset. Pada list ini terdapat beberapa informasi yaitu total users, user aktif, user tidak aktif dan admin. Selain itu, terdapat searching field untuk mencari users, di sebelahnya terdapat kotak filter untuk memudahkan pencarian data dan terdapat tombol tambah user untuk menambahkan user.
+Kemudian terdapat tabel yang memiliki beberapa informasi yaitu nomor, user yang berisi nama user, username user, role user, status user apakah aktif atau tidak dan aksi yang terdiri dari tiga icon. Icon mata ketika di klik akan berpindah ke halaman detail dari user, icon pensil ketika diklik akan berpindah ke halaman edit user dan ketika icon tong sampah di klik akan menghapus data. Selain itu, kotak kosong atau checkbox yang letaknya di sebelah kiri informasi nomor berfungsi untuk menghapus lebih dari 1 data.
+
+2. Menambah User
+Untuk menambahkan data user baru ke dalam sistem, silakan klik tombol "+ Tambah User" yang berada di bagian kanan atas halaman list user. Setelah diklik, sistem akan menampilkan form untuk mengisi data user baru. Pada form ini, terdapat beberapa kolom inputan yang wajib diisi dan memiliki ketentuan tertentu, yaitu:
+- Nama Lengkap: Masukkan nama lengkap dari user yang akan dibuat (minimal terdiri dari 3 karakter, serta hanya boleh berisi huruf, spasi, titik, dan koma).
+- Username: Masukkan username unik yang akan digunakan oleh user untuk login (minimal 3 karakter, diawali dengan huruf, dan hanya boleh berisi huruf/angka dengan pemisah titik, strip, atau underscore di tengah).
+- Password: Masukkan kata sandi aman untuk login (minimal terdiri dari 8 karakter).
+- Konfirmasi Password: Masukkan kembali password yang sama untuk memastikan tidak ada kesalahan mengetik.
+- Role: Pilih peran atau jabatan user dari pilihan dropdown yang disediakan (Super Admin, Sekretaris Desa, Kaur, Kasi, Kelian Banjar, Staf, atau Perbekel).
+- Status Akun: Pilih status keaktifan akun user, yaitu Aktif atau Tidak Aktif.
+- Alamat: Masukkan alamat rumah dari user (opsional).
+
+Selain kolom inputan di atas, terdapat inputan relasi khusus yang akan muncul secara dinamis sesuai dengan role yang Anda pilih:
+- Jika memilih role Kaur, Kasi, atau Staf, maka Anda wajib memilih "Bidang" dari dropdown master data bidang yang muncul.
+- Jika memilih role Kelian Banjar, maka Anda wajib memilih "Dinas" dari dropdown master data dinas yang muncul.
+
+Kemudian, terdapat kotak centang (checkbox) "Buat Data Pejabat Terkait" jika user ini juga merupakan pejabat desa yang berwenang menandatangani dokumen laporan resmi. Setelah dicentang, akan muncul kolom tambahan berupa Nama Pejabat (otomatis terisi dari Nama Lengkap namun bisa diubah), Jabatan Pejabat (otomatis terisi sesuai role), Tugas Pejabat, Alamat Pejabat, status Apakah Petugas Barang (checkbox opsional), serta tombol unggah file tanda tangan (format file wajib PNG atau JPG dengan ukuran maksimal 5MB).
+
+Setelah semua data dipastikan terisi dengan benar, klik tombol "Simpan Data" untuk mendaftarkan user baru tersebut ke dalam sistem. Jika ingin membatalkan pendaftaran, silakan klik tombol "Kembali" atau "Batal".
+
+3. Mengedit User
+Untuk mengubah atau memperbarui data user yang sudah terdaftar di sistem, Anda dapat mengklik icon pensil pada kolom aksi di tabel list user, atau klik tombol "Edit User" yang berada di halaman detail data user. Sistem akan menampilkan form edit user yang sudah terisi dengan data lama dari user tersebut.
+Anda dapat mengubah data nama lengkap, username, alamat, role, bidang, dinas, status keaktifan, maupun data pejabat terkait. Khusus untuk password, apabila Anda tidak ingin mengubah password lama dari user tersebut, Anda dapat mengosongkan kolom password dan kolom konfirmasi password. Namun, jika Anda ingin mengubahnya, silakan masukkan password baru minimal 8 karakter pada kedua kolom tersebut.
+Setelah selesai melakukan perubahan data, klik tombol "Simpan Perubahan" untuk menyimpan data terbaru ke dalam sistem. Jika ingin membatalkan perubahan, klik tombol "Kembali".
+
+4. Melihat Detail Data User
+Untuk melihat informasi lengkap mengenai data user, klik icon mata pada kolom aksi di tabel list user. Sistem akan mengarahkan Anda ke halaman detail data user. Pada halaman ini, terdapat informasi lengkap mengenai user seperti Nama Lengkap, Username, Alamat, Role, Status Akun (Aktif/Tidak Aktif), tanggal akun Dibuat, tanggal Diperbarui, serta waktu Terakhir Login (jika user bersangkutan pernah masuk ke sistem).
+Di bagian atas informasi detail, terdapat tombol aksi berupa tombol "Kembali" untuk kembali ke list user, tombol "Edit User" untuk berpindah ke halaman edit, dan tombol "Hapus User" untuk menghapus data.
+Khusus untuk role Super Admin, pada halaman detail data user lain akan muncul card tambahan berisi tombol Toggle Switch (sakelar geser) status akun. Melalui tombol ini, Super Admin dapat menonaktifkan akun user secara instan sehingga user tidak dapat login, atau mengaktifkannya kembali untuk memulihkan akses tanpa harus masuk ke halaman edit.
+Apabila user terkait memiliki data pejabat yang terhubung, akan tampil pula card "Pejabat Terkait" yang menampilkan informasi Nama Pejabat, Jabatan, dan Tugasnya, lengkap dengan tombol "Lihat Detail" untuk melihat data lengkap pejabat tersebut.
+
+5. Menghapus Data User
+Untuk menghapus data user dari sistem, Anda dapat melakukannya dengan dua cara, yaitu menghapus satu data atau menghapus banyak data sekaligus.
+Untuk menghapus satu data user, Anda dapat mengklik icon tong sampah merah pada kolom aksi di tabel list user, atau klik tombol "Hapus User" di halaman detail data user. Untuk menghapus beberapa data user sekaligus, Anda dapat mencentang checkbox di sebelah kiri nomor pada baris user yang ingin Anda hapus, kemudian klik tombol "Hapus Data Terseleksi" (icon tong sampah merah besar yang muncul di bagian atas tabel).
+Setelah tombol hapus diklik, sistem akan memunculkan pop-up modal konfirmasi keamanan. Silakan klik tombol "Ya, Hapus" untuk mengonfirmasi tindakan, atau klik "Batal" jika ingin membatalkannya.
+
+Demi menjaga keamanan data di sistem, terdapat beberapa aturan pembatasan penghapusan (system guard) yang diterapkan oleh sistem, yaitu:
+- Super Admin utama tidak dapat dihapus oleh siapapun agar sistem tidak kehilangan administrator utama.
+- User yang masih terhubung dengan data Pejabat tidak dapat dihapus secara langsung. Anda harus menghapus pejabat terkait terlebih dahulu di menu pejabat sebelum menghapus user tersebut.
+- User yang tercatat pernah membuat data aset/inventaris desa tidak dapat dihapus untuk menjaga riwayat pembuat aset di sistem. Anda harus mengalihkan pembuat aset tersebut ke akun lain atau menghapus aset terkait terlebih dahulu sebelum dapat menghapus user ini.

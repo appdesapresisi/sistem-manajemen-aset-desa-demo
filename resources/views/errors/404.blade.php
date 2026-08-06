@@ -1,0 +1,12 @@
+@extends('errors.layout')
+
+@section('title', '404 - Halaman Tidak Ditemukan')
+@section('status_code', '404')
+@section('status_variant', 'info')
+@section('status_title', 'Halaman yang Anda cari tidak ditemukan')
+@section('status_message', 'Alamat yang Anda buka mungkin salah, sudah dipindahkan, atau memang tidak tersedia lagi di sistem.')
+@section('status_hint', 'Periksa URL yang Anda masukkan, atau kembali ke dashboard untuk melanjutkan pekerjaan dari menu utama.')
+@section('hero_title', 'Navigasi terputus di tengah alur')
+@section('hero_message', 'Sistem tidak menemukan tujuan yang diminta, tetapi sesi Anda tetap aman dan Anda bisa kembali ke jalur utama kapan saja.')
+@section('primary_action_label', 'Ke Dashboard')
+@section('primary_action_url', auth()->check() ? route('dashboard') : route('login'))

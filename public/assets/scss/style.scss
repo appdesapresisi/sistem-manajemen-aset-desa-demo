@@ -1,0 +1,214 @@
+/* (Removed earlier center-everything rule to keep box positioning stable) */
+/* Mobile: Perbesar dan center icon KPI di pojok kanan bawah */
+@media (max-width: 430px) {
+	.pc-content .grid.grid-cols-12 > .col-span-6 {
+		grid-column: 1 / -1 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		display: block !important;
+	}
+	.pc-content .grid.grid-cols-12 > .col-span-6 .kpi-card {
+		padding: 18px 18px 24px 18px !important;
+		position: relative;
+		min-height: 120px;
+	}
+	.pc-content .grid.grid-cols-12 > .col-span-6 .kpi-card-icon {
+		position: absolute !important;
+		right: 18px !important;
+		bottom: 18px !important;
+		width: 64px !important;
+		height: 64px !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		border-radius: 16px !important;
+		box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+		background: inherit;
+		z-index: 2;
+	}
+	.pc-content .grid.grid-cols-12 > .col-span-6 .kpi-card-icon i {
+		width: 32px !important;
+		height: 32px !important;
+		display: block;
+		margin: 0 auto;
+	}
+}
+
+@import url('plugins/simplebar.min.css');
+@import 'themes/tailwind';
+
+.px-25px {
+	padding-left: 25px !important;
+	padding-right: 25px !important;
+}
+
+.px-16px {
+	padding-left: 16px !important;
+	padding-right: 16px !important;
+}
+
+.card-header.px-25px {
+	padding-left: 25px !important;
+	padding-right: 25px !important;
+}
+
+.card-header.px-16px {
+	padding-left: 16px !important;
+	padding-right: 16px !important;
+}
+
+.p-\[5px_-\] {
+	padding: 5px 0 !important;
+}
+
+/* Responsive tables: wrap tables in a horizontal-scroll container on small screens
+	 We intentionally only add styling for the responsive wrapper so appearance
+	 remains unchanged on larger screens. */
+@media (max-width: 991px) {
+	.table-responsive {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		-ms-overflow-style: -ms-autohiding-scrollbar;
+		width: 100%;
+	}
+
+	/* Ensure table content keeps its natural layout and allows horizontal scrolling */
+	.table-responsive table {
+		width: 100%;
+		min-width: 700px;
+		border-collapse: collapse;
+	}
+
+	/* Prevent cells from wrapping so columns remain readable and the table can scroll */
+	.table-responsive th,
+	.table-responsive td {
+		white-space: nowrap;
+	}
+}
+
+/* Additional small-screen refinements for form buttons, kondisi options, footer, and KPI cards */
+@media (max-width: 480px) {
+	/* Form action buttons: slightly smaller padding and stacked if needed */
+	.form-actions {
+		flex-wrap: wrap;
+		gap: 8px;
+		padding-top: 14px;
+	}
+	.form-actions-left, .form-actions-right {
+		width: 100%;
+		display: flex;
+		gap: 8px;
+		justify-content: flex-start;
+	}
+	.form-actions-right {
+		justify-content: flex-end;
+	}
+	.form-actions .btn-cancel,
+	.form-actions .btn-draft,
+	.form-actions .btn-submit {
+		padding: 8px 12px !important;
+		font-size: 14px !important;
+		border-radius: 8px;
+	}
+	.form-actions .btn-submit i,
+	.form-actions .btn-draft i {
+		width: 16px;
+		height: 16px;
+	}
+
+	/* Kondisi options: make first two share a row equally and keep the third full width */
+	.kondisi-group { gap: 8px; }
+	.kondisi-option { flex: 0 1 calc(50% - 8px); min-width: 0; }
+	.kondisi-option.rusak-berat { flex-basis: 100%; }
+	.kondisi-option label { padding: 10px 12px; font-size: 14px; }
+
+	/* Footer: keep build/version aligned with left text on small screens */
+	.pc-footer .footer-wrapper .grid {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+	}
+	.pc-footer .footer-wrapper .grid > div { width: auto; }
+
+	/* KPI/Card icons: reduce icon size so they don't overflow in narrow cards */
+	.kpi-card-icon { width: 44px; height: 44px; }
+	.kpi-card-icon i { width: 18px; height: 18px; }
+	.kpi-card-value { font-size: 22px; }
+	.kpi-card-label { font-size: 11px; }
+}
+
+/* Make the four top KPI cards span full width on small phones (e.g. iPhone Xs Max)
+	 so they become visually larger like the Kondisi Aset panel. Target only the
+	 first grid inside .pc-content (the KPI row) to avoid affecting other grids. */
+@media (max-width: 420px) {
+	.pc-content .grid.grid-cols-12:first-of-type > .col-span-6 {
+		grid-column: span 12 !important;
+		width: 100%;
+	}
+	/* Make KPI cards taller and move icon inside the flow so it never overflows */
+	.pc-content .grid.grid-cols-12:first-of-type .kpi-card {
+		padding: 18px;
+	}
+	.pc-content .grid.grid-cols-12:first-of-type .kpi-card > .flex {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+	}
+	.pc-content .grid.grid-cols-12:first-of-type .kpi-card-value { font-size: 24px; }
+	.pc-content .grid.grid-cols-12:first-of-type .kpi-card-icon {
+		width:48px;
+		height:48px;
+		margin-top: 6px;
+		align-self: flex-end;
+	}
+	.pc-content .grid.grid-cols-12:first-of-type .kpi-card-icon i { width:22px; height:22px; }
+
+	/* Make all kondisi options full width and equal height on small screens */
+	.kondisi-group { display: flex; flex-direction: column; gap: 8px; }
+	.kondisi-option { flex: 0 0 auto; width: 100%; min-width: 0; }
+	.kondisi-option label { padding: 12px 14px; min-height: 56px; justify-content: center; }
+}
+
+/* Strong override for small phones (iPhone XS Max ~414px) to force KPI cards
+	 into a single-column stack. Uses !important to override utility classes
+	 or inline styles created by templates. */
+@media (max-width: 430px) {
+	.pc-content .grid.grid-cols-12 > .col-span-6 {
+		grid-column: 1 / -1 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		display: block !important;
+	}
+
+	.pc-content .grid.grid-cols-12 > .col-span-6 .kpi-card {
+		padding: 16px !important;
+	}
+
+	/* Force internal layout to stack so icons never overflow to the right */
+	.pc-content .grid.grid-cols-12 > .col-span-6 .flex.items-start.justify-between,
+	.pc-content .grid.grid-cols-12 > .col-span-6 .flex.items-start.justify-between > div {
+		flex-direction: column !important;
+		align-items: flex-start !important;
+	}
+
+	.pc-content .grid.grid-cols-12 > .col-span-6 .kpi-card-icon {
+		position: static !important;
+		margin-top: 8px !important;
+		align-self: flex-end !important;
+		width: 44px !important;
+		height: 44px !important;
+	}
+
+	.pc-content .grid.grid-cols-12 > .col-span-6 .kpi-card-icon i {
+		width: 20px !important;
+		height: 20px !important;
+	}
+
+	.pc-content .grid.grid-cols-12 > .col-span-6 .kpi-card-value {
+		font-size: 22px !important;
+		line-height: 1.1 !important;
+	}
+}
+
+

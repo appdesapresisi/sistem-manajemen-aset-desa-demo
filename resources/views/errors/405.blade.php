@@ -1,0 +1,10 @@
+@extends('errors.layout')
+
+@section('title', '405 - Metode Tidak Diizinkan')
+@section('status_code', '405')
+@section('status_variant', 'warning')
+@section('status_title', 'Aksi tidak bisa dijalankan dari halaman ini')
+@section('status_message', 'Metode permintaan tidak sesuai dengan alur halaman saat ini.')
+@section('status_hint', 'Silakan kembali ke halaman aman (Dashboard/Login), lalu ulangi proses dari awal agar token dan metode request sesuai.')
+@section('primary_action_label', 'Ke Halaman Aman')
+@section('secondary_action_label', 'Kembali')

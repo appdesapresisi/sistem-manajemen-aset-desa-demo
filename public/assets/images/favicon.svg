@@ -1,0 +1,18 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="40" height="40" rx="10" fill="url(#paint0_linear_demo_fav)"/>
+<g clip-path="url(#clip0_demo_fav)">
+<!-- Building Icon for Desa -->
+<path d="M12 30H28V16L20 11L12 16V30Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 30V22H24V30" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 17H18M22 17H24M16 21H18M22 21H24" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_demo_fav" x1="36" y1="4" x2="4" y2="36" gradientUnits="userSpaceOnUse">
+<stop stop-color="#2563eb"/>
+<stop offset="1" stop-color="#1d4ed8"/>
+</linearGradient>
+<clipPath id="clip0_demo_fav">
+<rect width="24" height="24" fill="white" transform="translate(8 8)"/>
+</clipPath>
+</defs>
+</svg>

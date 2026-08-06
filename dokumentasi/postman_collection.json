@@ -1,0 +1,585 @@
+{
+	"info": {
+		"_postman_id": "7ae8d2c0-8a4b-4b1f-9de2-9844e15b5e7d",
+		"name": "Sistem Manajemen Aset Desa Demo API",
+		"description": "Koleksi Postman untuk mengakses endpoint API internal dan eksternal pada Sistem Manajemen Aset Desa Demo.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Autentikasi & Token (External API)",
+			"item": [
+				{
+					"name": "Buat Token Akses (Login)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin_demo\",\n    \"password\": \"password_rahasia\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/external/token",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"external",
+								"token"
+							]
+						},
+						"description": "Menukarkan username dan password dengan Bearer Token untuk otentikasi client eksternal."
+					},
+					"response": []
+				},
+				{
+					"name": "Hapus Token Akses (Logout)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/external/token",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"external",
+								"token"
+							]
+						},
+						"description": "Revoke/menghapus token akses eksternal yang sedang digunakan."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoint pembuatan dan penghapusan token akses Bearer Sanctum."
+		},
+		{
+			"name": "External API (Read-Only)",
+			"item": [
+				{
+					"name": "Daftar Semua Aset (Inventaris)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/external/inventaris?search=&jenis_inventaris_id=&kondisi=&tahun=&ruangan_id=&page=1&per_page=15",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"external",
+								"inventaris"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "",
+									"description": "Cari berdasarkan nama barang, kode, atau NUP"
+								},
+								{
+									"key": "jenis_inventaris_id",
+									"value": "",
+									"description": "Filter berdasarkan ID Kategori Jenis"
+								},
+								{
+									"key": "kondisi",
+									"value": "",
+									"description": "baik / rusak_ringan / rusak_berat"
+								},
+								{
+									"key": "tahun",
+									"value": "",
+									"description": "Filter tahun perolehan"
+								},
+								{
+									"key": "ruangan_id",
+									"value": "",
+									"description": "Filter berdasarkan ID Ruangan"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "15"
+								}
+							]
+						},
+						"description": "Mendapatkan daftar seluruh aset desa yang terdaftar dengan paginasi, pencarian, dan filter."
+					},
+					"response": []
+				},
+				{
+					"name": "Detail Satu Aset",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/external/inventaris/12",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"external",
+								"inventaris",
+								"12"
+							]
+						},
+						"description": "Mengambil informasi detail satu aset berdasarkan ID, termasuk data foto dan nilai field dinamis."
+					},
+					"response": []
+				},
+				{
+					"name": "Daftar Kategori (Jenis Inventaris)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/external/jenis-inventaris",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"external",
+								"jenis-inventaris"
+							]
+						},
+						"description": "Mendapatkan daftar semua jenis/kategori aset beserta jumlah unit di dalamnya."
+					},
+					"response": []
+				},
+				{
+					"name": "Daftar Ruangan",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/external/ruangan",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"external",
+								"ruangan"
+							]
+						},
+						"description": "Mendapatkan daftar semua ruangan di kantor desa beserta jumlah aset di dalamnya."
+					},
+					"response": []
+				},
+				{
+					"name": "Daftar Pejabat Desa",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/external/pejabat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"external",
+								"pejabat"
+							]
+						},
+						"description": "Mendapatkan daftar nama pejabat desa aktif beserta jabatannya."
+					},
+					"response": []
+				},
+				{
+					"name": "Statistik Aset Desa",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/external/statistik",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"external",
+								"statistik"
+							]
+						},
+						"description": "Mengambil ringkasan statistik cepat mengenai total nilai perolehan, jumlah aset, dan perbandingan kondisi."
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{bearer_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"description": "Kumpulan API Read-Only yang dilindungi oleh Bearer Token Sanctum."
+		},
+		{
+			"name": "Internal API (Dashboard & Utility)",
+			"item": [
+				{
+					"name": "Informasi User Login",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user"
+							]
+						},
+						"description": "Mengambil informasi profile user web internal yang sedang login."
+					},
+					"response": []
+				},
+				{
+					"name": "Dashboard KPI Metrics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/dashboard/kpi",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dashboard",
+								"kpi"
+							]
+						},
+						"description": "Mengambil data rangkuman KPI Dashboard internal."
+					},
+					"response": []
+				},
+				{
+					"name": "Dashboard Charts Data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/dashboard/charts?bar_metric=nilai&donut_metric=jumlah&rentang=6&semester=1&trend_tahun=2026",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dashboard",
+								"charts"
+							],
+							"query": [
+								{
+									"key": "bar_tahun",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "bar_kondisi",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "bar_metric",
+									"value": "nilai"
+								},
+								{
+									"key": "donut_tahun",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "donut_kondisi",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "donut_metric",
+									"value": "jumlah"
+								},
+								{
+									"key": "rentang",
+									"value": "6"
+								},
+								{
+									"key": "semester",
+									"value": "1"
+								},
+								{
+									"key": "jenis_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "kondisi_trend",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "trend_tahun",
+									"value": "2026"
+								}
+							]
+						},
+						"description": "Mengambil data grafik kompilasi untuk dashboard."
+					},
+					"response": []
+				},
+				{
+					"name": "Log Aktivitas Terbaru",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/dashboard/activities",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dashboard",
+								"activities"
+							]
+						},
+						"description": "Daftar 10 aktivitas log terbaru."
+					},
+					"response": []
+				},
+				{
+					"name": "Riwayat Ekspor Data Terbaru",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/dashboard/exports",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dashboard",
+								"exports"
+							]
+						},
+						"description": "Daftar 10 riwayat ekspor data."
+					},
+					"response": []
+				},
+				{
+					"name": "Pencarian Kode Barang Hierarki",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/kb/search?q=laptop&level=5",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"kb",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "laptop"
+								},
+								{
+									"key": "level",
+									"value": "5"
+								},
+								{
+									"key": "parent_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "ancestor_kode",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Pencarian autocomplete kode barang."
+					},
+					"response": []
+				},
+				{
+					"name": "Dynamic Fields Form Builder",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/jenis-inventaris/3/fields",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"jenis-inventaris",
+								"3",
+								"fields"
+							]
+						},
+						"description": "Mengambil parameter dinamis formulir tambahan sesuai kategori jenis inventaris (KIB)."
+					},
+					"response": []
+				},
+				{
+					"name": "Daftar Dropdown Ruangan",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/ruangan",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ruangan"
+							]
+						},
+						"description": "Daftar ruangan untuk select input."
+					},
+					"response": []
+				}
+			],
+			"description": "Kumpulan API internal yang menggunakan cookie session auth (harus login di browser terlebih dahulu)."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "bearer_token",
+			"value": "masukkan_token_api_di_sini",
+			"type": "string"
+		}
+	]
+}

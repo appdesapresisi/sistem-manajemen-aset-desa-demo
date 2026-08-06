@@ -1,0 +1,12 @@
+@extends('errors.layout')
+
+@section('title', '419 - Sesi Form Berakhir')
+@section('status_code', '419')
+@section('status_variant', 'warning')
+@section('status_title', 'Sesi formulir Anda telah berakhir')
+@section('status_message', 'Permintaan tidak dapat diproses karena token keamanan formulir sudah tidak berlaku lagi.')
+@section('status_hint', 'Silakan buka ulang dari halaman aman (Dashboard/Login), lalu lakukan aksi kembali. Ini biasanya terjadi jika halaman dibiarkan terbuka terlalu lama.')
+@section('hero_title', 'Token keamanan sudah kadaluarsa')
+@section('hero_message', 'Sistem memakai token sesi untuk memastikan setiap submit form berasal dari proses yang masih valid dan aman.')
+@section('primary_action_label', 'Ke Halaman Aman')
+@section('secondary_action_label', 'Kembali')

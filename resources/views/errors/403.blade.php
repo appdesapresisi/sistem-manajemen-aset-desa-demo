@@ -1,0 +1,12 @@
+@extends('errors.layout')
+
+@section('title', '403 - Akses Ditolak')
+@section('status_code', '403')
+@section('status_variant', 'warning')
+@section('status_title', 'Akses ke halaman ini ditolak')
+@section('status_message', 'Akun Anda tidak memiliki izin untuk membuka halaman atau menjalankan aksi ini.')
+@section('status_hint', 'Periksa kembali hak akses Anda. Jika seharusnya Anda bisa mengakses halaman ini, hubungi administrator sistem.')
+@section('hero_title', 'Hak akses dibatasi untuk menjaga integritas data')
+@section('hero_message', 'Beberapa area hanya dapat dibuka oleh peran tertentu agar proses persetujuan dan pengelolaan aset tetap terkendali.')
+@section('primary_action_label', 'Ke Dashboard')
+@section('primary_action_url', route('dashboard'))
