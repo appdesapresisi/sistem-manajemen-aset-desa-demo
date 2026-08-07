@@ -220,8 +220,8 @@
 
       /* Info box */
       .info-box {
-        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-        border: 1px solid #fbbf24;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 1px solid #93c5fd;
         border-radius: 8px;
         padding: 12px 16px;
         display: flex;
@@ -231,15 +231,15 @@
       }
       .info-box i,
       .info-box svg {
-        color: #d97706 !important;
-        stroke: #d97706 !important;
+        color: #1e40af !important;
+        stroke: #1e40af !important;
         flex-shrink: 0;
         width: 18px;
         height: 18px;
       }
       .info-box-text {
         font-size: 13px;
-        color: #92400e;
+        color: #1e40af;
         line-height: 1.5;
       }
 
@@ -694,7 +694,7 @@
                     </label>
 
                     <div class="info-box" style="margin-top:12px;">
-                      <i data-feather="info" style="color:#d97706 !important;stroke:#d97706 !important;"></i>
+                      <i data-feather="info" style="color:#1e40af !important;stroke:#1e40af !important;width:18px;height:18px;flex-shrink:0;"></i>
                       <div class="info-box-text">
                         <strong>Catatan:</strong> Jika user adalah pejabat, maka data pejabat dan user akan dibuat bersamaan.
                       </div>

@@ -1161,12 +1161,18 @@
                     border-bottom: 1px solid #f3f4f6;
                     text-align: center;
                   }
-                  .kondisi-inventory-table td:nth-child(2) {
-                    text-align: left;
+                  .kondisi-inventory-table td:nth-child(1) {
                     font-weight: 600;
                     color: #064635;
                   }
-                  .kondisi-inventory-table td:nth-child(1) {
+                  .kondisi-inventory-table td:nth-child(2) {
+                    text-align: left;
+                    font-weight: 500;
+                    color: #374151;
+                  }
+                  .kondisi-inventory-table td:nth-child(3),
+                  .kondisi-inventory-table td:nth-child(4),
+                  .kondisi-inventory-table td:nth-child(5) {
                     font-weight: 600;
                     color: #064635;
                   }

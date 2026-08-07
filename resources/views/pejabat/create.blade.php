@@ -272,8 +272,8 @@
         margin-top: 16px;
       }
       .info-box i {
-        color: #d97706 !important;
-        stroke: #d97706 !important;
+        color: #1e40af !important;
+        stroke: #1e40af !important;
         flex-shrink: 0;
         width: 18px;
         height: 18px;
@@ -422,7 +422,7 @@
                   @csrf
 
                   <div class="info-box" style="margin-bottom:16px;">
-                    <i data-feather="info" style="color:#d97706 !important;stroke:#d97706 !important;"></i>
+                    <i data-feather="info" style="color:#1e40af !important;stroke:#1e40af !important;width:18px;height:18px;flex-shrink:0;"></i>
                     <div class="info-box-text">
                       <strong>Catatan:</strong> Data pejabat ini akan digunakan pada fitur Export Data untuk menandatangani dokumen resmi seperti Buku Inventaris Aset Desa, Laporan Inventaris, dan dokumen lainnya.
                     </div>

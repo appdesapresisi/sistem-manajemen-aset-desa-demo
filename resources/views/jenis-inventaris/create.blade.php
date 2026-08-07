@@ -441,9 +441,10 @@
         gap: 10px;
         margin-top: 16px;
       }
-      .info-box i {
-        color: #d97706 !important;
-        stroke: #d97706 !important;
+      .info-box i,
+      .info-box svg {
+        color: #1e40af !important;
+        stroke: #1e40af !important;
         flex-shrink: 0;
         width: 18px;
         height: 18px;
@@ -1165,7 +1166,7 @@
                     </div>
 
                     <div class="info-box">
-                      <i data-feather="info" style="color:#d97706 !important;stroke:#d97706 !important;"></i>
+                      <i data-feather="info" style="color:#1e40af !important;stroke:#1e40af !important;width:18px;height:18px;flex-shrink:0;"></i>
                       <div class="info-box-text">
                         <strong>Catatan:</strong> Pejabat yang sudah dipilih disini bisa diubah lagi saat diperlukan. Urutan pejabat dipilih akan menentukan posisi tanda tangan pada dokumen export.
                       </div>
