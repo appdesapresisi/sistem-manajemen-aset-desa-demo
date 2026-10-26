@@ -95,12 +95,16 @@ class LoginController extends Controller
                 'success' => false,
                 'message' => $errorMessage,
                 'errors' => [
-                    'username' => [$errorMessage]
+                    'username' => [$errorMessage],
+                    'password' => [$errorMessage],
                 ]
             ], 422);
         }
 
-        return back()->withErrors(['username' => $errorMessage])->withInput();
+        return back()->withErrors([
+            'username' => $errorMessage,
+            'password' => $errorMessage,
+        ])->withInput();
     }
 
     public function logout(Request $request)

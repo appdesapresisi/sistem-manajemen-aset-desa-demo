@@ -142,7 +142,7 @@
         canvasCtx.lineJoin = 'round';
         canvasCtx.lineCap = 'round';
         canvasCtx.lineWidth = 2.4;
-        canvasCtx.strokeStyle = '#111827';
+        canvasCtx.strokeStyle = '#16251b';
       }
 
       function clearCanvasSignature() {
@@ -285,7 +285,7 @@
 
       uploadArea.addEventListener('dragover', function(e) {
         e.preventDefault();
-        this.style.borderColor = '#064635';
+        this.style.borderColor = '#1f3a2a';
         this.style.background = '#f0f4ff';
       });
 

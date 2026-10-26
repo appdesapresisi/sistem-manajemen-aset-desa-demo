@@ -5,19 +5,19 @@
     @include('layouts.head-css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-      /* Form Styling */
+      /* Form Styling - SIMA Standard */
       .form-section {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 20px;
+        background: var(--color-surface);
+        border-radius: var(--radius-lg);
+        padding: 24px;
         margin-bottom: 20px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--color-border);
       }
       .form-section-title {
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 600;
-        color: #064635;
-        margin-bottom: 16px;
+        color: var(--color-text);
+        margin-bottom: 18px;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -27,17 +27,17 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 28px;
-        height: 28px;
-        min-width: 28px;
-        border-radius: 7px;
-        background: linear-gradient(135deg, #064635 0%, #519259 100%);
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        border-radius: var(--radius-sm);
+        background: var(--color-primary);
         flex-shrink: 0;
       }
       .form-section-title .section-icon-box i,
       .form-section-title .section-icon-box svg {
-        width: 14px;
-        height: 14px;
+        width: 15px;
+        height: 15px;
         color: #fff !important;
         stroke: #fff !important;
         margin: 0;
@@ -47,68 +47,154 @@
         flex-direction: column;
       }
       .form-section-desc {
-        font-size: 11px;
-        color: #6b7280;
+        font-size: 12px;
+        color: var(--color-text-muted);
         margin-top: 2px;
         font-weight: 400;
         line-height: 1.4;
       }
       .form-grid {
         display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px 24px;
       }
       .form-grid-2 {
         display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px 24px;
+      }
+      .form-full,
+      .form-group.form-full,
+      .col-span-2 {
+        grid-column: 1 / -1;
+      }
+      @media (max-width: 768px) {
+        .form-grid,
+        .form-grid-2 {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+        .form-full,
+        .form-group.form-full,
+        .col-span-2 {
+          grid-column: auto;
+        }
       }
       .form-group {
         margin-bottom: 0;
       }
       .form-label {
-        font-weight: 500;
-        font-size: 13px;
-        color: #374151;
-        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 13.5px;
+        color: var(--color-text);
+        margin-bottom: 8px;
         display: block;
       }
       .form-label .required {
-        color: #ef4444;
+        color: #D9383A;
+        font-weight: 700;
         margin-left: 2px;
       }
       .form-label .optional {
-        color: #9ca3af;
+        color: var(--color-text-muted);
         font-weight: 400;
-        font-size: 11px;
+        font-size: 12px;
         margin-left: 4px;
       }
-      .form-control, .form-select {
+      .form-control {
         width: 100%;
-        padding: 10px 14px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
+        height: 46px;
+        padding: 0 16px;
+        border: 1.5px solid var(--color-border);
+        border-radius: 10px;
         font-size: 14px;
-        transition: all 0.2s ease;
-        background: #fff;
+        transition: border-color 0.2s ease;
+        background: var(--color-surface);
+        color: var(--color-text);
+        box-shadow: none !important;
       }
-      .form-control:focus, .form-select:focus {
-        outline: none;
-        border-color: #064635;
-        box-shadow: 0 0 0 3px rgba(6, 70, 53, 0.1);
+      .form-control:focus {
+        outline: none !important;
+        border-color: var(--color-primary) !important;
+        box-shadow: none !important;
+      }
+      .form-control.is-invalid, textarea.form-control.is-invalid, .form-select.is-invalid {
+        border-color: #E53935 !important;
+        box-shadow: none !important;
+      }
+      .invalid-feedback-custom {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: #D9383A;
+        margin-top: 6px;
+        line-height: 1.4;
+      }
+      .invalid-feedback-custom svg {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
+        margin-top: 2px;
       }
       .form-control::placeholder {
-        color: #9ca3af;
+        color: var(--color-text-muted);
+        opacity: 0.65;
       }
       .form-hint {
         font-size: 12px;
-        color: #6b7280;
-        margin-top: 4px;
+        color: var(--color-text-muted);
+        margin-top: 6px;
       }
+      /* Custom SIMA Checkbox Styling */
+      #copy-enabled.sima-checkbox,
+      input[type="checkbox"].sima-checkbox {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        min-height: 18px !important;
+        border: 1.5px solid var(--color-border, #cfdcc8) !important;
+        border-radius: 5px !important;
+        background-color: var(--color-surface, #f8faf7) !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: relative !important;
+        vertical-align: middle !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        transition: all 0.15s ease-in-out !important;
+      }
+      #copy-enabled.sima-checkbox:hover,
+      input[type="checkbox"].sima-checkbox:hover {
+        border-color: var(--color-primary, #1f3a2a) !important;
+        background-color: var(--color-row-hover, #eff5ed) !important;
+      }
+      #copy-enabled.sima-checkbox:checked,
+      input[type="checkbox"].sima-checkbox:checked {
+        background-color: var(--color-primary, #1f3a2a) !important;
+        border-color: var(--color-primary, #1f3a2a) !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.8' d='M4.5 10.5l3.8 3.8L15.5 6'/%3e%3c/svg%3e") !important;
+        background-size: 70% 70% !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
+      }
+      #copy-enabled.sima-checkbox:focus-visible,
+      input[type="checkbox"].sima-checkbox:focus-visible {
+        outline: none !important;
+        box-shadow: 0 0 0 2px rgba(31, 58, 42, 0.25) !important;
+      }
+
       .flatpickr-calendar {
         border: 1px solid #e5e7eb;
         border-radius: 10px;
-        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+        box-shadow: none;
         font-family: 'Open Sans', sans-serif;
       }
       .flatpickr-calendar .flatpickr-months {
@@ -167,15 +253,15 @@
       .flatpickr-calendar.month-grid-picker .month-picker-year {
         font-size: 12px;
         font-weight: 700;
-        color: #1f2937;
+        color: var(--color-primary, #1f3a2a);
       }
       .flatpickr-calendar.month-grid-picker .month-picker-nav {
         width: 26px;
         height: 26px;
-        border-radius: 7px;
-        border: 1px solid #d1d5db;
-        background: #fff;
-        color: #374151;
+        border-radius: var(--radius-sm, 6px);
+        border: none;
+        background: transparent;
+        color: var(--color-text, #16251b);
         font-size: 16px;
         line-height: 1;
         display: inline-flex;
@@ -184,7 +270,7 @@
         cursor: pointer;
       }
       .flatpickr-calendar.month-grid-picker .month-picker-nav:hover:not(:disabled) {
-        background: #f3f4f6;
+        background: var(--color-row-hover, #eff5ed);
       }
       .flatpickr-calendar.month-grid-picker .month-picker-nav:disabled {
         opacity: .45;
@@ -196,29 +282,32 @@
         gap: 8px;
       }
       .flatpickr-calendar.month-grid-picker .month-picker-option {
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        background: #fff;
-        color: #374151;
+        border: 1px solid var(--color-border, #cfdcc8);
+        border-radius: var(--radius-sm, 8px);
+        background: var(--color-surface, #f8faf7);
+        color: var(--color-text, #16251b);
         font-size: 12px;
         font-weight: 600;
         padding: 8px 0;
         cursor: pointer;
+        transition: all 0.15s ease;
       }
       .flatpickr-calendar.month-grid-picker .month-picker-option:hover {
-        background: #f3f4f6;
+        background: var(--color-row-hover, #eff5ed);
+        border-color: var(--color-primary, #1f3a2a);
+        color: var(--color-primary, #1f3a2a);
       }
       .flatpickr-calendar.month-grid-picker .month-picker-option.active {
-        background: #1f2937;
-        border-color: #1f2937;
-        color: #fff;
+        background: var(--color-primary, #1f3a2a);
+        border-color: var(--color-primary, #1f3a2a);
+        color: #f8faf7;
       }
       .flatpickr-calendar.date-clean-picker .flatpickr-months {
         padding: 8px 10px 0;
       }
       .flatpickr-calendar.date-clean-picker .flatpickr-prev-month,
       .flatpickr-calendar.date-clean-picker .flatpickr-next-month {
-        border-radius: 7px;
+        border-radius: var(--radius-sm, 6px);
       }
       .flatpickr-calendar.date-clean-picker .flatpickr-day {
         border-radius: 8px;
@@ -227,16 +316,15 @@
       .flatpickr-calendar.date-clean-picker .flatpickr-day.selected,
       .flatpickr-calendar.date-clean-picker .flatpickr-day.startRange,
       .flatpickr-calendar.date-clean-picker .flatpickr-day.endRange {
-        background: #1f2937;
-        border-color: #1f2937;
-        color: #fff;
+        background: var(--color-primary, #1f3a2a);
+        border-color: var(--color-primary, #1f3a2a);
+        color: #f8faf7;
       }
       .flatpickr-calendar.date-clean-picker .flatpickr-day:hover {
-        background: #f3f4f6;
+        background: var(--color-row-hover, #eff5ed);
+        color: var(--color-primary, #1f3a2a);
       }
 
-      /* Modern date picker: header bulan & tahun bisa diklik */
-      /* Sejajarkan header kalender: nav kiri, tengah (bulan+tahun), nav kanan */
       .flatpickr-calendar.date-clean-picker .flatpickr-months {
         display: flex !important;
         align-items: center !important;
@@ -253,19 +341,20 @@
         padding: 0 !important;
         width: 28px !important;
         height: 28px !important;
-        border: 1px solid #e5e7eb !important;
-        border-radius: 6px !important;
-        background: #fff !important;
-        color: #374151 !important;
+        border: none !important;
+        border-radius: var(--radius-sm, 6px) !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        color: var(--color-text, #16251b) !important;
         transition: background 0.15s !important;
       }
       .flatpickr-calendar.date-clean-picker .flatpickr-prev-month:hover,
       .flatpickr-calendar.date-clean-picker .flatpickr-next-month:hover {
-        background: #f3f4f6 !important;
+        background: var(--color-row-hover, #eff5ed) !important;
       }
       .flatpickr-calendar.date-clean-picker .flatpickr-prev-month svg,
       .flatpickr-calendar.date-clean-picker .flatpickr-next-month svg {
-        fill: #374151 !important;
+        fill: var(--color-text, #16251b) !important;
         width: 12px !important;
         height: 12px !important;
       }
@@ -277,7 +366,7 @@
       }
       /* Warna teks nama hari — warna sistem */
       .flatpickr-calendar.date-clean-picker .flatpickr-weekday {
-        color: #064635 !important;
+        color: var(--color-primary, #1f3a2a) !important;
         font-weight: 600 !important;
       }
       .flatpickr-calendar.date-clean-picker .flatpickr-month {
@@ -304,13 +393,13 @@
         border-radius: 6px;
         font-weight: 700;
         font-size: 14px;
-        color: #1f2937;
+        color: var(--color-primary, #1f3a2a);
         transition: background 0.15s;
         user-select: none;
       }
       .flatpickr-calendar.date-clean-picker .cur-month:hover,
       .flatpickr-calendar.date-clean-picker .cur-year-wrap:hover {
-        background: #f3f4f6;
+        background: var(--color-row-hover, #eff5ed);
       }
       /* Sembunyikan wrapper input tahun bawaan flatpickr (termasuk spinner panah) */
       .flatpickr-calendar.date-clean-picker .flatpickr-current-month .numInputWrapper {
@@ -323,19 +412,19 @@
         border-radius: 6px;
         font-weight: 700;
         font-size: 14px;
-        color: #1f2937;
+        color: var(--color-primary, #1f3a2a);
         user-select: none;
         transition: background 0.15s;
       }
       .flatpickr-calendar.date-clean-picker .fp-cur-year:hover {
-        background: #f3f4f6;
+        background: var(--color-row-hover, #eff5ed);
       }
       /* Panel bulan & tahun — mengacu pada tampilan year picker tahun perolehan */
       .fp-month-panel, .fp-year-panel {
         display: none;
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: #fff;
+        background: var(--color-surface, #f8faf7);
         border-radius: inherit;
         padding: 10px;
         z-index: 10;
@@ -353,21 +442,21 @@
       .fp-panel-title {
         font-size: 12px;
         font-weight: 700;
-        color: #1f2937;
+        color: var(--color-primary, #1f3a2a);
       }
-      /* Nav button: kotak dengan border — konsisten dengan acuan year picker */
+      /* Nav button: bersih transparan tanpa kotak border putih */
       .fp-panel-close, .fp-panel-nav {
         width: 26px; height: 26px;
-        border: 1px solid #e5e7eb;
-        background: #fff;
+        border: none;
+        background: transparent;
         font-size: 13px;
         cursor: pointer;
         display: flex; align-items: center; justify-content: center;
-        color: #374151;
-        border-radius: 6px;
+        color: var(--color-text, #16251b);
+        border-radius: var(--radius-sm, 6px);
         transition: background 0.15s;
       }
-      .fp-panel-close:hover, .fp-panel-nav:hover:not(:disabled) { background: #f3f4f6; }
+      .fp-panel-close:hover, .fp-panel-nav:hover:not(:disabled) { background: var(--color-row-hover, #eff5ed); }
       .fp-panel-nav:disabled { opacity: 0.45; cursor: not-allowed; }
       /* Grid 12 item — tidak pakai flex:1 agar tinggi baris proporsional */
       .fp-month-grid, .fp-year-grid {
@@ -378,12 +467,12 @@
         flex: 1;
       }
       .fp-month-btn, .fp-year-btn {
-        border-radius: 8px;
-        border: 1px solid #d1d5db;
-        background: #fff;
+        border-radius: var(--radius-sm, 8px);
+        border: 1px solid var(--color-border, #cfdcc8);
+        background: var(--color-surface, #f8faf7);
         font-size: 12px;
         font-weight: 600;
-        color: #374151;
+        color: var(--color-text, #16251b);
         cursor: pointer;
         text-align: center;
         transition: all 0.15s;
@@ -392,15 +481,23 @@
         justify-content: center;
         padding: 0;
       }
-      .fp-month-btn:hover, .fp-year-btn:hover { background: #f3f4f6; }
+      .fp-month-btn:hover, .fp-year-btn:hover {
+        background: var(--color-row-hover, #eff5ed);
+        border-color: var(--color-primary, #1f3a2a);
+        color: var(--color-primary, #1f3a2a);
+      }
       .fp-month-btn.active, .fp-year-btn.active {
-        background: #1f2937;
-        border-color: #1f2937;
-        color: #fff;
+        background: var(--color-primary, #1f3a2a);
+        border-color: var(--color-primary, #1f3a2a);
+        color: #f8faf7;
       }
       .flatpickr-calendar.year-only-picker {
         width: 236px;
         min-width: 236px;
+        background: var(--color-surface, #f8faf7) !important;
+        border: 1.5px solid var(--color-border, #cfdcc8) !important;
+        border-radius: 14px !important;
+        box-shadow: none !important;
       }
       .flatpickr-calendar.year-only-picker .flatpickr-innerContainer,
       .flatpickr-calendar.year-only-picker .flatpickr-weekdays,
@@ -424,15 +521,15 @@
       .flatpickr-calendar.year-only-picker .year-picker-range {
         font-size: 12px;
         font-weight: 700;
-        color: #1f2937;
+        color: var(--color-primary, #1f3a2a);
       }
       .flatpickr-calendar.year-only-picker .year-picker-nav {
         width: 26px;
         height: 26px;
-        border-radius: 7px;
-        border: 1px solid #d1d5db;
-        background: #fff;
-        color: #374151;
+        border-radius: var(--radius-sm, 6px);
+        border: none;
+        background: transparent;
+        color: var(--color-text, #16251b);
         font-size: 16px;
         line-height: 1;
         display: inline-flex;
@@ -441,7 +538,7 @@
         cursor: pointer;
       }
       .flatpickr-calendar.year-only-picker .year-picker-nav:hover:not(:disabled) {
-        background: #f3f4f6;
+        background: var(--color-row-hover, #eff5ed);
       }
       .flatpickr-calendar.year-only-picker .year-picker-nav:disabled {
         opacity: .45;
@@ -453,25 +550,111 @@
         gap: 8px;
       }
       .flatpickr-calendar.year-only-picker .year-picker-option {
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        background: #fff;
-        color: #374151;
+        border: 1px solid var(--color-border, #cfdcc8);
+        border-radius: var(--radius-sm, 8px);
+        background: var(--color-surface, #f8faf7);
+        color: var(--color-text, #16251b);
         font-size: 12px;
         font-weight: 600;
         padding: 8px 0;
         cursor: pointer;
+        transition: all 0.15s ease;
       }
       .flatpickr-calendar.year-only-picker .year-picker-option:hover {
-        background: #f3f4f6;
+        background: var(--color-row-hover, #eff5ed);
+        border-color: var(--color-primary, #1f3a2a);
+        color: var(--color-primary, #1f3a2a);
       }
       .flatpickr-calendar.year-only-picker .year-picker-option.active {
-        background: #1f2937;
-        border-color: #1f2937;
-        color: #fff;
+        background: var(--color-primary, #1f3a2a);
+        border-color: var(--color-primary, #1f3a2a);
+        color: #f8faf7;
+      }
+
+      /* Month Only Picker (Grid 3x4 Khusus Bulan Saja) */
+      .flatpickr-calendar.month-only-picker {
+        width: 250px !important;
+        background: var(--color-surface, #f8faf7) !important;
+        border-radius: 14px;
+        box-shadow: none !important;
+        border: 1.5px solid var(--color-border, #cfdcc8) !important;
+        overflow: hidden;
+        z-index: 1060 !important;
+      }
+      .flatpickr-calendar.month-only-picker .flatpickr-innerContainer,
+      .flatpickr-calendar.month-only-picker .flatpickr-weekdays,
+      .flatpickr-calendar.month-only-picker .flatpickr-days,
+      .flatpickr-calendar.month-only-picker .flatpickr-monthDropdown-months,
+      .flatpickr-calendar.month-only-picker .flatpickr-prev-month,
+      .flatpickr-calendar.month-only-picker .flatpickr-next-month,
+      .flatpickr-calendar.month-only-picker .flatpickr-months {
+        display: none !important;
+      }
+      .flatpickr-calendar.month-only-picker .month-only-panel {
+        padding: 12px;
+      }
+      .flatpickr-calendar.month-only-picker .month-only-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed var(--color-border, #cfdcc8);
+      }
+      .flatpickr-calendar.month-only-picker .month-only-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--color-primary);
+        letter-spacing: 0.3px;
+      }
+      .flatpickr-calendar.month-only-picker .month-only-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .flatpickr-calendar.month-only-picker .month-only-option {
+        border: 1.5px solid var(--color-border, #cfdcc8);
+        border-radius: 8px;
+        background: var(--color-surface, #f8faf7);
+        color: var(--color-text, #16251b);
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 8px 0;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .flatpickr-calendar.month-only-picker .month-only-option:hover {
+        background: var(--color-row-hover, #eff5ed);
+        border-color: var(--color-primary, #1f3a2a);
+        color: var(--color-primary, #1f3a2a);
+      }
+      .flatpickr-calendar.month-only-picker .month-only-option.active {
+        background: var(--color-primary, #1f3a2a);
+        border-color: var(--color-primary, #1f3a2a);
+        color: #ffffff;
+        font-weight: 700;
+        box-shadow: none;
       }
 
       /* Card Header */
+      .card .card-header,
+      .card-header {
+        background-color: transparent !important;
+        padding: 32px 24px 0 24px !important;
+        border: none !important;
+        border-bottom: none !important;
+      }
+      .card .card-body,
+      .card-body {
+        padding-bottom: 0 !important;
+      }
+      .card .card-header-inner,
+      .card-header-inner {
+        border-bottom: 1px dashed var(--color-border) !important;
+        padding-bottom: 20px !important;
+        width: 100% !important;
+      }
       .card-header-icon {
         display: flex;
         align-items: center;
@@ -480,7 +663,7 @@
         height: 44px;
         min-width: 44px;
         border-radius: 12px;
-        background: #519259;
+        background: var(--color-primary);
         margin-right: 14px;
         position: relative !important;
         flex-shrink: 0;
@@ -502,39 +685,84 @@
         width: 100%;
       }
 
-      /* Tombol Trigger Select */
+      /* Tombol Trigger Select - SIMA Standard */
       .dropdown-trigger {
         width: 100% !important;
+        min-height: 48px !important;
         text-align: left !important;
-        background-color: #fff !important;
+        background-color: var(--color-surface) !important;
         cursor: pointer !important;
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        padding: 10px 16px !important;
-        border: 1px solid #d1d5db !important;
-        border-radius: 8px !important;
-        transition: all 0.2s !important;
-      }
-      .dropdown-trigger:focus {
-        border-color: #064635 !important;
-        box-shadow: 0 0 0 3px rgba(6, 70, 53, 0.1) !important;
+        padding: 12px 18px !important;
+        border: 1px solid var(--color-border) !important;
+        border-radius: var(--radius-sm) !important;
+        color: var(--color-text) !important;
+        font-size: 13.5px !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+        box-shadow: none !important;
         outline: none !important;
+      }
+      .dropdown-trigger:hover {
+        border-color: var(--color-primary) !important;
+        background-color: var(--color-row-hover) !important;
+      }
+      .dropdown-trigger:focus,
+      .dropdown-trigger.open,
+      .searchable-dropdown.open .dropdown-trigger {
+        border-color: var(--color-primary) !important;
+        background-color: var(--color-surface) !important;
+        box-shadow: none !important;
+        outline: none !important;
+      }
+      .dropdown-trigger.is-invalid,
+      .dropdown-trigger.error,
+      .form-group.has-error .dropdown-trigger,
+      .buku-inventaris-section.has-error .dropdown-trigger {
+        border-color: #E53935 !important;
+      }
+      .dropdown-trigger.is-invalid:focus,
+      .dropdown-trigger.error:focus,
+      .dropdown-trigger.is-invalid.open,
+      .dropdown-trigger.error.open {
+        border-color: #E53935 !important;
+        box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.15) !important;
+      }
+      .buku-inventaris-title.error,
+      .buku-inventaris-title.is-invalid,
+      .has-error .buku-inventaris-title,
+      .form-group.has-error .form-label,
+      .form-group.has-error .buku-inventaris-title {
+        color: #D9383A !important;
+      }
+      .invalid-feedback-custom {
+        display: none;
+        align-items: flex-start;
+        gap: 6px;
+        color: #D9383A;
+        font-size: 12.5px;
+        font-weight: 500;
+        line-height: 1.4;
+        margin-top: 6px;
+      }
+      .invalid-feedback-custom.show {
+        display: flex !important;
       }
 
       /* Panel Menu Dropdown */
       .dropdown-menu-panel {
         display: none;
         position: absolute;
-        top: 100%;
+        top: calc(100% + 6px);
         left: 0;
         z-index: 1000;
-        background: #fff;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        background: var(--color-surface) !important;
+        border: 1px solid var(--color-border) !important;
+        border-radius: var(--radius-md) !important;
+        box-shadow: var(--shadow-float, 0 10px 25px rgba(0, 0, 0, 0.08));
         width: 100%;
-        margin-top: 4px;
         padding: 8px;
         box-sizing: border-box;
       }
@@ -553,19 +781,30 @@
         left: 12px;
         top: 50%;
         transform: translateY(-50%);
-        color: #9ca3af;
+        color: var(--color-text-muted);
         width: 14px;
         height: 14px;
         pointer-events: none;
       }
       .dropdown-search-input {
         width: 100% !important;
-        padding: 8px 12px 8px 34px !important;
+        height: 40px !important;
+        padding: 0 12px 0 34px !important;
         font-size: 13px !important;
-        border: 1px solid #d1d5db !important;
-        border-radius: 6px !important;
+        border: 1px solid var(--color-border) !important;
+        border-radius: var(--radius-sm) !important;
         outline: none !important;
         box-sizing: border-box !important;
+        box-shadow: none !important;
+        background: var(--color-surface) !important;
+        color: var(--color-text) !important;
+        transition: border-color 0.2s ease;
+      }
+      .dropdown-search-input:hover,
+      .dropdown-search-input:focus {
+        border-color: var(--color-primary) !important;
+        box-shadow: none !important;
+        outline: none !important;
       }
 
       /* Opsi Item List */
@@ -580,49 +819,41 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 8px 12px;
-        border-radius: 6px;
+        padding: 10px 12px;
+        border-radius: var(--radius-sm);
         cursor: pointer;
-        transition: background 0.15s;
+        transition: all 0.15s ease;
         user-select: none;
-        border-bottom: 1px solid #f3f4f6;
+        border-bottom: 1px solid var(--color-border);
+        color: var(--color-text);
+        font-size: 13px;
+        font-weight: 500;
       }
       .dropdown-option-item:last-child {
         border-bottom: none;
       }
       .dropdown-option-item:hover {
-        background: #f3f4f6;
+        background: var(--color-row-hover);
+        color: var(--color-primary);
       }
       .dropdown-option-item.selected {
-        background: #eff6ff;
-        color: #2563eb;
+        background: var(--color-primary-tint) !important;
+        color: var(--color-primary) !important;
+        font-weight: 600;
       }
       .dropdown-option-icon {
-        width: 28px;
-        height: 28px;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-      .dropdown-option-icon i,
-      .dropdown-option-icon svg {
-        width: 14px;
-        height: 14px;
-        color: #fff !important;
-        stroke: #fff !important;
+        display: none !important;
       }
       .dropdown-option-name {
-        font-size: 13px;
+        font-size: 13.5px;
         font-weight: 500;
-        color: #374151;
+        color: inherit;
       }
 
       /* Animasi Chevron */
       .dropdown-trigger-caret {
         transition: transform 0.2s;
-        color: #9ca3af;
+        color: var(--color-text-muted);
       }
       .searchable-dropdown.open .dropdown-trigger-caret {
         transform: rotate(180deg);
@@ -631,8 +862,8 @@
       .jenis-error-text {
         display: none;
         margin-top: 8px;
-        font-size: 12px;
-        color: #dc2626;
+        font-size: 12.5px;
+        color: #E53935;
         font-weight: 500;
       }
 
@@ -649,120 +880,54 @@
         to { opacity: 1; transform: translateY(0); }
       }
       .dynamic-fields-header {
-        background: linear-gradient(135deg, #064635 0%, #519259 100%);
-        color: #fff;
-        padding: 12px 16px;
-        border-radius: 8px 8px 0 0;
-        font-size: 13px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .dynamic-fields-header i {
-        width: 16px;
-        height: 16px;
+        display: none;
       }
       .dynamic-fields-body {
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        border-top: none;
-        border-radius: 0 0 8px 8px;
-        padding: 16px;
+        background: transparent;
+        border: none;
+        padding: 0;
       }
 
-      /* Kondisi Radio Group */
-      .kondisi-group {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-      .kondisi-option {
-        flex: 1;
-        min-width: 120px;
-      }
-      .kondisi-option input {
-        position: absolute;
-        opacity: 0;
-        width: 1px;
-        height: 1px;
-        margin: 0;
-        pointer-events: none;
-      }
-      .kondisi-option label {
+      .sync-field-indicator {
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 12px 16px;
-        background: #fff;
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-size: 13px;
+        gap: 6px;
+        font-size: 12px;
         font-weight: 500;
+        color: var(--color-primary);
+        background: transparent;
+        margin-top: 6px;
+        line-height: 1.4;
       }
-      .kondisi-option input:checked + label {
-        border-color: currentColor;
-      }
-      .kondisi-option.baik label {
-        color: #16a34a;
-      }
-      .kondisi-option.baik input:checked + label {
-        background: #dcfce7;
-        border-color: #16a34a;
-      }
-      .kondisi-option.rusak-ringan label {
-        color: #d97706;
-      }
-      .kondisi-option.rusak-ringan input:checked + label {
-        background: #fef3c7;
-        border-color: #d97706;
-      }
-      .kondisi-option.rusak-berat label {
-        color: #dc2626;
-      }
-      .kondisi-option.rusak-berat input:checked + label {
-        background: #fee2e2;
-        border-color: #dc2626;
-      }
-      .kondisi-option label i {
-        width: 16px;
-        height: 16px;
+      .sync-field-indicator svg.feather,
+      .sync-field-indicator i {
+        width: 13px !important;
+        height: 13px !important;
+        stroke: var(--color-primary) !important;
+        stroke-width: 2.2 !important;
+        flex-shrink: 0;
       }
 
-      /* Buku Inventaris Aset Desa Section */
-      .buku-inventaris-section {
-        background: #f8f9fa;
-        border: 1.5px solid #d1d5db;
-        border-radius: 10px;
-        padding: 16px;
-        margin-top: 16px;
+      /* Form Sections within SIMA Surface Card */
+      .buku-inventaris-section, .form-section {
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        margin-top: 0;
+      }
+      .dynamic-fields-section,
+      #kib-section-wrapper,
+      #laporan-aset-section-wrapper,
+      #kir-section-wrapper,
+      #foto-section-wrapper,
+      #copy-section {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--color-border);
       }
       .buku-inventaris-header {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        margin-bottom: 14px;
-      }
-      .buku-inventaris-header-icon {
-        width: 28px;
-        height: 28px;
-        border-radius: 7px;
-        background: transparent;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        margin-top: 2px;
-      }
-      .buku-inventaris-header-icon i,
-      .buku-inventaris-header-icon svg {
-        width: 18px;
-        height: 18px;
-        stroke: #064635;
-        color: #064635;
+        margin-bottom: 16px;
       }
       .buku-inventaris-header-content {
         display: flex;
@@ -770,16 +935,27 @@
         justify-content: center;
       }
       .buku-inventaris-title {
-        font-size: 13px;
-        font-weight: 600;
-        color: #064635;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--color-text);
         line-height: 1.4;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .buku-inventaris-title i,
+      .buku-inventaris-title svg {
+        width: 17px;
+        height: 17px;
+        color: var(--color-primary);
+        stroke: var(--color-primary);
+        flex-shrink: 0;
       }
       .buku-inventaris-desc {
-        font-size: 11px;
-        color: #6b7280;
-        margin: 2px 0 0 0;
-        line-height: 1.4;
+        font-size: 12.5px;
+        color: var(--color-text-muted);
+        margin: 3px 0 0 0;
+        line-height: 1.45;
       }
       .asal-usul-group {
         display: flex;
@@ -814,54 +990,58 @@
         justify-content: center;
         padding: 10px 14px;
         background: #fff;
-        border: 2px solid #d1d5db;
-        border-radius: 8px;
+        border: 1.5px solid var(--color-border);
+        border-radius: 10px;
         cursor: pointer;
         transition: all 0.2s;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 500;
-        color: #374151;
+        color: var(--color-text);
         text-align: center;
         line-height: 1.4;
       }
       .asal-usul-option label:hover {
-        border-color: #064635;
-        background: #f4faf5;
+        border-color: var(--color-primary);
+        background: var(--color-surface);
       }
       .asal-usul-option input:checked + label {
-        background: #064635;
-        border-color: #064635;
+        background: var(--color-primary);
+        border-color: var(--color-primary);
         color: #fff;
         font-weight: 600;
       }
       .asal-usul-group.group-invalid .asal-usul-option label {
-        border-color: #dc2626;
+        border-color: #E53935;
       }
-
-
 
       /* Info box */
       .info-box {
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        border: 1px solid #93c5fd;
-        border-radius: 8px;
-        padding: 12px 16px;
+        background: var(--color-primary-tint);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: 8px 14px;
         display: flex;
+        width: 100%;
+        box-sizing: border-box;
         align-items: center;
-        gap: 10px;
-        margin-top: 16px;
+        gap: 8px;
+        margin-top: 14px;
+        color: var(--color-text);
       }
-      .info-box i {
-        color: #1e40af;
-        stroke: #1e40af;
+      .info-box i,
+      .info-box svg {
+        color: var(--color-primary);
+        stroke: var(--color-primary);
         flex-shrink: 0;
-        width: 18px;
-        height: 18px;
+        width: 14px;
+        height: 14px;
       }
       .info-box-text {
-        font-size: 13px;
-        color: #1e40af;
-        line-height: 1.5;
+        font-size: 11.5px;
+        color: var(--color-text);
+        line-height: 1.45;
+        font-weight: 500;
+        flex: 1;
       }
 
       /* Buttons */
@@ -869,44 +1049,60 @@
         display: flex;
         gap: 12px;
         justify-content: flex-end;
-        padding-top: 20px;
-        border-top: 1px solid #e5e7eb;
+        padding-top: 24px;
+        border-top: none;
         margin-top: 24px;
+        margin-bottom: 32px;
       }
       .btn-cancel {
-        padding: 10px 20px;
-        border: 1px solid #d1d5db;
+        height: 46px;
+        padding: 0 20px;
+        border: 1.5px solid var(--color-border);
         background: #fff;
-        color: #374151;
-        border-radius: 8px;
+        color: var(--color-text);
+        border-radius: var(--radius-full);
         font-weight: 500;
+        font-size: 14px;
         cursor: pointer;
         transition: all 0.2s;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        box-shadow: none !important;
       }
       .btn-cancel:hover {
-        background: #f3f4f6;
+        background: var(--color-surface);
+        border-color: var(--color-border);
+        color: var(--color-text);
       }
       .btn-submit {
-        padding: 10px 24px;
+        height: 46px;
+        padding: 0 24px;
         border: none;
-        background: #064635;
+        background: var(--color-primary);
         color: #fff;
-        border-radius: 8px;
-        font-weight: 500;
+        border-radius: var(--radius-full);
+        font-weight: 600;
+        font-size: 14px;
         cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
+        box-shadow: none !important;
+        transition: background-color 0.2s ease;
+        display: inline-flex;
         align-items: center;
         gap: 8px;
       }
       .btn-submit:hover {
-        background: #1c5240;
+        background: var(--color-primary-hover, #3A5C39);
+        color: #fff;
       }
-      .btn-submit i {
+      .btn-cancel i,
+      .btn-cancel svg {
+        width: 16px;
+        height: 16px;
+      }
+      .btn-submit i,
+      .btn-submit svg {
         width: 18px;
         height: 18px;
       }
@@ -914,6 +1110,8 @@
       /* Currency Input */
       .currency-input-wrapper {
         position: relative;
+        width: 100%;
+        display: block;
       }
       .currency-prefix {
         position: absolute;
@@ -921,77 +1119,87 @@
         top: 50%;
         transform: translateY(-50%);
         font-size: 14px;
-        color: #6b7280;
-        font-weight: 500;
+        color: var(--color-text-muted);
+        font-weight: 600;
+        pointer-events: none;
+        user-select: none;
+        z-index: 2;
+        white-space: nowrap;
       }
-      .currency-input-wrapper .form-control {
-        padding-left: 42px;
+      .currency-input-wrapper .form-control,
+      .currency-input-wrapper input.form-control,
+      .currency-input-wrapper .currency-rupiah-input,
+      input.currency-rupiah-input {
+        padding-left: 44px !important;
       }
       .unit-suffix-input-wrapper {
         position: relative;
+        width: 100%;
+        display: block;
       }
       .unit-suffix {
         position: absolute;
-        right: 12px;
+        right: 14px;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 12px;
-        color: #6b7280;
+        font-size: 13px;
+        color: var(--color-text-muted);
         font-weight: 600;
         pointer-events: none;
+        user-select: none;
+        z-index: 2;
+        white-space: nowrap;
       }
-      .unit-suffix-input-wrapper .form-control {
-        padding-right: 52px;
+      .unit-suffix-input-wrapper .form-control,
+      .unit-suffix-input-wrapper input.form-control {
+        padding-right: 48px !important;
       }
 
-      /* File upload (seragam dengan form user & pejabat) */
+      /* File upload (Dribbble clean dropzone standard) */
       .file-upload-area {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 12px;
-        padding: 30px 20px;
+        padding: 28px 20px;
         background: #fff;
-        border: 2px dashed #d1d5db;
+        border: 2px dashed var(--color-border);
         border-radius: 12px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
         text-align: center;
       }
-      .file-upload-area:hover { border-color: #064635; background: #f4faf5; }
-      .file-upload-area.has-file { border-color: #22c55e; background: #f0fdf4; }
-      .file-upload-icon {
-        width: 48px; height: 48px; border-radius: 12px;
-        background: linear-gradient(135deg, #064635 0%, #519259 100%);
-        display: flex; align-items: center; justify-content: center;
+      .file-upload-area:hover {
+        border-color: var(--color-primary);
+        background: var(--color-surface);
       }
-      .file-upload-icon i, .file-upload-icon svg { width: 24px; height: 24px; color: #fff !important; stroke: #fff !important; }
-      .file-upload-text { font-size: 14px; color: #374151; font-weight: 500; }
-      .file-upload-hint { font-size: 12px; color: #9ca3af; }
+      .file-upload-area.has-file {
+        border-color: var(--color-primary);
+        background: var(--color-surface);
+      }
+      .file-upload-icon {
+        background: transparent !important;
+        width: auto !important;
+        height: auto !important;
+        display: block !important;
+        margin: 0 auto 8px auto !important;
+      }
+      .file-upload-icon i, .file-upload-icon svg { width: 28px !important; height: 28px !important; stroke-width: 1.5 !important; color: var(--color-text-muted) !important; stroke: var(--color-text-muted) !important; }
+      .file-upload-text { font-size: 14px; color: var(--color-text); font-weight: 600; }
+      .file-upload-hint { font-size: 12px; color: var(--color-text-muted); }
       .foto-preview-thumb {
         position: relative; width: 90px; height: 90px;
         border-radius: 10px; overflow: hidden;
-        border: 1px solid #e5e7eb; flex-shrink: 0;
+        border: 1px solid var(--color-border); flex-shrink: 0;
       }
       .foto-preview-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
       .foto-preview-thumb .remove-btn {
         position: absolute; top: 3px; right: 3px;
         width: 20px; height: 20px; border-radius: 50%;
-        background: rgba(220,38,38,.8); color: #fff;
+        background: rgba(220,38,38,.85); color: #fff;
         border: none; font-size: 13px; line-height: 1;
         cursor: pointer; display: flex; align-items: center; justify-content: center;
-      }
-
-      @media (max-width: 768px) {
-        .jenis-selector {
-          grid-template-columns: repeat(2, 1fr);
-        }
-      }
-      @media (max-width: 480px) {
-        .jenis-selector {
-          grid-template-columns: 1fr;
-        }
       }
 
       /* Card header: desktop = justify-between, mobile = stacked */
@@ -1009,20 +1217,58 @@
       }
       /* Searchable Select Component */
       .searchable-select { position: relative; width: 100%; }
-      .ss-trigger { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; color: #374151; transition: all 0.2s; }
-      .ss-trigger:hover { border-color: #d1d5db; }
-      .ss-trigger.ss-open { border-color: #064635; box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1); }
+      .ss-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 48px;
+        padding: 12px 18px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm, 8px);
+        background: var(--color-surface);
+        cursor: pointer;
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--color-text);
+        transition: all 0.2s;
+        box-sizing: border-box;
+      }
+      .ss-trigger:hover, .ss-trigger.ss-open { border-color: var(--color-primary); background-color: var(--color-row-hover); box-shadow: none; }
       .ss-value-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .ss-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); z-index: 1000; max-height: 280px; display: flex; flex-direction: column; }
-      .ss-search-wrap { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; flex-shrink: 0; }
-      .ss-search { width: 100%; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; outline: none; }
-      .ss-search:focus { border-color: #064635; box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1); }
-      .ss-options { overflow-y: auto; max-height: 200px; }
-      .ss-option { padding: 9px 14px; font-size: 13px; color: #374151; cursor: pointer; transition: background 0.15s; }
-      .ss-option:hover { background: #f4faf5; }
-      .ss-option.ss-selected { background: #f0f4f8; font-weight: 600; color: #064635; }
+      .ss-dropdown {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1.5px solid var(--color-border);
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        z-index: 1000;
+        max-height: 280px;
+        display: flex;
+        flex-direction: column;
+        padding: 8px;
+      }
+      .ss-search-wrap { padding: 4px 4px 8px 4px; border-bottom: 1px solid var(--color-surface); flex-shrink: 0; }
+      .ss-search {
+        width: 100%;
+        height: 38px;
+        padding: 0 12px;
+        border: 1.5px solid var(--color-border);
+        border-radius: 8px;
+        font-size: 13px;
+        outline: none;
+        background: #fff;
+        color: var(--color-text);
+      }
+      .ss-search:focus { border-color: var(--color-primary); box-shadow: none; }
+      .ss-options { overflow-y: auto; max-height: 200px; padding: 4px 0 0 0; }
+      .ss-option { padding: 9px 12px; font-size: 13px; font-weight: 500; color: var(--color-text); border-radius: 6px; cursor: pointer; transition: all 0.15s ease; }
+      .ss-option:hover { background: var(--color-surface); color: var(--color-primary); }
+      .ss-option.ss-selected { background: var(--color-surface); font-weight: 700; color: var(--color-primary); }
       .ss-option.ss-hidden { display: none; }
-      .ss-empty { padding: 16px; text-align: center; color: #9ca3af; font-size: 13px; }
+      .ss-empty { padding: 16px; text-align: center; color: var(--color-text-muted); font-size: 13px; }
     </style>
   </head>
 
@@ -1032,77 +1278,40 @@
 
     <div class="pc-container">
       <div class="pc-content">
-        @include('layouts.breadcrumb', ['breadcrumbItemHome' => 'Inventaris', 'breadcrumbItem' => 'Manajemen Aset', 'breadcrumbItemUrl' => route('manajemen-aset.index'), 'breadcrumbItemActive' => 'Tambah Inventaris'])
+        @include('layouts.breadcrumb', ['breadcrumbItemHome' => 'Inventaris Desa', 'breadcrumbItem' => 'Buku Inventaris', 'breadcrumbItemUrl' => route('manajemen-aset.index'), 'breadcrumbItemActive' => 'Tambah Inventaris'])
 
-        @if($errors->any())
-        <div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:12px 16px;margin-bottom:16px;">
-            <div style="font-weight:600;color:#dc2626;margin-bottom:6px;">Terdapat kesalahan pada data yang dikiri:</div>
-            <ul style="margin:0;padding-left:20px;color:#b91c1c;font-size:13px;">
-                @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
         <div class="grid grid-cols-12 gap-x-6">
-          <div class="col-span-12">
+          <div class="col-span-12 w-full">
             <div class="card">
-              <div class="card-header border-b border-gray-100">
+              <div class="card-header">
                 <div class="card-header-inner">
                   <div class="flex items-center">
                     <div class="card-header-icon">
-                      <i data-feather="package"></i>
+                      <i data-feather="book"></i>
                     </div>
                     <div>
-                      <h5 class="mb-1">Tambah Inventaris Baru</h5>
-                      <p class="text-muted text-sm mb-0">Isi data inventaris sesuai jenis yang dipilih</p>
-                      {{-- <div class="items-center gap-2 card-status-mobile">
-                        <span class="text-xs text-muted">Status:</span>
-                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700" id="status-display-mobile">Pending</span>
-                      </div> --}}
+                      <h5 class="mb-0">Tambah Inventaris Baru</h5>
                     </div>
                   </div>
-                  {{-- <div class="items-center gap-2 card-status-desktop">
-                    <span class="text-sm text-muted">Status:</span>
-                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700" id="status-display">Pending</span>
-                  </div> --}}
                 </div>
               </div>
 
               <div class="card-body pt-4">
-                @if($errors->any())
-                <div class="alert alert-danger mb-4" role="alert">
-                    <div class="flex items-center gap-2 mb-2">
-                        <i data-feather="alert-circle" style="width:20px;height:20px;"></i>
-                        <strong>Terdapat kesalahan pada input:</strong>
-                    </div>
-                    <ul class="list-disc ml-6 mb-0">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-                @endif
-
-                <form action="{{ route('manajemen-aset.store') }}" method="POST" id="inventaris-form" enctype="multipart/form-data">
+                <form action="{{ route('manajemen-aset.store') }}" method="POST" id="inventaris-form" enctype="multipart/form-data" novalidate>
                   @csrf
                   
                   <!-- Step 1: Pilih Jenis Inventaris -->
-                  <div class="buku-inventaris-section" style="margin-top: 0;">
+                  <div class="buku-inventaris-section form-group" id="jenis-inventaris-section" style="margin-top: 0;">
                     <div class="buku-inventaris-header" style="margin-bottom: 16px;">
-                      <div class="buku-inventaris-header-icon">
-                        <i data-feather="layers"></i>
-                      </div>
                       <div class="buku-inventaris-header-content">
-                        <span class="buku-inventaris-title">Pilih Jenis Inventaris</span>
-                        <p class="buku-inventaris-desc">Pilih jenis inventaris untuk menampilkan form isian data yang sesuai.</p>
+                        <label class="buku-inventaris-title form-label" id="jenis-inventaris-label" for="jenis-dropdown-trigger" style="cursor:pointer;margin-bottom:0;">Pilih Jenis Inventaris <span class="required" style="color:#E53935;">*</span></label>
                       </div>
                     </div>
                     <input type="hidden" name="jenis_inventaris_id" id="jenis_inventaris_id_hidden" value="" />
 
                     <div class="searchable-dropdown" id="jenis-dropdown-container">
-                      <button type="button" class="dropdown-trigger" id="jenis-dropdown-trigger">
-                        <span id="jenis-dropdown-selected-label" style="color: #9ca3af; font-size: 13px; font-weight: 500;">-- Pilih Jenis Inventaris --</span>
+                      <button type="button" class="dropdown-trigger" id="jenis-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
+                        <span id="jenis-dropdown-selected-label" style="color: #9ca3af; font-size: 13px; font-weight: 500;">Pilih Jenis Inventaris</span>
                         <i data-feather="chevron-down" class="dropdown-trigger-caret" style="width: 16px; height: 16px;"></i>
                       </button>
                       
@@ -1116,71 +1325,88 @@
                         </ul>
                       </div>
                     </div>
-                    <p id="jenis-error" class="jenis-error-text">Jenis inventaris wajib dipilih.</p>
-                    <!-- debug removed -->
+                    <div id="jenis-error" class="invalid-feedback-custom" style="display:none;margin-top:8px;">
+                      <svg class="sima-error-icon" width="14" height="14" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:2px;" aria-hidden="true">
+                        <path fill="#D9383A" d="M7.134 1.603a1 1 0 0 1 1.732 0l6.062 10.5A1 1 0 0 1 14.062 13.6H1.938a1 1 0 0 1-.866-1.497l6.062-10.5z"/>
+                        <path stroke="#FFFFFF" stroke-width="1.3" stroke-linecap="round" d="M8 5.5v3.2M8 11.2h.01"/>
+                      </svg>
+                      <span>Jenis Inventaris wajib dipilih.</span>
+                    </div>
                   </div>
 
                   <!-- Step 2: Field Builder (Fixed & Custom, urut, label, tipe, required) -->
                   <div class="buku-inventaris-section dynamic-fields-section" id="builder-fields-section" style="display:none;margin-top:16px;">
                     <div class="buku-inventaris-header" style="margin-bottom: 16px;">
-                      <div class="buku-inventaris-header-icon">
-                        <i data-feather="file-text"></i>
-                      </div>
                       <div class="buku-inventaris-header-content">
                         <span class="buku-inventaris-title">Data Inventaris</span>
-                        <p class="buku-inventaris-desc">Field ini digunakan untuk mengisi informasi utama dan data umum dari inventaris.</p>
                       </div>
                     </div>
                     <div id="builder-fields-message" style="display:none; color:#ef4444; font-size:13px; margin-bottom:12px;"></div>
                     <div class="form-grid" id="builder-fields-container">
                       <!-- Semua field builder akan di-render oleh JavaScript setelah jenis dipilih -->
                     </div>
-                    <!-- Field Ruangan — selalu di paling bawah Data Inventaris, muncul jika jenis requires_ruangan = 1 -->
-                    <!-- Field Ruangan moved to KIR section -->
-                    <!-- Asal Usul Barang & Pengguna — selalu ada di section Data Inventaris -->
-                    <div class="form-group" style="margin-top:16px;">
-                      <label class="form-label">Asal Usul Barang <span class="required">*</span></label>
-                      <select name="asal_usul" id="asal_usul" class="form-control form-select">
-                        <option value="" disabled hidden {{ old('asal_usul') ? '' : 'selected' }}>-- Pilih Asal Usul Barang --</option>
-                        <option value="apbdes" {{ old('asal_usul') === 'apbdes' ? 'selected' : '' }}>APBDes</option>
-                        <option value="perolehan_lain" {{ old('asal_usul') === 'perolehan_lain' ? 'selected' : '' }}>Perolehan Lain yang Sah</option>
-                        <option value="kekayaan_asli" {{ old('asal_usul') === 'kekayaan_asli' ? 'selected' : '' }}>Kekayaan Asli Desa</option>
-                      </select>
-                      @error('asal_usul')
-                        <small class="text-danger">{{ $message }}</small>
-                      @enderror
-                      <small id="asal-usul-client-error" class="text-danger" style="display:none;">Asal Usul Barang wajib dipilih.</small>
-                    </div>
-                    <div class="form-group" style="margin-top:16px;">
-                      <label class="form-label" for="pengguna">Pengguna <span class="required">*</span></label>
-                      <input type="hidden" name="pengguna" id="pengguna" value="{{ old('pengguna') }}">
-                      <div class="searchable-select" id="ss-pengguna">
-                        <div class="ss-trigger" onclick="ssToggle('ss-pengguna')">
-                          <span class="ss-value-text" id="ss-pengguna-text">{{ old('pengguna') ?: '-- Pilih Pengguna --' }}</span>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                        </div>
-                        <div class="ss-dropdown" style="display:none;">
-                          <div class="ss-search-wrap">
-                            <input type="text" class="ss-search" placeholder="Cari pengguna..." oninput="ssFilter('ss-pengguna', this.value)">
-                          </div>
-                          <div class="ss-options">
-                            @forelse($userList as $user)
-                              @php
-                                $roleLabel = $user->role_name_display ?? '';
-                                $label = $user->nama . ($roleLabel ? ' ('.$roleLabel.')' : '');
-                              @endphp
-                              <div class="ss-option" data-value="{{ $user->nama }}" data-search="{{ strtolower($label) }}" onclick="ssSelect('ss-pengguna', '{{ addslashes($user->nama) }}', '{{ addslashes($label) }}')">
-                                {{ $label }}
-                              </div>
-                            @empty
-                              <div class="ss-empty">Belum ada data</div>
-                            @endforelse
-                          </div>
-                        </div>
+                    <!-- Asal Usul Barang, Pengguna & Bukti Kepemilikan dalam Form Grid 2 Kolom -->
+                    <div class="form-grid" style="margin-top:20px;">
+                      <div class="form-group">
+                        <label class="form-label" for="asal_usul">Asal Usul Barang <span class="required">*</span></label>
+                        <select name="asal_usul" id="asal_usul" class="form-control form-select">
+                          <option value="" disabled hidden {{ old('asal_usul') ? '' : 'selected' }}>Pilih Asal Usul Barang</option>
+                          <option value="apbdes" {{ old('asal_usul') === 'apbdes' ? 'selected' : '' }}>APBDes</option>
+                          <option value="perolehan_lain" {{ old('asal_usul') === 'perolehan_lain' ? 'selected' : '' }}>Perolehan Lain yang Sah</option>
+                          <option value="kekayaan_asli" {{ old('asal_usul') === 'kekayaan_asli' ? 'selected' : '' }}>Kekayaan Asli Desa</option>
+                        </select>
+                        @error('asal_usul')
+                          <div class="invalid-feedback" style="display:block;">{{ $message }}</div>
+                        @enderror
+                        <div id="asal-usul-client-error" class="invalid-feedback" style="display:none;">Asal Usul Barang wajib dipilih.</div>
                       </div>
-                      @error('pengguna')
-                        <small class="text-danger">{{ $message }}</small>
-                      @enderror
+                      <div class="form-group">
+                        <label class="form-label" for="pengguna">Pengguna <span class="optional">(Opsional)</span></label>
+                        <input type="hidden" name="pengguna" id="pengguna" value="{{ old('pengguna') }}">
+                        <div class="searchable-select" id="ss-pengguna">
+                          <div class="ss-trigger" onclick="ssToggle('ss-pengguna')">
+                            <span class="ss-value-text" id="ss-pengguna-text">{{ old('pengguna') ?: 'Pilih Pengguna (Opsional)' }}</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                          </div>
+                          <div class="ss-dropdown" style="display:none;">
+                            <div class="ss-search-wrap">
+                              <input type="text" class="ss-search" placeholder="Cari pengguna..." oninput="ssFilter('ss-pengguna', this.value)">
+                            </div>
+                            <div class="ss-options">
+                              <div class="ss-option" data-value="" data-search="tidak ada pengguna tanpa kosongkan" onclick="ssSelect('ss-pengguna', '', 'Pilih Pengguna (Opsional)')">
+                                <span style="color:#6b7280;font-style:italic;">Tanpa Pengguna (Kosongkan)</span>
+                              </div>
+                              @forelse($userList as $user)
+                                @php
+                                  $roleLabel = $user->role_name_display ?? '';
+                                  $label = $user->nama . ($roleLabel ? ' ('.$roleLabel.')' : '');
+                                @endphp
+                                <div class="ss-option" data-value="{{ $user->nama }}" data-search="{{ strtolower($label) }}" onclick="ssSelect('ss-pengguna', '{{ addslashes($user->nama) }}', '{{ addslashes($label) }}')">
+                                  {{ $label }}
+                                </div>
+                              @empty
+                                <div class="ss-empty">Belum ada data</div>
+                              @endforelse
+                            </div>
+                          </div>
+                        </div>
+                        @error('pengguna')
+                          <div class="invalid-feedback" style="display:block;">{{ $message }}</div>
+                        @enderror
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="bukti_kepemilikan">Bukti Kepemilikan <span class="optional">(Opsional)</span></label>
+                        <select name="bukti_kepemilikan" id="bukti_kepemilikan" class="form-control form-select">
+                          <option value="" {{ old('bukti_kepemilikan') ? '' : 'selected' }}>Pilih Bukti Kepemilikan (Opsional)</option>
+                          <option value="BPKB & STNK" {{ old('bukti_kepemilikan') === 'BPKB & STNK' ? 'selected' : '' }}>BPKB & STNK</option>
+                          <option value="BAST" {{ old('bukti_kepemilikan') === 'BAST' ? 'selected' : '' }}>BAST</option>
+                          <option value="KWITANSI" {{ old('bukti_kepemilikan') === 'KWITANSI' ? 'selected' : '' }}>KWITANSI</option>
+                          <option value="SERTIFIKAT" {{ old('bukti_kepemilikan') === 'SERTIFIKAT' ? 'selected' : '' }}>SERTIFIKAT</option>
+                        </select>
+                        @error('bukti_kepemilikan')
+                          <div class="invalid-feedback" style="display:block;">{{ $message }}</div>
+                        @enderror
+                      </div>
                     </div>
                   </div>
 
@@ -1203,16 +1429,12 @@
                   <div id="kib-section-wrapper" style="display:none;margin-top:16px;">
                   <div class="buku-inventaris-section">
                     <div class="buku-inventaris-header">
-                      <div class="buku-inventaris-header-icon">
-                        <i data-feather="book-open"></i>
-                      </div>
                       <div class="buku-inventaris-header-content">
-                        <span class="buku-inventaris-title" id="kib-section-title">Data Buku Inventaris Aset Desa</span>
-                        <p class="buku-inventaris-desc">Field ini digunakan untuk mengisi data Buku Inventaris Aset Desa (KIB) sesuai format standar.</p>
+                        <span class="buku-inventaris-title" id="kib-section-title"><span id="kib-section-title-text">Data Kartu Inventaris Barang (KIB)</span>
                       </div>
                     </div>
                     {{-- Field KIB spesifik per jenis (opsional) --}}
-                    <div class="form-grid" style="grid-template-columns:1fr;margin-top:12px;" id="kib-fields-container">
+                    <div class="form-grid" style="margin-top:12px;" id="kib-fields-container">
                       <!-- Field KIB akan di-render oleh JavaScript jika jenis punya kib_type -->
                     </div>
                   </div>
@@ -1222,44 +1444,43 @@
                   <div id="laporan-aset-section-wrapper" style="display:none;margin-top:16px;">
                   <div class="buku-inventaris-section">
                     <div class="buku-inventaris-header">
-                      <div class="buku-inventaris-header-icon">
-                        <i data-feather="bar-chart-2"></i>
-                      </div>
                       <div class="buku-inventaris-header-content">
                         <span class="buku-inventaris-title">Data Laporan Aset</span>
-                        <p class="buku-inventaris-desc">Field ini digunakan untuk export Laporan Aset Per Semester dan Per Tahun.</p>
                       </div>
                     </div>
                     <div class="form-grid" style="margin-top:12px;">
                       <div class="form-group">
                         <label class="form-label" for="satuan">Satuan <span class="required">*</span></label>
                         <input type="text" id="satuan" name="satuan" class="form-control"
-                          placeholder="Contoh: Unit, Buah, M², Meter, dll."
+                          placeholder="Contoh: Unit, Buah, Set, M2"
                           value="{{ old('satuan') }}"
-                          style="width:100%;">
+                          style="width:100%;"
+                          required>
                         @error('satuan')
                           <div class="invalid-feedback" style="display:block;">{{ $message }}</div>
                         @enderror
                       </div>
                       
+                      @php
+                        $bulanNames = [
+                          1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                          5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                          9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                        ];
+                        $currBulan = old('bulan_perolehan');
+                      @endphp
                       <div class="form-group">
-                        <label class="form-label" for="bulan_perolehan">Bulan Perolehan <span class="required">*</span></label>
-                        <select id="bulan_perolehan" name="bulan_perolehan" class="form-control form-select" required>
-                          <option value="" disabled hidden {{ old('bulan_perolehan') ? '' : 'selected' }}>-- Pilih Bulan --</option>
-                          <option value="1" {{ old('bulan_perolehan') == '1' ? 'selected' : '' }}>Januari</option>
-                          <option value="2" {{ old('bulan_perolehan') == '2' ? 'selected' : '' }}>Februari</option>
-                          <option value="3" {{ old('bulan_perolehan') == '3' ? 'selected' : '' }}>Maret</option>
-                          <option value="4" {{ old('bulan_perolehan') == '4' ? 'selected' : '' }}>April</option>
-                          <option value="5" {{ old('bulan_perolehan') == '5' ? 'selected' : '' }}>Mei</option>
-                          <option value="6" {{ old('bulan_perolehan') == '6' ? 'selected' : '' }}>Juni</option>
-                          <option value="7" {{ old('bulan_perolehan') == '7' ? 'selected' : '' }}>Juli</option>
-                          <option value="8" {{ old('bulan_perolehan') == '8' ? 'selected' : '' }}>Agustus</option>
-                          <option value="9" {{ old('bulan_perolehan') == '9' ? 'selected' : '' }}>September</option>
-                          <option value="10" {{ old('bulan_perolehan') == '10' ? 'selected' : '' }}>Oktober</option>
-                          <option value="11" {{ old('bulan_perolehan') == '11' ? 'selected' : '' }}>November</option>
-                          <option value="12" {{ old('bulan_perolehan') == '12' ? 'selected' : '' }}>Desember</option>
-                        </select>
-                        <small class="form-hint">Untuk identifikasi aset masuk ke Semester 1 atau 2.</small>
+                        <label class="form-label" for="bulan_perolehan_display">Bulan Perolehan <span class="required">*</span></label>
+                        <div style="position: relative;">
+                          <input type="text" id="bulan_perolehan_display" class="form-control month-only-picker-input @error('bulan_perolehan') is-invalid @enderror"
+                            placeholder="Pilih Bulan"
+                            readonly
+                            style="cursor: pointer; padding-right: 36px;"
+                            value="{{ $currBulan ? ($bulanNames[(int)$currBulan] ?? '') : '' }}"
+                            required>
+                          <input type="hidden" id="bulan_perolehan" name="bulan_perolehan" value="{{ $currBulan }}">
+                          <i data-feather="calendar" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #9ca3af; pointer-events: none;"></i>
+                        </div>
                         @error('bulan_perolehan')
                           <div class="invalid-feedback" style="display:block;">{{ $message }}</div>
                         @enderror
@@ -1272,22 +1493,18 @@
                   <div id="kir-section-wrapper" style="display:none;margin-top:16px;">
                     <div class="buku-inventaris-section">
                       <div class="buku-inventaris-header">
-                        <div class="buku-inventaris-header-icon">
-                          <i data-feather="grid"></i>
-                        </div>
                         <div class="buku-inventaris-header-content">
                           <span class="buku-inventaris-title">Data Kartu Inventaris Ruangan (KIR)</span>
-                          <p class="buku-inventaris-desc">Field ini digunakan untuk mengisi informasi tambahan yang akan ditampilkan pada hasil export Kartu Inventaris Ruangan (KIR).</p>
                         </div>
                       </div>
-                      <div class="form-grid" style="grid-template-columns:1fr;margin-top:12px;">
+                      <div class="form-grid" style="margin-top:12px;">
                         <div class="form-group">
                           <label class="form-label" for="ruangan_id">Ruangan <span class="required">*</span></label>
-                          <select name="ruangan_id" id="ruangan_id" class="form-control form-select">
-                            <option value="" disabled hidden selected>-- Pilih Ruangan --</option>
+                          <select name="ruangan_id" id="ruangan_id" class="form-control form-select" required>
+                            <option value="" disabled hidden selected>Pilih Ruangan</option>
                             @foreach($ruanganList as $ruangan)
                               <option value="{{ $ruangan->id }}" {{ old('ruangan_id') == $ruangan->id ? 'selected' : '' }}>
-                                {{ $ruangan->nama }}{{ $ruangan->kode ? ' ('.$ruangan->kode.')' : '' }}
+                                {{ $ruangan->nama }}{{ $ruangan->kode ? ' (Kode: '.$ruangan->kode.')' : '' }}
                               </option>
                             @endforeach
                           </select>
@@ -1298,41 +1515,43 @@
                         
                         @php
                           $kirFields = [
-                            ['key' => 'kir_konstruksi',    'label' => 'Konstruksi',     'placeholder' => 'Masukkan Konstruksi',     'type' => 'text'],
-                            ['key' => 'kir_luas',          'label' => 'Luas',            'placeholder' => 'Masukkan Luas',           'type' => 'text'],
-                            ['key' => 'kir_merk_tipe',     'label' => 'Merk / Tipe',     'placeholder' => 'Masukkan Merk / Tipe',    'type' => 'text'],
-                            ['key' => 'kir_warna',         'label' => 'Warna',           'placeholder' => 'Masukkan Warna',          'type' => 'text'],
-                            ['key' => 'kir_judul',         'label' => 'Judul',           'placeholder' => 'Masukkan Judul',          'type' => 'text'],
-                            ['key' => 'kir_pencipta',      'label' => 'Pencipta',        'placeholder' => 'Masukkan Pencipta',       'type' => 'text'],
-                            ['key' => 'kir_no_pol',        'label' => 'No. Polisi',      'placeholder' => 'Masukkan No. Polisi',     'type' => 'text'],
-                            // Field tambahan untuk Format 2 (Desa Demo)
-                            ['key' => 'kir_no_seri_pabrik','label' => 'No. Seri Pabrik', 'placeholder' => 'Masukkan No. Seri Pabrik','type' => 'text'],
-                            ['key' => 'kir_panjang',       'label' => 'Panjang (P)',     'placeholder' => 'Contoh: 70cm',            'type' => 'text'],
-                            ['key' => 'kir_lebar',         'label' => 'Lebar (L)',       'placeholder' => 'Contoh: 20cm',            'type' => 'text'],
-                            ['key' => 'kir_tinggi',        'label' => 'Tinggi (T)',      'placeholder' => 'Contoh: 100cm',           'type' => 'text'],
-                            ['key' => 'kir_bahan',         'label' => 'Bahan',           'placeholder' => 'Contoh: Kayu, Besi, Plastik', 'type' => 'text'],
-                            ['key' => 'kir_kondisi',       'label' => 'Kondisi Aset',    'placeholder' => '',                        'type' => 'select'],
+                            ['key' => 'kir_konstruksi',    'label' => 'Konstruksi',     'placeholder' => 'Contoh: Beton, Kayu, Baja', 'type' => 'text'],
+                            ['key' => 'kir_luas',          'label' => 'Luas',            'placeholder' => 'Contoh: 120 m²', 'type' => 'text'],
+                            ['key' => 'kir_merk_tipe',     'label' => 'Merk / Tipe',     'placeholder' => 'Contoh: Honda Vario, Asus ZenBook', 'type' => 'text'],
+                            ['key' => 'kir_warna',         'label' => 'Warna',           'placeholder' => 'Contoh: Hitam, Putih, Merah', 'type' => 'text'],
+                            ['key' => 'kir_judul',         'label' => 'Judul',           'placeholder' => 'Judul buku / karya', 'type' => 'text'],
+                            ['key' => 'kir_pencipta',      'label' => 'Pencipta',        'placeholder' => 'Nama pengarang / pencipta', 'type' => 'text'],
+                            ['key' => 'kir_no_pol',        'label' => 'No. Polisi',      'placeholder' => 'Contoh: DK 1234 AB', 'type' => 'text'],
+                            // Field tambahan untuk Format 2 (Format Khusus 3 TTD)
+                            ['key' => 'kir_no_seri_pabrik','label' => 'No. Seri Pabrik', 'placeholder' => 'Nomor seri pabrik', 'type' => 'text'],
+                            ['key' => 'kir_panjang',       'label' => 'Panjang (P)',     'placeholder' => 'Contoh: 200 cm', 'type' => 'text'],
+                            ['key' => 'kir_lebar',         'label' => 'Lebar (L)',       'placeholder' => 'Contoh: 80 cm', 'type' => 'text'],
+                            ['key' => 'kir_tinggi',        'label' => 'Tinggi (T)',      'placeholder' => 'Contoh: 75 cm', 'type' => 'text'],
+                            ['key' => 'kir_bahan',         'label' => 'Bahan',           'placeholder' => 'Contoh: Kayu Jati, Besi', 'type' => 'text'],
+                            ['key' => 'kir_kondisi',       'label' => 'Kondisi Aset',    'placeholder' => '', 'type' => 'select'],
                           ];
                         @endphp
                         @foreach($kirFields as $kf)
                           @php
                             $normKey = strtolower(trim($kf['key']));
                             $normLabel = strtolower(trim(str_replace(['*', '(', ')', '/'], '', $kf['label'])));
-                            $dataUmumKeys = ['nama_barang', 'jenis_barang', 'kode_barang', 'nup', 'tahun_perolehan', 'nilai_perolehan', 'keterangan', 'asal_usul', 'pengguna', 'satuan'];
-                            $dataUmumLabels = ['nama barang', 'jenis barang / nama barang', 'jenis barang', 'kode barang', 'nup', 'tahun perolehan', 'nilai perolehan', 'keterangan', 'asal usul', 'asal usul barang', 'pengguna', 'satuan'];
+                            $dataUmumKeys = ['nama_barang', 'jenis_barang', 'kode_barang', 'nup', 'tahun_perolehan', 'nilai_perolehan', 'keterangan', 'asal_usul', 'bukti_kepemilikan', 'pengguna', 'satuan'];
+                            $dataUmumLabels = ['nama barang', 'jenis barang / nama barang', 'jenis barang', 'kode barang', 'nup', 'tahun perolehan', 'nilai perolehan', 'keterangan', 'asal usul', 'asal usul barang', 'bukti kepemilikan', 'pengguna', 'satuan'];
                             
                             if (in_array($normKey, $dataUmumKeys) || in_array($normLabel, $dataUmumLabels)) {
                                 continue;
                             }
                           @endphp
                           <div class="form-group">
-                            <label class="form-label" for="{{ $kf['key'] }}">{{ $kf['label'] }}</label>
+                            <label class="form-label" for="{{ $kf['key'] }}">
+                              {{ $kf['label'] }}
+                            </label>
                             @if(($kf['type'] ?? 'text') === 'select')
                               <select id="{{ $kf['key'] }}" name="kir[{{ $kf['key'] }}]" class="form-control form-select">
-                                <option value="" {{ old('kir.'.$kf['key']) === null ? 'selected' : '' }}>-- Pilih Kondisi --</option>
-                                <option value="baik"        {{ old('kir.'.$kf['key']) === 'baik'         ? 'selected' : '' }}>Baik (B)</option>
-                                <option value="rusak_ringan"{{ old('kir.'.$kf['key']) === 'rusak_ringan'  ? 'selected' : '' }}>Kurang Baik (KB)</option>
-                                <option value="rusak_berat" {{ old('kir.'.$kf['key']) === 'rusak_berat'   ? 'selected' : '' }}>Rusak Berat (RB)</option>
+                                <option value="" {{ old('kir.'.$kf['key']) === null ? 'selected' : '' }}>Pilih Kondisi</option>
+                                <option value="baik"        {{ old('kir.'.$kf['key']) === 'baik'         ? 'selected' : '' }}>Baik</option>
+                                <option value="rusak_ringan"{{ old('kir.'.$kf['key']) === 'rusak_ringan'  ? 'selected' : '' }}>Kurang Baik</option>
+                                <option value="rusak_berat" {{ old('kir.'.$kf['key']) === 'rusak_berat'   ? 'selected' : '' }}>Rusak Berat</option>
                               </select>
                             @else
                               <input type="text" id="{{ $kf['key'] }}" name="kir[{{ $kf['key'] }}]" class="form-control" placeholder="{{ $kf['placeholder'] }}" value="{{ old('kir.' . $kf['key']) }}" />
@@ -1347,21 +1566,17 @@
                   <div id="foto-section-wrapper" style="display:none;margin-top:16px;margin-bottom:20px;">
                     <div class="buku-inventaris-section">
                       <div class="buku-inventaris-header" style="margin-bottom: 16px;">
-                        <div class="buku-inventaris-header-icon">
-                          <i data-feather="image"></i>
-                        </div>
                         <div class="buku-inventaris-header-content">
                           <span class="buku-inventaris-title">Foto Aset</span>
-                          <p class="buku-inventaris-desc">Unggah foto aset untuk mendokumentasikan kondisi fisik aset (maksimal 5 foto).</p>
                         </div>
                       </div>
 
                       <input type="file" id="foto-input" name="fotos[]" accept="image/jpeg,image/png,image/webp" multiple style="display:none;" onchange="handleFotoPreview(this)">
 
                       {{-- Drop area --}}
-                      <div class="file-upload-area" id="foto-drop-area" onclick="document.getElementById('foto-input').click()">
-                        <div class="file-upload-icon">
-                          <i data-feather="image"></i>
+                      <div class="file-upload-area" id="foto-drop-area" onclick="handleCreateDropAreaClick()">
+                        <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: 8px;">
+                          <i data-feather="upload-cloud" style="width: 28px; height: 28px; stroke-width: 1.5; color: var(--color-text-muted); display: block; margin: 0 auto;"></i>
                         </div>
                         <div class="file-upload-text">Klik atau drag &amp; drop untuk upload foto</div>
                         <div class="file-upload-hint">Format: JPG, PNG, WEBP &mdash; Maks. 5 foto, setiap foto &le;5MB (total &le;25MB)</div>
@@ -1377,19 +1592,14 @@
                   <!-- Section Simpan Beberapa Salinan -->
                   <div class="buku-inventaris-section" id="copy-section" style="display:none;margin-top:16px;">
                     <div class="buku-inventaris-header">
-                      <div class="buku-inventaris-header-icon">
-                        <i data-feather="copy"></i>
-                      </div>
                       <div class="buku-inventaris-header-content">
-                        <div class="buku-inventaris-title">Simpan Beberapa Salinan</div>
-                        <p class="buku-inventaris-desc">Aktifkan untuk menyimpan aset ini lebih dari satu kali sekaligus dengan data yang sama.</p>
+                        <span class="buku-inventaris-title">Simpan Beberapa Salinan</span>
                       </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:10px;margin-bottom:0;" id="copy-toggle-row">
-                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#374151;font-weight:500;user-select:none;">
-                        <input type="checkbox" id="copy-enabled" onchange="toggleCopySection(this)"
-                          style="width:16px;height:16px;accent-color:#064635;cursor:pointer;">
-                        Simpan lebih dari 1 salinan
+                      <label style="display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px;color:var(--color-text, #16251b);font-weight:500;user-select:none;">
+                        <input type="checkbox" id="copy-enabled" class="sima-checkbox" onchange="toggleCopySection(this)">
+                        <span>Simpan lebih dari 1 salinan</span>
                       </label>
                     </div>
                     <div id="copy-count-row" style="display:none;margin-top:12px;">
@@ -1408,7 +1618,7 @@
                       <i data-feather="x"></i>
                       Batal
                     </button>
-                    <button type="button" class="btn-submit" id="btn-submit-main" onclick="submitSimpanAset()">
+                    <button type="button" class="btn-submit" id="btn-submit-main">
                       <i data-feather="save"></i>
                       <span id="btn-submit-label">Simpan Aset</span>
                     </button>
@@ -1494,11 +1704,27 @@
     let selectedJenis = null;
 
     function formatRupiah(raw) {
-      let parts = raw.split(',');
+      if (raw === null || raw === undefined || raw === '') return '';
+      let str = String(raw).trim();
+      // Handle standard float format from DB e.g. "1633378511.15"
+      if (/^-?\d+\.\d{1,2}$/.test(str)) {
+        let p = str.split('.');
+        let intPart = p[0].replace(/\D/g, '');
+        let intF = intPart ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '0';
+        let dec = p[1].substring(0, 2);
+        return parseInt(dec, 10) > 0 ? intF + ',' + dec : intF;
+      }
+      // If user pasted something like 1.633.378.511.15 (multiple dots where last is 1-2 digits)
+      let dotParts = str.split('.');
+      if (!str.includes(',') && dotParts.length > 2 && dotParts[dotParts.length - 1].length <= 2) {
+        let last = dotParts.pop();
+        str = dotParts.join('') + ',' + last;
+      }
+      let parts = str.split(',');
       let intPart = parts[0].replace(/\./g, '').replace(/\D/g, '');
       let hasComma = parts.length > 1;
       let decPart = hasComma ? parts[1].replace(/\D/g, '').substring(0, 2) : null;
-      let formatted = intPart === '' ? '' : new Intl.NumberFormat('id-ID').format(parseInt(intPart) || 0);
+      let formatted = intPart ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
       if (hasComma) formatted += ',' + decPart;
       return formatted;
     }
@@ -1754,6 +1980,10 @@
       });
     }
 
+    function getSyncBadge(labelOrKey) {
+      return '';
+    }
+
     function renderDynamicFields(jenisId) {
       const section = document.getElementById('builder-fields-section');
       const container = document.getElementById('builder-fields-container');
@@ -1778,6 +2008,14 @@
         message.style.display = 'none';
       }
 
+      function getOldVal(fName, isFixed) {
+        if (!oldInput || typeof oldInput !== 'object') return '';
+        if (isFixed && oldInput[fName] !== undefined && oldInput[fName] !== null) return String(oldInput[fName]);
+        if (oldInput.dynamic && oldInput.dynamic[fName] !== undefined && oldInput.dynamic[fName] !== null) return String(oldInput.dynamic[fName]);
+        if (oldInput[fName] !== undefined && oldInput[fName] !== null) return String(oldInput[fName]);
+        return '';
+      }
+
       fields.sort((a, b) => (a.order || 0) - (b.order || 0));
 
       container.innerHTML = fields.filter(f => {
@@ -1797,35 +2035,36 @@
         const fieldTypeFixed = f.field_type === 'fixed';
         const isFixedYearField = fieldTypeFixed && (f.fixed_field_name === 'tahun_perolehan' || fieldName === 'tahun_perolehan');
         const fieldType = isFixedYearField ? 'year' : (f.tipe || 'text');
+        const oldVal = getOldVal(fieldName, fieldTypeFixed);
 
         if (fieldType === 'textarea') {
-          inputHtml = `<textarea id="${fieldName}" name="${fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`}" class="form-control" rows="2" placeholder="${fieldLabel}..." ${fieldRequired ? 'required' : ''}></textarea>`;
+          inputHtml = `<textarea id="${fieldName}" name="${fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`}" class="form-control" rows="4" placeholder="${fieldLabel}..." ${fieldRequired ? 'required' : ''}>${oldVal}</textarea>`;
         } else if (fieldType === 'year') {
-          inputHtml = `<input type="text" id="${fieldName}" name="${fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`}" class="form-control year-picker" inputmode="numeric" maxlength="4" data-min-year="1900" data-max-year="${thisYear + 1}" placeholder="Pilih tahun" ${fieldRequired ? 'required' : ''} />`;
+          inputHtml = `<input type="text" id="${fieldName}" name="${fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`}" class="form-control year-picker" inputmode="numeric" maxlength="4" data-min-year="1900" data-max-year="${thisYear + 1}" placeholder="Pilih tahun" value="${oldVal}" ${fieldRequired ? 'required' : ''} />`;
         } else if (fieldType === 'month') {
-          inputHtml = `<input type="text" id="${fieldName}" name="${fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`}" class="form-control month-picker" data-min-year="1900" data-max-year="${thisYear + 1}" placeholder="Pilih bulan dan tahun" ${fieldRequired ? 'required' : ''} />`;
+          inputHtml = `<input type="text" id="${fieldName}" name="${fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`}" class="form-control month-picker" data-min-year="1900" data-max-year="${thisYear + 1}" placeholder="Pilih bulan dan tahun" value="${oldVal}" ${fieldRequired ? 'required' : ''} />`;
         } else if (fieldType === 'date') {
-          inputHtml = `<input type="text" id="${fieldName}" name="${fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`}" class="form-control date-picker" placeholder="Pilih tanggal" ${fieldRequired ? 'required' : ''} />`;
+          inputHtml = `<input type="text" id="${fieldName}" name="${fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`}" class="form-control date-picker" placeholder="Pilih tanggal" value="${oldVal}" ${fieldRequired ? 'required' : ''} />`;
         } else if (isCurrencyField(fieldType, fieldName, fieldLabel)) {
           const inputName = fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`;
-          inputHtml = `<div class="currency-input-wrapper"><span class="currency-prefix">Rp</span><input type="text" id="${fieldName}" name="${inputName}" class="form-control currency-rupiah-input" placeholder="0" ${fieldRequired ? 'required' : ''} /></div>`;
+          inputHtml = `<div class="currency-input-wrapper"><span class="currency-prefix">Rp</span><input type="text" id="${fieldName}" name="${inputName}" class="form-control currency-rupiah-input" placeholder="0" value="${formatRupiah(oldVal)}" ${fieldRequired ? 'required' : ''} /></div>`;
         } else if (fieldType === 'decimal_m2') {
           const inputName = fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`;
-          inputHtml = `<div class="unit-suffix-input-wrapper"><input type="text" id="${fieldName}" name="${inputName}" class="form-control decimal-locale-input" inputmode="decimal" placeholder="0" data-kib-sync="luas_m2" ${fieldRequired ? 'required' : ''} /><span class="unit-suffix">m²</span></div>`;
+          inputHtml = `<div class="unit-suffix-input-wrapper"><input type="text" id="${fieldName}" name="${inputName}" class="form-control decimal-locale-input" inputmode="decimal" placeholder="0" value="${oldVal}" data-kib-sync="luas_m2" ${fieldRequired ? 'required' : ''} /><span class="unit-suffix">m²</span></div>`;
         } else if (fieldType === 'decimal_km') {
           const inputName = fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`;
-          inputHtml = `<div class="unit-suffix-input-wrapper"><input type="text" id="${fieldName}" name="${inputName}" class="form-control decimal-locale-input" inputmode="decimal" placeholder="0" data-kib-sync="panjang_km" ${fieldRequired ? 'required' : ''} /><span class="unit-suffix">km</span></div>`;
+          inputHtml = `<div class="unit-suffix-input-wrapper"><input type="text" id="${fieldName}" name="${inputName}" class="form-control decimal-locale-input" inputmode="decimal" placeholder="0" value="${oldVal}" data-kib-sync="panjang_km" ${fieldRequired ? 'required' : ''} /><span class="unit-suffix">km</span></div>`;
         } else if (fieldType === 'decimal_m') {
           const inputName = fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`;
-          inputHtml = `<div class="unit-suffix-input-wrapper"><input type="text" id="${fieldName}" name="${inputName}" class="form-control decimal-locale-input" inputmode="decimal" placeholder="0" data-kib-sync="lebar_m" ${fieldRequired ? 'required' : ''} /><span class="unit-suffix">m</span></div>`;
+          inputHtml = `<div class="unit-suffix-input-wrapper"><input type="text" id="${fieldName}" name="${inputName}" class="form-control decimal-locale-input" inputmode="decimal" placeholder="0" value="${oldVal}" data-kib-sync="lebar_m" ${fieldRequired ? 'required' : ''} /><span class="unit-suffix">m</span></div>`;
         } else if (fieldType === 'number') {
-          inputHtml = `<input type="text" id="${fieldName}" name="${fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`}" class="form-control decimal-locale-input" inputmode="decimal" placeholder="0" ${fieldRequired ? 'required' : ''} />`;
+          inputHtml = `<input type="text" id="${fieldName}" name="${fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`}" class="form-control decimal-locale-input" inputmode="decimal" placeholder="0" value="${oldVal}" ${fieldRequired ? 'required' : ''} />`;
         } else if (fieldType === 'select' && fieldName === 'kondisi') {
           inputHtml = `<select id="kondisi" name="kondisi" class="form-control form-select" ${fieldRequired ? 'required' : ''}>
-            <option value="" disabled hidden selected>-- Pilih Kondisi --</option>
-            <option value="baik">Baik</option>
-            <option value="rusak_ringan">Rusak Ringan</option>
-            <option value="rusak_berat">Rusak Berat</option>
+            <option value="" disabled hidden ${oldVal ? '' : 'selected'}>Pilih Kondisi</option>
+            <option value="baik" ${oldVal === 'baik' ? 'selected' : ''}>Baik</option>
+            <option value="rusak_ringan" ${oldVal === 'rusak_ringan' ? 'selected' : ''}>Rusak Ringan</option>
+            <option value="rusak_berat" ${oldVal === 'rusak_berat' ? 'selected' : ''}>Rusak Berat</option>
           </select>`;
         } else if (fieldTypeFixed && f.fixed_field_name === 'kode_barang') {
           // Kode barang: search modal hierarki 5 level
@@ -1835,38 +2074,59 @@
       class="form-control"
       placeholder="Pilih kode barang..."
       readonly
-      style="flex:1;background:#ffffff;cursor:pointer;"
+      style="flex:1;cursor:pointer;"
       onclick="openKodeBarangSearch()"
-      value="">
+      value="${oldVal}">
     <button type="button" onclick="openKodeBarangSearch()"
-      style="padding:10px 14px;background:linear-gradient(135deg,#064635,#1c5240);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;">
-      <i data-feather="search" style="width:14px;height:14px;stroke:#fff;"></i> Cari
+      title="Cari Kode Barang" aria-label="Cari Kode Barang"
+      style="width:46px;height:46px;min-width:46px;flex-shrink:0;background:var(--color-primary);color:#fff;border:none;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:none;transition:background-color 0.2s ease;">
+      <i data-feather="search" style="width:16px;height:16px;stroke:#fff;"></i>
     </button>
   </div>
-  <div id="kode-barang-selected-info" style="display:none;margin-top:6px;padding:8px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;font-size:12px;color:#166534;"></div>
+  <div id="kode-barang-selected-info" style="display:none;margin-top:6px;padding-left:14px;font-size:12px;font-weight:500;color:#166534;line-height:1.4;"></div>
 </div>`;
         } else if (fieldTypeFixed && f.fixed_field_name === 'nup') {
-          // NUP: hanya angka, tapi disimpan sebagai text (bisa leading zero)
-          inputHtml = `<input type="text" id="${fieldName}" name="${fieldName}" class="form-control numeric-only-input" inputmode="numeric" pattern="[0-9]*" placeholder="NUP" ${fieldRequired ? 'required' : ''} />`;
+          // NUP: hanya angka, auto-filled saat kode barang dipilih, default readonly
+          inputHtml = `
+            <div style="position:relative;">
+              <input type="text" id="${fieldName}" name="${fieldName}" class="form-control numeric-only-input" inputmode="numeric" pattern="[0-9]*" placeholder="NUP" value="${oldVal}" readonly style="cursor:not-allowed;" ${fieldRequired ? 'required' : ''} />
+              <div id="nup-info-wrap" style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                <span id="nup-history-hint" style="font-size:12px;color:var(--color-text-muted);line-height:1.4;">
+                  Pilih kode barang di atas untuk menentukan NUP otomatis.
+                </span>
+                <button type="button" id="btn-unlock-nup" onclick="confirmUnlockNup()" style="display:none;background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--color-primary);text-decoration:underline;text-underline-offset:3px;cursor:pointer;">
+                  Edit NUP ini
+                </button>
+              </div>
+            </div>`;
         } else if (fieldType === 'dropdown') {
           const inputName = fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`;
           if (f.dropdown_items && f.dropdown_items.length > 0) {
-            const opts = f.dropdown_items.map(item => `<option value="${item.label}">${item.label}</option>`).join('');
+            const opts = f.dropdown_items.map(item => `<option value="${item.label}" ${oldVal === item.label ? 'selected' : ''}>${item.label}</option>`).join('');
             inputHtml = `<select id="${fieldName}" name="${inputName}" class="form-control form-select" ${fieldRequired ? 'required' : ''}>
-              <option value="" disabled hidden selected>-- Pilih ${fieldLabel} --</option>
+              <option value="" disabled hidden ${oldVal ? '' : 'selected'}>Pilih ${fieldLabel}</option>
               ${opts}
             </select>`;
           } else {
             // Dropdown belum dikonfigurasi atau tidak ada items
             inputHtml = `<select id="${fieldName}" name="${inputName}" class="form-control form-select" ${fieldRequired ? 'required' : ''} disabled>
-              <option value="">-- Dropdown belum dikonfigurasi --</option>
+              <option value="">Dropdown belum dikonfigurasi</option>
             </select>`;
           }
         } else {
-          inputHtml = `<input type="${fieldType}" id="${fieldName}" name="${fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`}" class="form-control" placeholder="${fieldLabel}" ${fieldRequired ? 'required' : ''} />`;
+          inputHtml = `<input type="${fieldType}" id="${fieldName}" name="${fieldTypeFixed ? fieldName : `dynamic[${fieldName}]`}" class="form-control" placeholder="${fieldLabel}..." value="${oldVal}" ${fieldRequired ? 'required' : ''} />`;
         }
 
-        return `\n              <div class="form-group">\n                <label class="form-label" for="${fieldName}">\n                  ${fieldLabel} ${reqMark}\n                </label>\n                ${inputHtml}\n              </div>\n            `;
+        const isFullWidth = fieldType === 'textarea' || fieldName === 'keterangan' || fieldName === 'alamat' || fieldName === 'lokasi' || fieldName === 'catatan';
+        const groupClass = isFullWidth ? 'form-group form-full' : 'form-group';
+        return `
+              <div class="${groupClass}">
+                <label class="form-label" for="${fieldName}">
+                  ${fieldLabel} ${reqMark}
+                </label>
+                ${inputHtml}
+              </div>
+            `;
       }).join('');
 
       section.style.display = 'block';
@@ -1887,9 +2147,12 @@
       attachNumericOnlyInputListener(section);
       initYearPickers(section);
       initMonthPickers(section);
+      initMonthOnlyPickers(document);
       initDatePickers(document);
-      // Auto-fill kode barang SETELAH DOM field sudah dirender
-      // (Kode barang sekarang dipilih via modal search hierarki)
+      const currentKb = document.getElementById('kode_barang')?.value;
+      if (currentKb) {
+        fetchAndSetNextNup(currentKb);
+      }
     }
 
     // Populate kode barang dropdown dari semua konfigurasi yang ada
@@ -1911,7 +2174,13 @@
       }
 
       // Update judul section
-      if (titleEl) titleEl.textContent = 'Data KIB — ' + (kibConfig.nama || '');
+      const titleTextEl = document.getElementById('kib-section-title-text');
+      if (titleTextEl) {
+        titleTextEl.textContent = 'Data Kartu Inventaris Barang (KIB) — ' + (kibConfig.nama || '');
+      } else if (titleEl) {
+        titleEl.innerHTML = '<i data-feather="file-text"></i><span>Data Kartu Inventaris Barang (KIB) — ' + (kibConfig.nama || '') + '</span>';
+      }
+      if (window.feather) feather.replace();
 
       // Render field-field KIB
       let html = '';
@@ -1919,27 +2188,33 @@
         // Cek apakah field ini duplikat dengan Data Umum
         const normKey = (field.key || '').toLowerCase().trim();
         const normLabel = (field.label || '').toLowerCase().trim().replace(/\*/g, '').replace(/\(.*?\)/g, '').trim();
-        const dataUmumKeys = ['nama_barang', 'jenis_barang', 'kode_barang', 'nup', 'tahun_perolehan', 'nilai_perolehan', 'keterangan', 'asal_usul', 'pengguna', 'kondisi', 'satuan'];
-        const dataUmumLabels = ['nama barang', 'jenis barang / nama barang', 'jenis barang', 'kode barang', 'nup', 'tahun perolehan', 'nilai perolehan', 'keterangan', 'asal usul', 'asal usul barang', 'pengguna', 'kondisi', 'satuan'];
+        const dataUmumKeys = ['nama_barang', 'jenis_barang', 'kode_barang', 'nup', 'tahun_perolehan', 'nilai_perolehan', 'keterangan', 'asal_usul', 'bukti_kepemilikan', 'pengguna', 'kondisi', 'satuan'];
+        const dataUmumLabels = ['nama barang', 'jenis barang / nama barang', 'jenis barang', 'kode barang', 'nup', 'tahun perolehan', 'nilai perolehan', 'keterangan', 'asal usul', 'asal usul barang', 'bukti kepemilikan', 'pengguna', 'kondisi', 'satuan'];
         
         if (dataUmumKeys.includes(normKey) || dataUmumLabels.includes(normLabel)) {
           return; // Lewati rendering jika duplikat dengan Data Umum
         }
         const inputName = 'kib[' + field.key + ']';
         const inputId = 'kib_' + field.key;
-        let inputHtml = '';
+        function getOldKibVal(key) {
+          if (!oldInput || typeof oldInput !== 'object') return '';
+          if (oldInput.kib && oldInput.kib[key] !== undefined && oldInput.kib[key] !== null) return String(oldInput.kib[key]);
+          return '';
+        }
+        const oldKibVal = getOldKibVal(field.key);
 
+        const placeholderText = 'Masukkan ' + (field.label || '').toLowerCase() + '...';
         if (field.type === 'select' && field.options) {
           inputHtml = '<select id="' + inputId + '" name="' + inputName + '" class="form-control form-select">';
-          inputHtml += '<option value="" disabled hidden selected>-- Pilih --</option>';
+          inputHtml += '<option value="" disabled hidden ' + (oldKibVal ? '' : 'selected') + '>Pilih ' + field.label + '</option>';
           field.options.forEach(function(opt) {
-            inputHtml += '<option value="' + opt + '">' + opt + '</option>';
+            inputHtml += '<option value="' + opt + '" ' + (oldKibVal === opt ? 'selected' : '') + '>' + opt + '</option>';
           });
           inputHtml += '</select>';
         } else if (field.type === 'textarea') {
-          inputHtml = '<textarea id="' + inputId + '" name="' + inputName + '" class="form-control" rows="2" placeholder="' + field.label + '"></textarea>';
+          inputHtml = '<textarea id="' + inputId + '" name="' + inputName + '" class="form-control" rows="4" placeholder="' + placeholderText + '">' + oldKibVal + '</textarea>';
         } else if (field.type === 'decimal') {
-          inputHtml = '<div class="unit-suffix-input-wrapper"><input type="text" id="' + inputId + '" name="' + inputName + '" class="form-control decimal-locale-input" inputmode="decimal" placeholder="0" />';
+          inputHtml = '<div class="unit-suffix-input-wrapper"><input type="text" id="' + inputId + '" name="' + inputName + '" class="form-control decimal-locale-input" inputmode="decimal" placeholder="0" value="' + oldKibVal + '" />';
           // Tambah suffix satuan berdasarkan key
           let suffix = '';
           if (field.key.endsWith('_m2') || field.key === 'luas_m2') suffix = 'm²';
@@ -1948,14 +2223,16 @@
           if (suffix) inputHtml += '<span class="unit-suffix">' + suffix + '</span>';
           inputHtml += '</div>';
         } else if (field.type === 'year') {
-          inputHtml = '<input type="text" id="' + inputId + '" name="' + inputName + '" class="form-control year-picker" inputmode="numeric" maxlength="4" data-min-year="1900" data-max-year="' + (new Date().getFullYear() + 1) + '" placeholder="Pilih tahun" />';
+          inputHtml = '<input type="text" id="' + inputId + '" name="' + inputName + '" class="form-control year-picker" inputmode="numeric" maxlength="4" data-min-year="1900" data-max-year="' + (new Date().getFullYear() + 1) + '" placeholder="Pilih tahun" value="' + oldKibVal + '" />';
         } else if (field.type === 'date') {
-          inputHtml = '<input type="text" id="' + inputId + '" name="' + inputName + '" class="form-control date-picker" placeholder="Pilih tanggal" />';
+          inputHtml = '<input type="text" id="' + inputId + '" name="' + inputName + '" class="form-control date-picker" placeholder="Pilih tanggal" value="' + oldKibVal + '" />';
         } else {
-          inputHtml = '<input type="text" id="' + inputId + '" name="' + inputName + '" class="form-control" placeholder="' + field.label + '" />';
+          inputHtml = '<input type="text" id="' + inputId + '" name="' + inputName + '" class="form-control" placeholder="' + placeholderText + '" value="' + oldKibVal + '" />';
         }
 
-        html += '<div class="form-group">';
+        const isFullWidth = field.type === 'textarea' || field.key === 'keterangan' || field.key === 'alamat' || field.key === 'lokasi';
+        const groupClass = isFullWidth ? 'form-group form-full' : 'form-group';
+        html += '<div class="' + groupClass + '">';
         html += '<label class="form-label" for="' + inputId + '">' + field.label + '</label>';
         html += inputHtml;
         html += '</div>';
@@ -2044,7 +2321,7 @@
           keywords: ['no pol', 'nopol', 'nomor polisi', 'no. pol', 'polisi'],
           targets: ['kir_no_pol']
         },
-        // Group tambahan untuk Format 2 (Desa Demo)
+        // Group tambahan untuk Format 2 (Format Khusus 3 TTD)
         {
           name: 'bahan',
           keywords: ['bahan'],
@@ -2077,7 +2354,7 @@
         }
       ];
 
-      const excludedIds = ['nama_barang', 'kode_barang', 'kode_barang_edit', 'nup', 'tahun_perolehan', 'nilai_perolehan', 'keterangan', 'asal_usul', 'pengguna'];
+      const excludedIds = ['nama_barang', 'kode_barang', 'kode_barang_edit', 'nup', 'tahun_perolehan', 'nilai_perolehan', 'keterangan', 'asal_usul', 'bukti_kepemilikan', 'pengguna'];
 
       function isEligible(input) {
         if (input.type === 'hidden' || input.type === 'file' || input.disabled || input.readOnly) {
@@ -2276,6 +2553,96 @@
         html += `<button type="button" class="month-picker-option${activeClass}" data-month="${month}">${monthLabels[month]}</button>`;
       }
       state.grid.innerHTML = html;
+    }
+
+    const BULAN_FULL_NAMES = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    const BULAN_GRID_SHORTS = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+    ];
+
+    function initMonthOnlyPickers(root) {
+      const scope = root || document;
+      const inputs = scope.querySelectorAll('.month-only-picker-input');
+      if (!inputs.length || typeof flatpickr === 'undefined') return;
+
+      inputs.forEach(function(displayInput) {
+        if (displayInput._flatpickr) {
+          displayInput._flatpickr.destroy();
+        }
+
+        const hiddenInput = displayInput.parentElement.querySelector('input[type="hidden"]');
+
+        flatpickr(displayInput, {
+          allowInput: false,
+          disableMobile: true,
+          position: 'auto left',
+          onReady: function(_, __, instance) {
+            setupMonthOnlyPanel(instance, hiddenInput);
+          },
+          onOpen: function(_, __, instance) {
+            setupMonthOnlyPanel(instance, hiddenInput);
+          }
+        });
+      });
+    }
+
+    function setupMonthOnlyPanel(instance, hiddenInput) {
+      const cal = instance.calendarContainer;
+      if (!cal) return;
+
+      cal.classList.add('month-only-picker');
+
+      let panel = cal.querySelector('.month-only-panel');
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.className = 'month-only-panel';
+        panel.innerHTML = `
+          <div class="month-only-header">
+            <span class="month-only-title">Pilih Bulan</span>
+          </div>
+          <div class="month-only-grid"></div>
+        `;
+        cal.appendChild(panel);
+
+        const grid = panel.querySelector('.month-only-grid');
+        BULAN_GRID_SHORTS.forEach((shortName, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'month-only-option';
+          btn.dataset.month = String(idx + 1);
+          btn.textContent = shortName;
+          grid.appendChild(btn);
+        });
+
+        grid.addEventListener('click', function(e) {
+          const btn = e.target.closest('.month-only-option');
+          if (!btn) return;
+          const monthNum = parseInt(btn.dataset.month, 10);
+          if (!monthNum) return;
+
+          if (hiddenInput) {
+            hiddenInput.value = monthNum;
+            hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+
+          instance.input.value = BULAN_FULL_NAMES[monthNum - 1];
+          instance.input.dispatchEvent(new Event('change', { bubbles: true }));
+          instance.input.classList.remove('is-invalid');
+
+          instance.close();
+        });
+      }
+
+      // Update active state
+      const currentVal = hiddenInput ? parseInt(hiddenInput.value, 10) : 0;
+      panel.querySelectorAll('.month-only-option').forEach(btn => {
+        const m = parseInt(btn.dataset.month, 10);
+        btn.classList.toggle('active', m === currentVal);
+      });
     }
 
     function initDatePickers(root) {
@@ -2500,23 +2867,29 @@
           // Update trigger label
           const selectedData = jenisInventaris.find(j => j.id === id);
           if (selectedData) {
-            const icon = selectedData.icon || 'box';
-            const colors = selectedData.color_gradient || ['#6b7280', '#4b5563'];
-            const gradient = `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)`;
-            
             document.getElementById('jenis-dropdown-selected-label').innerHTML = `
-              <div style="display:flex;align-items:center;gap:10px;">
-                <div style="width:24px;height:24px;border-radius:6px;background:${gradient};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                  <i data-feather="${icon}" style="width:12px;height:12px;color:#fff;stroke:#fff;"></i>
-                </div>
-                <span style="font-size:13px;font-weight:600;color:#1f2937;">${selectedData.nama}</span>
-              </div>
+              <span style="font-size:13px;font-weight:600;color:var(--color-text);">${selectedData.nama}</span>
             `;
-            if (typeof feather !== 'undefined') try { feather.replace(); } catch (e) {}
           }
 
+          // Instant Recovery state validasi
+          if (typeof window.simaClearFieldError === 'function') {
+            window.simaClearFieldError(trigger);
+          }
+          trigger.classList.remove('is-invalid', 'error');
+          trigger.style.borderColor = '';
+          const jSection = document.getElementById('jenis-inventaris-section') || trigger.closest('.buku-inventaris-section');
+          if (jSection) jSection.classList.remove('has-error');
+          const jLabel = document.getElementById('jenis-inventaris-label') || document.querySelector('.buku-inventaris-title');
+          if (jLabel) {
+            jLabel.classList.remove('error', 'is-invalid');
+            jLabel.style.color = '';
+          }
           const jenisError = document.getElementById('jenis-error');
-          if (jenisError) jenisError.style.display = 'none';
+          if (jenisError) {
+            jenisError.style.display = 'none';
+            jenisError.classList.remove('show');
+          }
 
           // Fetch dynamic fields
           fetchAndRenderDynamicFields(selectedJenis);
@@ -2584,6 +2957,7 @@
 
     // start
     renderJenisSelector();
+    initMonthOnlyPickers(document);
 
     // Restore old input jika ada (setelah validation failure)
     if (oldJenisId) {
@@ -2729,44 +3103,44 @@
         modal.id = 'kb-search-modal';
         modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
         modal.innerHTML = `
-          <div style="background:#fff;border-radius:16px;width:95%;max-width:780px;max-height:84vh;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,.28);overflow:hidden;">
-            <div style="padding:20px 24px 16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;">
+          <div style="background:var(--color-surface, #f8faf7);border:1.5px solid var(--color-border, #cfdcc8);border-radius:16px;width:95%;max-width:780px;max-height:84vh;display:flex;flex-direction:column;box-shadow:var(--shadow-float);overflow:hidden;">
+            <div style="padding:20px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;">
               <div>
-                <div style="font-size:16px;font-weight:700;color:#1f2937;">Cari Kode Barang</div>
-                <div style="font-size:12px;color:#9ca3af;margin-top:3px;">Pilih hingga level Sub-Sub Kelompok untuk mendapatkan kode 5 struktur</div>
+                <div style="font-size:16px;font-weight:700;color:var(--color-text,#16251b);">Cari Kode Barang</div>
+                <div style="font-size:12px;color:var(--color-text-muted,#546958);margin-top:3px;">Pilih hingga level Sub-Sub Kelompok untuk mendapatkan kode 5 struktur</div>
               </div>
-              <button onclick="closeKbModal()" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:22px;line-height:1;padding:0;margin-left:12px;flex-shrink:0;">&times;</button>
+              <button onclick="closeKbModal()" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted,#546958);font-size:22px;line-height:1;padding:0;margin-left:12px;flex-shrink:0;">&times;</button>
             </div>
             <div style="padding:14px 24px 0;flex-shrink:0;">
               <div style="position:relative;">
-                <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:#9ca3af;fill:none;stroke-width:2;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--color-text-muted,#546958);fill:none;stroke-width:2;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 <input type="text" id="kb-search-input" placeholder="Cari nama atau kode barang..."
-                  style="width:100%;padding:10px 14px 10px 36px;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;outline:none;box-sizing:border-box;"
-                  onfocus="this.style.borderColor='#064635';this.style.boxShadow='0 0 0 3px rgba(6, 70, 53,.1)'"
-                  onblur="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'"
+                  style="width:100%;padding:10px 14px 10px 36px;border:1.5px solid var(--color-border,#cfdcc8);border-radius:10px;font-size:13px;outline:none;background:var(--color-surface,#f8faf7);color:var(--color-text,#16251b);box-sizing:border-box;"
+                  onfocus="this.style.borderColor='var(--color-primary,#1f3a2a)';this.style.boxShadow='none'"
+                  onblur="this.style.borderColor='var(--color-border,#cfdcc8)';this.style.boxShadow='none'"
                   oninput="debounceKbSearch(this.value)">
               </div>
             </div>
             <div style="padding:12px 24px 0;flex-shrink:0;">
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                <span style="font-size:11px;color:#6b7280;white-space:nowrap;font-weight:500;">Cari di struktur:</span>
-                <button onclick="setKbLevel(1,this)" class="kb-level-btn" data-level="1" style="padding:5px 11px;border:1px solid #e5e7eb;background:#fff;color:#374151;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;">Golongan</button>
-                <button onclick="setKbLevel(2,this)" class="kb-level-btn" data-level="2" style="padding:5px 11px;border:1px solid #e5e7eb;background:#fff;color:#374151;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;">Bidang</button>
-                <button onclick="setKbLevel(3,this)" class="kb-level-btn" data-level="3" style="padding:5px 11px;border:1px solid #e5e7eb;background:#fff;color:#374151;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;">Kelompok</button>
-                <button onclick="setKbLevel(4,this)" class="kb-level-btn" data-level="4" style="padding:5px 11px;border:1px solid #e5e7eb;background:#fff;color:#374151;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;">Sub Kelompok</button>
-                <button onclick="setKbLevel(5,this)" class="kb-level-btn" data-level="5" style="padding:5px 11px;border:1px solid #064635;background:#064635;color:#fff;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;">Sub-Sub Kelompok</button>
+                <span style="font-size:11px;color:var(--color-text-muted,#546958);white-space:nowrap;font-weight:500;">Cari di struktur:</span>
+                <button onclick="setKbLevel(1,this)" class="kb-level-btn" data-level="1" style="padding:5px 11px;border:1.5px solid var(--color-border,#cfdcc8);background:var(--color-bg,#eaf1e7);color:var(--color-text,#16251b);border-radius:var(--radius-full);font-size:11px;font-weight:600;cursor:pointer;">Golongan</button>
+                <button onclick="setKbLevel(2,this)" class="kb-level-btn" data-level="2" style="padding:5px 11px;border:1.5px solid var(--color-border,#cfdcc8);background:var(--color-bg,#eaf1e7);color:var(--color-text,#16251b);border-radius:var(--radius-full);font-size:11px;font-weight:600;cursor:pointer;">Bidang</button>
+                <button onclick="setKbLevel(3,this)" class="kb-level-btn" data-level="3" style="padding:5px 11px;border:1.5px solid var(--color-border,#cfdcc8);background:var(--color-bg,#eaf1e7);color:var(--color-text,#16251b);border-radius:var(--radius-full);font-size:11px;font-weight:600;cursor:pointer;">Kelompok</button>
+                <button onclick="setKbLevel(4,this)" class="kb-level-btn" data-level="4" style="padding:5px 11px;border:1.5px solid var(--color-border,#cfdcc8);background:var(--color-bg,#eaf1e7);color:var(--color-text,#16251b);border-radius:var(--radius-full);font-size:11px;font-weight:600;cursor:pointer;">Sub Kelompok</button>
+                <button onclick="setKbLevel(5,this)" class="kb-level-btn" data-level="5" style="padding:5px 11px;border:1.5px solid var(--color-primary,#1f3a2a);background:var(--color-primary,#1f3a2a);color:#fff;border-radius:var(--radius-full);font-size:11px;font-weight:600;cursor:pointer;">Sub-Sub Kelompok</button>
               </div>
             </div>
             <div id="kb-breadcrumb" style="display:none;padding:8px 24px 0;flex-shrink:0;">
-              <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:7px 12px;background:#f4faf5;border-radius:6px;border:1px solid #e5e7eb;">
-                <span style="font-size:11px;color:#6b7280;font-weight:500;margin-right:2px;">Pilihan:</span>
+              <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:7px 12px;background:var(--color-bg,#eaf1e7);border-radius:8px;border:1px solid var(--color-border,#cfdcc8);">
+                <span style="font-size:11px;color:var(--color-text-muted,#546958);font-weight:500;margin-right:2px;">Pilihan:</span>
                 <div id="kb-breadcrumb-items" style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;"></div>
-                <button onclick="resetKbSelection()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#9ca3af;font-size:11px;padding:0;white-space:nowrap;">✕ Reset</button>
+                <button onclick="resetKbSelection()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--color-text-muted,#546958);font-size:11px;padding:0;white-space:nowrap;">✕ Reset</button>
               </div>
             </div>
-            <div style="height:1px;background:#f3f4f6;margin:12px 0 0;flex-shrink:0;"></div>
+            <div style="height:1px;border-top:1px dashed var(--color-border,#cfdcc8);background:transparent;margin:12px 0 0;flex-shrink:0;"></div>
             <div id="kb-search-results" style="flex:1;overflow-y:auto;">
-              <div style="padding:24px;text-align:center;color:#9ca3af;font-size:13px;">Memuat data...</div>
+              <div style="padding:24px;text-align:center;color:var(--color-text-muted,#546958);font-size:13px;">Memuat data...</div>
             </div>
           </div>
         `;
@@ -2790,8 +3164,8 @@
     function kbSetActiveTabBtn(level) {
       document.querySelectorAll('.kb-level-btn').forEach(b => {
         const lv = parseInt(b.getAttribute('data-level'));
-        if (lv === level) { b.style.background='#064635'; b.style.color='#fff'; b.style.borderColor='#064635'; }
-        else              { b.style.background='#fff';    b.style.color='#374151'; b.style.borderColor='#e5e7eb'; }
+        if (lv === level) { b.style.background='var(--color-primary, #1f3a2a)'; b.style.color='#fff'; b.style.borderColor='var(--color-primary, #1f3a2a)'; }
+        else              { b.style.background='var(--color-bg, #eaf1e7)';    b.style.color='var(--color-text, #16251b)'; b.style.borderColor='var(--color-border, #cfdcc8)'; }
       });
     }
 
@@ -2814,9 +3188,9 @@
         const s = window._kbSelected[l];
         const isLast = idx === selected.length - 1;
         return `<span onclick="kbBreadcrumbClick(${l})"
-          style="font-size:11px;font-weight:${isLast?'700':'500'};color:#064635;cursor:pointer;white-space:nowrap;${!isLast?'opacity:0.6;':''}">
+          style="font-size:11px;font-weight:${isLast?'700':'500'};color:var(--color-primary, #1f3a2a);cursor:pointer;white-space:nowrap;${!isLast?'opacity:0.6;':''}">
           ${s.kode} — ${s.uraian}
-        </span>${!isLast?'<span style="color:#9ca3af;font-size:11px;margin:0 2px;">›</span>':''}`;
+        </span>${!isLast?'<span style="color:var(--color-text-muted, #546958);font-size:11px;margin:0 2px;">›</span>':''}`;
       }).join('');
     }
 
@@ -2849,7 +3223,7 @@
     function doKbSearch(q) {
       const resultsEl = document.getElementById('kb-search-results');
       if (!resultsEl) return;
-      resultsEl.innerHTML = '<div style="padding:24px;text-align:center;color:#9ca3af;font-size:13px;">Memuat...</div>';
+      resultsEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--color-text-muted,#546958);font-size:13px;">Memuat...</div>';
       const level = window._kbLevel || 5;
 
       // Tentukan parent_id atau ancestor_kode untuk filter
@@ -2886,7 +3260,7 @@
       })
       .then(data => {
         if (!Array.isArray(data) || !data.length) {
-          resultsEl.innerHTML = '<div style="padding:24px;text-align:center;color:#9ca3af;font-size:13px;">Tidak ada hasil ditemukan.</div>';
+          resultsEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--color-text-muted,#546958);font-size:13px;">Tidak ada hasil ditemukan.</div>';
           return;
         }
         const selAtLevel = window._kbSelected[level];
@@ -2900,24 +3274,24 @@
           const isPinned = selAtLevel && item.id === selAtLevel.id;
           const kodeE    = kode.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
           const uraianE  = uraian.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-          const bg       = isPinned ? '#f0f4f8' : '#fff';
+          const bg       = isPinned ? 'var(--color-primary-tint, #E0E5CE)' : 'transparent';
           if (isSelectable) {
             return `<div onclick="selectKodeBarang('${kodeE}','${uraianE}')"
-              style="padding:11px 20px;cursor:pointer;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:10px;background:${bg};"
-              onmouseover="this.style.background='#f4faf5'" onmouseout="this.style.background='${bg}'">
-              <span style="font-size:12px;font-weight:700;color:#064635;white-space:nowrap;">${kode}</span>
-              <span style="font-size:13px;color:#374151;margin:0 2px;">—</span>
-              <span style="font-size:13px;color:#1f2937;flex:1;">${uraian}</span>
-              ${isPinned?'<span style="font-size:10px;color:#064635;font-weight:700;white-space:nowrap;">✓ Terpilih</span>':''}
+              style="padding:11px 20px;cursor:pointer;border-bottom:1px dashed var(--color-border,#cfdcc8);display:flex;align-items:center;gap:10px;background:${bg};"
+              onmouseover="this.style.background='var(--color-row-hover,#eff5ed)'" onmouseout="this.style.background='${bg}'">
+              <span style="font-size:12px;font-weight:700;color:var(--color-primary,#1f3a2a);white-space:nowrap;">${kode}</span>
+              <span style="font-size:13px;color:var(--color-text-muted,#546958);margin:0 2px;">—</span>
+              <span style="font-size:13px;color:var(--color-text,#16251b);flex:1;">${uraian}</span>
+              ${isPinned?'<span style="font-size:10px;color:var(--color-primary,#1f3a2a);font-weight:700;white-space:nowrap;">✓ Terpilih</span>':''}
             </div>`;
           } else {
             return `<div onclick="kbDrillDown(${level},${item.id},'${kodeE}','${uraianE}')"
-              style="padding:11px 20px;cursor:pointer;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:10px;background:${bg};"
-              onmouseover="this.style.background='#f4faf5'" onmouseout="this.style.background='${bg}'">
-              <span style="font-size:12px;font-weight:700;color:#064635;white-space:nowrap;">${kode}</span>
-              <span style="font-size:13px;color:#374151;margin:0 2px;">—</span>
-              <span style="font-size:13px;color:#1f2937;flex:1;">${uraian}</span>
-              <span style="margin-left:auto;font-size:10px;color:#9ca3af;white-space:nowrap;flex-shrink:0;">${isPinned?'✓ Dipilih · ':''}Pilih struktur berikutnya ›</span>
+              style="padding:11px 20px;cursor:pointer;border-bottom:1px dashed var(--color-border,#cfdcc8);display:flex;align-items:center;gap:10px;background:${bg};"
+              onmouseover="this.style.background='var(--color-row-hover,#eff5ed)'" onmouseout="this.style.background='${bg}'">
+              <span style="font-size:12px;font-weight:700;color:var(--color-primary,#1f3a2a);white-space:nowrap;">${kode}</span>
+              <span style="font-size:13px;color:var(--color-text-muted,#546958);margin:0 2px;">—</span>
+              <span style="font-size:13px;color:var(--color-text,#16251b);flex:1;">${uraian}</span>
+              <span style="margin-left:auto;font-size:10px;color:var(--color-text-muted,#546958);white-space:nowrap;flex-shrink:0;">${isPinned?'✓ Dipilih · ':''}Pilih struktur berikutnya ›</span>
             </div>`;
           }
         }).join('');
@@ -2968,6 +3342,149 @@
       });
     }
 
+    window._nupExistingList = [];
+
+    function fetchAndSetNextNup(kode) {
+      if (!kode) return;
+      const nupInput = document.getElementById('nup');
+      const hintEl = document.getElementById('nup-history-hint');
+      const unlockBtn = document.getElementById('btn-unlock-nup');
+      if (!nupInput) return;
+
+      const tahunInput = document.getElementById('tahun_perolehan');
+      const tahun = tahunInput ? (tahunInput.value || '').trim() : '';
+
+      nupInput.placeholder = 'Memuat NUP...';
+
+      let url = `{{ route('manajemen-aset.next-nup') }}?kode_barang=${encodeURIComponent(kode)}`;
+      if (tahun) {
+        url += `&tahun_perolehan=${encodeURIComponent(tahun)}`;
+      }
+
+      fetch(url, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
+        }
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res && res.next_nup !== undefined && nupInput) {
+          window._nupExistingList = (res.existing_nups || []).map(Number);
+          if (nupInput.readOnly || !nupInput.value) {
+            nupInput.value = res.next_nup;
+            nupInput.dispatchEvent(new Event('input', { bubbles: true }));
+            nupInput.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+
+          if (hintEl) {
+            if (!res.max_nup || res.max_nup === 0) {
+              hintEl.innerHTML = `<span style="color:#1f3a2a;font-weight:500;">Belum ada aset terdaftar dengan kode barang ini. NUP otomatis dimulai dari <strong>1</strong>.</span>`;
+            } else {
+              hintEl.innerHTML = `<span style="color:#1f3a2a;font-weight:500;">Sudah terdaftar <strong>${res.max_nup}</strong> aset dengan kode barang ini. NUP berikutnya otomatis: <strong>${res.next_nup}</strong>.</span>`;
+            }
+          }
+
+          if (unlockBtn) {
+            unlockBtn.style.display = 'inline-block';
+          }
+        }
+      })
+      .catch(err => {
+        console.error('Gagal mengambil next NUP:', err);
+        if (hintEl) hintEl.textContent = 'Gagal memuat NUP otomatis. Silakan klik edit NUP jika ingin mengisi manual.';
+        if (unlockBtn) unlockBtn.style.display = 'inline-block';
+      });
+    }
+
+    // Re-fetch NUP saat tahun perolehan diubah
+    document.addEventListener('change', function(e) {
+      if (e.target && e.target.id === 'tahun_perolehan') {
+        const kode = document.getElementById('kode_barang')?.value;
+        if (kode) {
+          fetchAndSetNextNup(kode);
+        }
+      }
+    });
+    document.addEventListener('input', function(e) {
+      if (e.target && e.target.id === 'tahun_perolehan') {
+        const val = e.target.value.trim();
+        if (val.length === 4) {
+          const kode = document.getElementById('kode_barang')?.value;
+          if (kode) {
+            fetchAndSetNextNup(kode);
+          }
+        }
+      }
+    });
+
+    function confirmUnlockNup() {
+      AppModal.show({
+        customHtml: `
+          <div class="modal-header" style="padding: 24px 24px 8px 24px; text-align: center;">
+            <div class="modal-icon warning" style="background:#fef3c7;color:#d97706;width:48px;height:48px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 12px auto;">
+              <i data-feather="alert-triangle" style="width:24px;height:24px;stroke:#d97706;"></i>
+            </div>
+            <h3 class="modal-title" style="margin: 0; font-size: 18px; font-weight: 700; color: #111827;">Ubah NUP Secara Manual?</h3>
+          </div>
+          <div class="modal-body" style="padding: 8px 28px 16px 28px; text-align: center;">
+            <p style="color: #4b5563; font-size: 13.5px; margin: 0 auto; line-height: 1.5; text-align: center; max-width: 380px;">
+              NUP telah diatur otomatis oleh sistem agar tidak terjadi duplikasi. Mengubah NUP secara manual berisiko menyebabkan nomor ganda.
+            </p>
+            <p style="color: #111827; font-size: 13.5px; font-weight: 600; margin: 12px auto 0 auto; text-align: center; max-width: 380px;">
+              Apakah Anda yakin ingin membuka kunci dan mengedit NUP?
+            </p>
+          </div>
+          <div class="modal-footer" style="padding: 8px 24px 24px 24px; display: flex; justify-content: center; gap: 12px;">
+            <button type="button" class="modal-btn modal-btn-secondary" onclick="AppModal.handleCancel()" style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;">
+              <i data-feather="x" style="width:14px;height:14px;"></i> Batal
+            </button>
+            <button type="button" class="modal-btn modal-btn-warning" onclick="unlockNupField()" style="background:#d97706;color:#fff;padding:9px 20px;border:none;border-radius: var(--radius-full);font-weight:600;cursor:pointer;">
+              Ya, Ubah NUP
+            </button>
+          </div>
+        `
+      });
+      if (typeof feather !== 'undefined') try { feather.replace(); } catch(e) {}
+    }
+
+    function unlockNupField() {
+      AppModal.close();
+      const nupInput = document.getElementById('nup');
+      if (nupInput) {
+        nupInput.readOnly = false;
+        nupInput.style.background = '#ffffff';
+        nupInput.style.cursor = 'text';
+        nupInput.focus();
+        nupInput.select();
+
+        // Attach collision check listener
+        const checkNupConflict = function() {
+          const raw = (nupInput.value || '').trim();
+          const val = parseInt(raw, 10);
+          const hintEl = document.getElementById('nup-history-hint');
+          if (!hintEl) return;
+          const tahunInput = document.getElementById('tahun_perolehan');
+          const tahun = tahunInput ? (tahunInput.value || '').trim() : '';
+          const tahunStr = tahun ? ` di tahun ${tahun}` : '';
+          if (raw !== '' && (isNaN(val) || val <= 0)) {
+            nupInput.style.borderColor = '#dc2626';
+            hintEl.innerHTML = `<span style="color:#dc2626;display:inline-flex;align-items:center;gap:5px;font-weight:600;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Nomor NUP minimal harus bernilai 1 (tidak boleh 0 atau negatif)!</span>`;
+          } else if (val && window._nupExistingList && window._nupExistingList.includes(val)) {
+            nupInput.style.borderColor = '#dc2626';
+            hintEl.innerHTML = `<span style="color:#dc2626;display:inline-flex;align-items:center;gap:5px;font-weight:600;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Perhatian: NUP ${val} sudah digunakan oleh aset lain pada kode barang ini${tahunStr}!</span>`;
+          } else if (val) {
+            nupInput.style.borderColor = '';
+            hintEl.innerHTML = `<span style="color:#4b5563;">NUP diatur manual: <strong>${val}</strong></span>`;
+          }
+        };
+        nupInput.addEventListener('input', checkNupConflict);
+        nupInput.addEventListener('change', checkNupConflict);
+      }
+      const unlockBtn = document.getElementById('btn-unlock-nup');
+      if (unlockBtn) unlockBtn.style.display = 'none';
+    }
+
     function selectKodeBarang(kode, uraian) {
       const segCount = kbCountSegments(kode);
       if (segCount !== 5) {
@@ -2981,6 +3498,7 @@
       if (info) { info.style.display = 'block'; info.textContent = kode + ' — ' + uraian; }
       closeKbModal();
       if (typeof feather !== 'undefined') feather.replace();
+      fetchAndSetNextNup(kode);
     }
 
     // ── KIB Auto-sync: true 2-way real-time sync ────────────────────────────
@@ -3018,13 +3536,16 @@
     </script>
 
     <script>
-      function toggleCopySection(cb) {
+      window.toggleCopySection = function(cb) {
         const row = document.getElementById('copy-count-row');
-        row.style.display = cb.checked ? 'block' : 'none';
+        if (row) row.style.display = cb.checked ? 'block' : 'none';
         updateCopySubmitBtn();
+      };
+      function toggleCopySection(cb) {
+        window.toggleCopySection(cb);
       }
 
-      function updateCopySubmitBtn() {
+      window.updateCopySubmitBtn = function() {
         const cb    = document.getElementById('copy-enabled');
         const input = document.getElementById('copy-jumlah');
         const label = document.getElementById('btn-submit-label');
@@ -3039,13 +3560,18 @@
         if (label) label.textContent = 'Simpan ' + safe + ' Salinan';
       }
 
+      window.confirmCancel = function confirmCancel() {
+        AppModal.confirmCancel({
+          url: "{{ route('manajemen-aset.index') }}",
+          returnKey: 'manajemen_aset_returning',
+          isEdit: false
+        });
+      };
       function confirmCancel() {
-        if (confirm('Apakah Anda yakin ingin membatalkan? Data yang sudah diisi tidak akan tersimpan.')) {
-          window.location.href = "{{ route('manajemen-aset.index') }}";
-        }
+        window.confirmCancel();
       }
 
-      function submitSimpanAset() {
+      window.submitSimpanAset = function submitSimpanAset() {
         const form = document.getElementById('inventaris-form');
         if (!validateForm()) return;
 
@@ -3077,57 +3603,233 @@
           function() {
             // Strip format rupiah sebelum submit agar server menerima angka murni
             form.querySelectorAll('.currency-rupiah-input').forEach(function(input) {
-              var raw = input.value;
-              var parts = raw.split(',');
-              var intP = parts[0].replace(/\./g, '').replace(/\D/g, '');
-              var decP = parts.length > 1 ? parts[1].replace(/\D/g, '').substring(0, 2) : '';
-              input.value = decP ? intP + '.' + decP : intP;
+              var raw = String(input.value || '').trim();
+              if (!raw) return;
+              if (/^-?\d+(\.\d{1,2})?$/.test(raw)) {
+                input.value = raw;
+                return;
+              }
+              if (raw.indexOf(',') !== -1) {
+                var parts = raw.split(',');
+                var intP = parts[0].replace(/\./g, '').replace(/\D/g, '');
+                var decP = parts.length > 1 ? parts[1].replace(/\D/g, '').substring(0, 2) : '';
+                input.value = decP ? intP + '.' + decP : intP;
+                return;
+              }
+              var dotParts = raw.split('.');
+              if (dotParts.length > 2 && dotParts[dotParts.length - 1].length <= 2) {
+                var decP = dotParts.pop().replace(/\D/g, '').substring(0, 2);
+                var intP = dotParts.join('').replace(/\D/g, '');
+                input.value = decP ? intP + '.' + decP : intP;
+                return;
+              }
+              input.value = raw.replace(/\D/g, '');
             });
             form.submit();
           }
         );
+      };
+      function submitSimpanAset() {
+        window.submitSimpanAset();
       }
 
       function validateForm() {
         const form = document.getElementById('inventaris-form');
+        const jenisTrigger = document.getElementById('jenis-dropdown-trigger');
+        const jenisLabel = document.getElementById('jenis-inventaris-label') || document.querySelector('.buku-inventaris-title');
+        const jenisSection = document.getElementById('jenis-inventaris-section') || jenisTrigger?.closest('.buku-inventaris-section');
         const jenisError = document.getElementById('jenis-error');
-        const bukuWrapper = document.getElementById('kib-section-wrapper');
-        const asalGroup = document.querySelector('.asal-usul-group');
-        const asalClientError = document.getElementById('asal-usul-client-error');
 
-        if (jenisError) jenisError.style.display = 'none';
+        // Reset state error jenis terlebih dahulu
+        if (jenisTrigger) {
+          jenisTrigger.classList.remove('is-invalid', 'error');
+          jenisTrigger.style.borderColor = '';
+        }
+        if (jenisLabel) {
+          jenisLabel.classList.remove('error', 'is-invalid');
+          jenisLabel.style.color = '';
+        }
+        if (jenisSection) {
+          jenisSection.classList.remove('has-error');
+        }
+        if (jenisError) {
+          jenisError.style.display = 'none';
+          jenisError.classList.remove('show');
+        }
 
-        const jenisSelected = document.getElementById('jenis_inventaris_id_hidden').value;
+        // 1. Validasi Jenis Inventaris (Sesuai Standar SIMA)
+        const jenisSelected = document.getElementById('jenis_inventaris_id_hidden')?.value;
         if (!jenisSelected) {
+          if (jenisTrigger) {
+            jenisTrigger.classList.add('is-invalid', 'error');
+            jenisTrigger.style.borderColor = '#E53935';
+          }
+          if (jenisSection) {
+            jenisSection.classList.add('has-error');
+          }
+          if (jenisLabel) {
+            jenisLabel.classList.add('error', 'is-invalid');
+            jenisLabel.style.color = '#D9383A';
+          }
           if (jenisError) {
-            jenisError.style.display = 'block';
-            jenisError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            jenisError.style.display = 'flex';
+            jenisError.classList.add('show');
+          }
+          try {
+            if (typeof window.simaShowFieldError === 'function' && jenisTrigger) {
+              window.simaShowFieldError(jenisTrigger, 'Jenis Inventaris wajib dipilih.');
+            }
+          } catch(err) {
+            console.warn('simaShowFieldError warning:', err);
+          }
+          if (typeof window.simaScrollToField === 'function' && jenisTrigger) {
+            window.simaScrollToField(jenisTrigger);
+          } else if (jenisTrigger) {
+            jenisTrigger.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            try { jenisTrigger.focus({ preventScroll: true }); } catch(e) {}
           }
           return false;
         }
 
+        let isValid = true;
+        const invalidElements = [];
+
+        function markError(el, errorWrap = null, errorMsg = null) {
+          if (!el) return;
+          isValid = false;
+          if (typeof window.simaShowFieldError === 'function') {
+            window.simaShowFieldError(el, errorMsg);
+          } else {
+            el.style.borderColor = '#E53935';
+            el.classList.add('is-invalid');
+          }
+          const target = (el.offsetParent !== null) ? el : (errorWrap || el.closest('.form-group') || el);
+          if (target && !invalidElements.includes(target)) {
+            invalidElements.push(target);
+          }
+        }
+
+        // 2. Validasi semua field di Builder Fields Container (Data Inventaris) secara urut
+        const builderContainer = document.getElementById('builder-fields-container');
+        if (builderContainer) {
+          const formGroups = builderContainer.querySelectorAll('.form-group');
+          for (let fg of formGroups) {
+            const isRequired = !!fg.querySelector('.required') || !!fg.querySelector('[required]');
+            if (!isRequired) continue;
+
+            const input = fg.querySelector('input, select, textarea');
+            if (!input) continue;
+
+            // A. Khusus Kode Barang
+            if (input.id === 'kode_barang' || input.name === 'kode_barang') {
+              if (!input.value || !input.value.trim()) {
+                markError(input, fg, 'Kode barang wajib dipilih.');
+              }
+              continue;
+            }
+
+            // B. Khusus NUP
+            if (input.id === 'nup' || input.name === 'nup') {
+              const rawNup = (input.value || '').trim();
+              if (!rawNup) {
+                markError(input, fg, 'Nomor register (NUP) wajib diisi.');
+              } else {
+                const nupVal = parseInt(rawNup, 10);
+                if (isNaN(nupVal) || nupVal <= 0) {
+                  markError(input, fg, 'Nomor NUP minimal harus bernilai 1.');
+                } else if (window._nupExistingList && window._nupExistingList.includes(nupVal)) {
+                  markError(input, fg, `Nomor NUP ${nupVal} sudah terdaftar untuk kode barang ini.`);
+                }
+              }
+              continue;
+            }
+
+            // C. Khusus Nama Barang
+            if (input.id === 'nama_barang' || input.name === 'nama_barang') {
+              const rawNama = (input.value || '').trim();
+              if (!rawNama) {
+                markError(input, fg, 'Jenis barang / nama barang wajib diisi.');
+              } else if (!/[a-zA-Z]/.test(rawNama)) {
+                markError(input, fg, 'Nama barang harus memuat huruf alfabet.');
+              }
+              continue;
+            }
+
+            // D. Dynamic / Date / Text / Select Fields
+            let val = input.value ? input.value.trim() : '';
+            if (!val || val === '') {
+              const labelText = fg.querySelector('label')?.innerText?.replace('*', '')?.trim() || 'Kolom ini';
+              const isSelect = input.tagName === 'SELECT' || input.classList.contains('form-select');
+              const targetInput = (input._flatpickr && input._flatpickr.altInput) ? input._flatpickr.altInput : input;
+              markError(targetInput, fg, `${labelText} wajib ${isSelect ? 'dipilih' : 'diisi'}.`);
+            }
+          }
+        }
+
+        // 3. Validasi Data Perolehan & Keuangan (KIB)
+        const bukuWrapper = document.getElementById('kib-section-wrapper');
         const isBukuVisible = !!(bukuWrapper && bukuWrapper.offsetParent !== null && bukuWrapper.style.display !== 'none');
-        // Asal usul sekarang pakai <select>, bukan radio
-        const asalSelect = document.getElementById('asal_usul');
-        const asalSelected = asalSelect && asalSelect.value ? asalSelect : null;
-        if (asalGroup) asalGroup.classList.remove('group-invalid');
-        if (asalClientError) asalClientError.style.display = 'none';
-
-        if (isBukuVisible && !asalSelected) {
-          if (asalSelect) {
-            asalSelect.style.borderColor = '#dc2626';
-            asalSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (isBukuVisible) {
+          // Asal Usul
+          const asalSelect = document.getElementById('asal_usul');
+          if (asalSelect && (!asalSelect.value || asalSelect.value.trim() === '')) {
+            markError(asalSelect, asalSelect.closest('.form-group'), 'Asal usul barang wajib dipilih.');
           }
-          if (asalClientError) asalClientError.style.display = 'block';
-          return false;
-        }
-        if (asalSelect) asalSelect.style.borderColor = '';
 
+          // Satuan
+          const satuanInput = document.getElementById('satuan');
+          if (satuanInput && !satuanInput.value.trim()) {
+            markError(satuanInput, satuanInput.closest('.form-group'), 'Satuan barang wajib diisi.');
+          }
+
+          // Bulan Perolehan
+          const bulanHidden = document.getElementById('bulan_perolehan');
+          const bulanDisplay = document.getElementById('bulan_perolehan_display');
+          if (bulanHidden && (!bulanHidden.value || bulanHidden.value === '' || bulanHidden.value === '0')) {
+            markError(bulanDisplay || bulanHidden, (bulanDisplay || bulanHidden).closest('.form-group'), 'Bulan perolehan wajib dipilih.');
+          }
+        }
+
+        // 4. Validasi Ruangan (KIR)
+        const kirWrapper = document.getElementById('kir-section-wrapper');
+        const isKirVisible = !!(kirWrapper && kirWrapper.offsetParent !== null && kirWrapper.style.display !== 'none');
+        const ruanganSelect = document.getElementById('ruangan_id');
+        if (isKirVisible && ruanganSelect && !ruanganSelect.value) {
+          markError(ruanganSelect, ruanganSelect.closest('.form-group'), 'Ruangan penempatan aset wajib dipilih.');
+        }
+
+        // 5. Validasi Duplikasi / Simpan Beberapa Salinan
+        const copyEnabled = document.getElementById('copy-enabled')?.checked;
+        if (copyEnabled) {
+          const copyJumlahInput = document.getElementById('copy-jumlah');
+          const val = copyJumlahInput ? parseInt(copyJumlahInput.value) : 0;
+          if (!copyJumlahInput || !copyJumlahInput.value.trim() || isNaN(val) || val < 2 || val > 50) {
+            markError(copyJumlahInput, copyJumlahInput.closest('.form-group'), 'Jumlah salinan minimal 2 dan maksimal 50.');
+          }
+        }
+
+        // 6. Validasi HTML5 Fallback
         if (!form.checkValidity()) {
-          form.reportValidity();
-          const firstInvalid = form.querySelector(':invalid');
-          if (firstInvalid && typeof firstInvalid.scrollIntoView === 'function') {
-            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const firstNativeInvalid = form.querySelector(':invalid');
+          if (firstNativeInvalid) {
+            markError(firstNativeInvalid, firstNativeInvalid.closest('.form-group'));
+          }
+        }
+
+        if (!isValid && invalidElements.length > 0) {
+          const topmost = (typeof window.simaFindTopmostElement === 'function')
+            ? window.simaFindTopmostElement(invalidElements)
+            : invalidElements[0];
+
+          if (topmost) {
+            if (typeof window.simaScrollToField === 'function') {
+              window.simaScrollToField(topmost);
+            } else {
+              topmost.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              if (typeof topmost.focus === 'function' && !topmost.disabled) {
+                try { topmost.focus({ preventScroll: true }); } catch(e) {}
+              }
+            }
           }
           return false;
         }
@@ -3139,6 +3841,22 @@
       document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('inventaris-form');
         if (!form) return;
+
+        // Satuan — clear error saat diketik
+        const satuanInputEl = document.getElementById('satuan');
+        if (satuanInputEl) {
+          satuanInputEl.addEventListener('input', function() {
+            this.style.borderColor = '';
+          });
+        }
+
+        // Ruangan — clear error saat dipilih
+        const ruanganSelectEl = document.getElementById('ruangan_id');
+        if (ruanganSelectEl) {
+          ruanganSelectEl.addEventListener('change', function() {
+            this.style.borderColor = '';
+          });
+        }
 
         // Asal usul sekarang pakai <select> — clear error saat berubah
         const asalSelectEl = document.getElementById('asal_usul');
@@ -3183,6 +3901,14 @@
           e.preventDefault();
           submitSimpanAset();
         });
+
+        const btnSubmit = document.getElementById('btn-submit-main');
+        if (btnSubmit) {
+          btnSubmit.addEventListener('click', function(e) {
+            e.preventDefault();
+            submitSimpanAset();
+          });
+        }
       });
 
       // ---- Foto preview logic ----
@@ -3212,34 +3938,75 @@
         }
       }
 
-      function renderFotoGrid() {
-        const grid = document.getElementById('foto-preview-grid');
+      function updateCreateFotoDropAreaState() {
+        const count = selectedFiles.length;
+        const dropArea = document.getElementById('foto-drop-area');
         const limitMsg = document.getElementById('foto-limit-msg');
         const badge = document.getElementById('foto-count-badge');
-        const dropArea = document.getElementById('foto-drop-area');
-        grid.innerHTML = '';
-        limitMsg.style.display = selectedFiles.length >= FOTO_MAX_COUNT ? 'block' : 'none';
-        if (dropArea) dropArea.classList.toggle('has-file', selectedFiles.length > 0);
+        if (dropArea) {
+          dropArea.classList.toggle('has-file', count > 0);
+          const uploadText = dropArea.querySelector('.file-upload-text');
+          if (uploadText) {
+            if (count === 0) {
+              uploadText.textContent = 'Klik atau drag & drop untuk upload foto';
+            } else if (count < FOTO_MAX_COUNT) {
+              uploadText.textContent = `Tambahkan foto lagi (${count}/${FOTO_MAX_COUNT})`;
+            } else {
+              uploadText.textContent = `Batas maksimal foto tercapai (${count}/${FOTO_MAX_COUNT})`;
+            }
+          }
+        }
+        if (limitMsg) {
+          limitMsg.style.display = count >= FOTO_MAX_COUNT ? 'block' : 'none';
+        }
         if (badge) {
-          if (selectedFiles.length > 0) {
+          if (count > 0) {
             badge.style.display = 'inline-block';
-            badge.textContent = selectedFiles.length + '/5';
+            badge.textContent = count + '/' + FOTO_MAX_COUNT;
           } else {
             badge.style.display = 'none';
           }
         }
+      }
+
+      function handleCreateDropAreaClick() {
+        if (selectedFiles.length >= FOTO_MAX_COUNT) {
+          AppModal.error('Batas Maksimal Foto', 'Maksimal upload adalah ' + FOTO_MAX_COUNT + ' foto.');
+          return;
+        }
+        const inputEl = document.getElementById('foto-input');
+        if (inputEl) inputEl.click();
+      }
+
+      function renderFotoGrid() {
+        const grid = document.getElementById('foto-preview-grid');
+        grid.innerHTML = '';
+        updateCreateFotoDropAreaState();
         selectedFiles.forEach((file, idx) => {
           const reader = new FileReader();
           reader.onload = e => {
             const wrap = document.createElement('div');
             wrap.className = 'foto-preview-thumb';
-            wrap.innerHTML = `<img src="${e.target.result}" alt="foto"><button type="button" class="remove-btn" onclick="removeFoto(${idx})">&times;</button>`;
+            wrap.innerHTML = `<img src="${e.target.result}" alt="foto" onclick="previewCreateFoto(this)" style="cursor: zoom-in;" title="Klik untuk memperbesar (Layar Penuh)"><button type="button" class="remove-btn" onclick="removeFoto(${idx})" title="Hapus foto">&times;</button>`;
             grid.appendChild(wrap);
           };
           reader.readAsDataURL(file);
         });
         syncSelectedFilesToInput();
       }
+
+      function previewCreateFoto(clickedImg) {
+        const grid = document.getElementById('foto-preview-grid');
+        if (!grid) return;
+        const imgs = Array.from(grid.querySelectorAll('.foto-preview-thumb img')).map(img => img.src).filter(Boolean);
+        if (imgs.length === 0) return;
+        const clickedSrc = clickedImg ? clickedImg.src : imgs[0];
+        const startIndex = Math.max(0, imgs.indexOf(clickedSrc));
+        if (typeof window.openSimaImageViewer === 'function') {
+          window.openSimaImageViewer(imgs, startIndex, 'Pratinjau Foto Aset');
+        }
+      }
+      window.previewCreateFoto = previewCreateFoto;
 
       function handleFotoPreview(input) {
         const added = Array.from(input.files || []);
@@ -3309,6 +4076,33 @@
         renderFotoGrid();
       }
 
+      // Drag and drop support for create foto area
+      document.addEventListener('DOMContentLoaded', function() {
+        const createDropArea = document.getElementById('foto-drop-area');
+        if (createDropArea) {
+          ['dragenter', 'dragover'].forEach(eventName => {
+            createDropArea.addEventListener(eventName, e => {
+              e.preventDefault();
+              e.stopPropagation();
+              createDropArea.classList.add('dragover');
+            });
+          });
+          ['dragleave', 'drop'].forEach(eventName => {
+            createDropArea.addEventListener(eventName, e => {
+              e.preventDefault();
+              e.stopPropagation();
+              createDropArea.classList.remove('dragover');
+            });
+          });
+          createDropArea.addEventListener('drop', e => {
+            const dt = e.dataTransfer;
+            if (dt && dt.files && dt.files.length) {
+              handleFotoPreview({ files: dt.files });
+            }
+          });
+        }
+      });
+
       function toggleFotoSection() {
         const section  = document.getElementById('foto-upload-section');
         const chevron  = document.getElementById('foto-chevron');
@@ -3321,6 +4115,7 @@
         btn.style.borderColor = isOpen ? '#cbd5e1' : '#94a3b8';
         if (!isOpen && typeof feather !== 'undefined') try{feather.replace();}catch(e){}
       }
+      try { sessionStorage.setItem('manajemen_aset_returning', '1'); } catch(e) {}
     </script>
   </body>
 </html>

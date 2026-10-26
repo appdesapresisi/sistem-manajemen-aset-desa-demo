@@ -12,7 +12,7 @@ class DropdownPolicy
         return true;
     }
 
-    public function view(User $user, Dropdown $dropdown): bool
+    public function view(User $user, ?Dropdown $dropdown = null): bool
     {
         return true;
     }
@@ -22,7 +22,7 @@ class DropdownPolicy
         return $user->isSuperAdmin();
     }
 
-    public function update(User $user, Dropdown $dropdown): bool
+    public function update(User $user, ?Dropdown $dropdown = null): bool
     {
         return $user->isSuperAdmin();
     }

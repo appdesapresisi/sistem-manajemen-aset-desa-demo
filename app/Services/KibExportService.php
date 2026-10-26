@@ -14,9 +14,7 @@ class KibExportService
 {
     protected string $disk = 'local';
 
-    /**
-     * Export satu KIB atau semua KIB sekaligus.
-     */
+    // Export satu KIB atau semua KIB sekaligus
     public function export(array $opts): array
     {
         ini_set('memory_limit', '2048M');
@@ -30,7 +28,7 @@ class KibExportService
         $tanggalDokumen    = $opts['tanggal_dokumen'] ?? '';
         $keteranganDokumen = $opts['keterangan_dokumen'] ?? '';
         $paperSize         = $opts['paper_size'] ?? 'legal';
-        $userId            = $opts['user_id'] ?? null;
+        $userId            = $opts['user_id'] ?? \Illuminate\Support\Facades\Auth::id() ?? \App\Models\User::first()?->id;
         $includeImg        = ($signatureOption !== 'without');
 
         $pejabatKiri  = $this->resolvePejabat($kibType, 'kiri', $pejabatOverride);
@@ -63,13 +61,19 @@ class KibExportService
             return $pe ? $pe->toArray() : null;
         }
 
-        // Default dari kib_pejabat_defaults
-        $default = KibPejabatDefault::where('kib_type', $kibType === 'all' ? 'A' : $kibType)
-            ->where('posisi', $posisi)
-            ->with('pejabat')
-            ->first();
-        if ($default?->pejabat) {
-            return $default->pejabat->toArray();
+        // Default dari kib_pejabat_defaults (jika tabel ada)
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('kib_pejabat_defaults')) {
+                $default = KibPejabatDefault::where('kib_type', $kibType === 'all' ? 'A' : $kibType)
+                    ->where('posisi', $posisi)
+                    ->with('pejabat')
+                    ->first();
+                if ($default?->pejabat) {
+                    return $default->pejabat->toArray();
+                }
+            }
+        } catch (\Throwable $e) {
+            // Abaikan jika tabel tidak ada / belum dimigrasi
         }
 
         // Fallback: Sekretaris Desa (kiri) / Petugas Barang (kanan)
@@ -77,7 +81,11 @@ class KibExportService
             $user = \App\Models\User::with(['role', 'pejabat'])
                 ->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))
                 ->first();
-            return $user?->pejabat?->toArray();
+            if ($user?->pejabat) {
+                return $user->pejabat->toArray();
+            }
+            $peSekdes = Pejabat::where('jabatan', 'like', '%sekretaris%')->first();
+            return $peSekdes?->toArray();
         }
 
         $pe = Pejabat::where('is_petugas_barang', 1)->first();
@@ -142,8 +150,8 @@ class KibExportService
                 $inventarisList = $this->getInventarisForKib($kibType, $filters);
                 // Skip KIB type yang tidak punya data — tidak render halaman kosong
                 if ($inventarisList->isEmpty()) continue;
-                $pejabatK = $this->resolvePejabat($kibType, 'kiri', []);
-                $pejabatKn = $this->resolvePejabat($kibType, 'kanan', []);
+                $pejabatK = $pejabatKiri ?? $this->resolvePejabat($kibType, 'kiri', []);
+                $pejabatKn = $pejabatKanan ?? $this->resolvePejabat($kibType, 'kanan', []);
                 $segments[] = $this->renderKibPdf(
                     $kibType, $kibConfig, $inventarisList,
                     $pejabatK, $pejabatKn, $includeImg,
@@ -173,7 +181,7 @@ class KibExportService
                             $pdf->text(20, $yLine, $lineText, $font, 9, $col);
 
                             // Cari label KIB yang sesuai untuk halaman ini
-                            $currentLabel = "Laporan Buku Inventaris Aset Desa";
+                            $currentLabel = "Laporan Kartu Inventaris Barang (KIB)";
                             if (isset($GLOBALS["kib_pages"]) && is_array($GLOBALS["kib_pages"])) {
                                 $pages = $GLOBALS["kib_pages"];
                                 ksort($pages);
@@ -209,14 +217,30 @@ class KibExportService
                 $inventarisList = $this->getInventarisForKib($kibType, $filters);
                 // Skip KIB type yang tidak punya data — tidak buat sheet kosong
                 if ($inventarisList->isEmpty()) continue;
-                $pejabatK = $this->resolvePejabat($kibType, 'kiri', []);
-                $pejabatKn = $this->resolvePejabat($kibType, 'kanan', []);
+                $pejabatK = $pejabatKiri ?? $this->resolvePejabat($kibType, 'kiri', []);
+                $pejabatKn = $pejabatKanan ?? $this->resolvePejabat($kibType, 'kanan', []);
                 $sheets[] = new \App\Exports\Kib\KibSheetExport(
                     $kibType, $kibConfig, $inventarisList,
                     $pejabatK, $pejabatKn, $includeImg,
                     $tanggalDokumen, $keteranganDokumen, $filters
                 );
             }
+
+            // Fallback: jika semua kategori kosong, sertakan KIB A sebagai template kosong agar PhpSpreadsheet tidak crash
+            if (empty($sheets)) {
+                $fallbackType = 'A';
+                $fallbackConfig = config('kib.' . $fallbackType);
+                if ($fallbackConfig) {
+                    $pejabatK = $pejabatKiri ?? $this->resolvePejabat($fallbackType, 'kiri', []);
+                    $pejabatKn = $pejabatKanan ?? $this->resolvePejabat($fallbackType, 'kanan', []);
+                    $sheets[] = new \App\Exports\Kib\KibSheetExport(
+                        $fallbackType, $fallbackConfig, collect(),
+                        $pejabatK, $pejabatKn, $includeImg,
+                        $tanggalDokumen, $keteranganDokumen, $filters
+                    );
+                }
+            }
+
             \Maatwebsite\Excel\Facades\Excel::store(
                 new \App\Exports\Kib\KibAllExport($sheets),
                 $relativePath, $this->disk
@@ -227,7 +251,7 @@ class KibExportService
             'user_id'          => $userId,
             'tipe_export'      => $format,
             'nama_file'        => $filename,
-            'pejabat_override' => [],
+            'pejabat_override' => array_filter([$pejabatKiri, $pejabatKanan]),
             'filters'          => array_merge($filters, ['kib_type' => 'all', 'mode' => 'kib']),
         ]);
 
@@ -238,10 +262,14 @@ class KibExportService
     {
         $query = Inventaris::with(['jenis', 'kibValues'])
             ->whereHas('jenis', fn($q) => $q->where('kib_type', $kibType))
-            ->orderBy('kode_barang');
+            ->orderBy('kode_barang')
+            ->orderBy('tahun_perolehan')
+            ->orderBy('nama_barang')
+            ->orderByRaw('CAST(nup AS UNSIGNED) ASC')
+            ->orderBy('id');
 
-        if (!empty($filters['tahun'])) {
-            $query->whereYear('created_at', $filters['tahun']);
+        if (!empty($filters['tahun']) && $filters['tahun'] !== 'all') {
+            $query->where('tahun_perolehan', $filters['tahun']);
         }
 
         return $query->get();
@@ -273,7 +301,7 @@ class KibExportService
 
         $namaKib = $kibConfig['nama'] ?? ('KIB ' . $kibType);
         $prefix = str_starts_with(strtolower($namaKib), 'aset') ? '' : 'Aset ';
-        $footerLabel = 'Laporan Buku Inventaris Aset Desa ' . $prefix . $namaKib . ' (KIB ' . $kibType . ')';
+        $footerLabel = 'Laporan Kartu Inventaris Barang ' . $prefix . $namaKib . ' (KIB ' . $kibType . ')';
 
         $html = $bodyOnly ? '' : '<!doctype html><html><head><meta charset="utf-8"><style>' . $css . '</style></head><body>';
 
@@ -361,7 +389,7 @@ class KibExportService
                 $html .= '<th>1</th><th>2</th><th colspan="2">3</th><th>4</th><th colspan="8">5</th><th colspan="2">6</th><th>7</th><th>8</th><th>9</th><th>10</th>';
                 break;
             case 'E':
-                $html .= '<th>1</th><th>2</th><th colspan="2">3</th><th colspan="2">4</th><th colspan="3">5</th><th colspan="2">6</th><th>7</th><th>8</th><th colspan="2">9</th><th>10</th><th>11</th>';
+                $html .= '<th>1</th><th>2</th><th colspan="2">3</th><th colspan="2">4</th><th colspan="3">5</th><th colspan="2">6</th><th>7</th><th colspan="2">8</th><th>9</th><th>10</th><th>11</th>';
                 break;
             case 'F':
                 $html .= '<th>1</th><th>2</th><th colspan="2">3</th><th>4</th><th colspan="3">5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>';
@@ -395,7 +423,7 @@ class KibExportService
             $html .= '<td>' . htmlentities($emptyDash($nup)) . '</td>';
             $html .= $this->renderKibTableRow($kibType, $fields, $inv, $emptyDash($kondisi));
             $html .= '<td>' . htmlentities($emptyDash($asalUsul)) . '</td>';
-            $html .= '<td style="text-align:right;">' . ($nilai > 0 ? number_format($nilai, 2, ',', '.') : '-') . '</td>';
+            $html .= '<td style="text-align:right;">' . ($nilai > 0 ? number_format($nilai, fmod($nilai, 1) != 0 ? 2 : 0, ',', '.') : '-') . '</td>';
             if ($kibType === 'D') {
                 $html .= '<td style="text-align:center;">' . htmlentities($emptyDash($kondisi)) . '</td>';
             }
@@ -408,7 +436,7 @@ class KibExportService
         // Jumlah row
         $colSpan = $this->getJumlahColSpan($kibType, $fields);
         $html .= '<tr class="jumlah-row"><td colspan="' . $colSpan . '">JUMLAH HARGA</td>';
-        $html .= '<td style="text-align:right;">' . number_format($totalHarga, 2, ',', '.') . '</td>';
+        $html .= '<td style="text-align:right;">' . number_format($totalHarga, fmod($totalHarga, 1) != 0 ? 2 : 0, ',', '.') . '</td>';
         if ($kibType === 'D') $html .= '<td></td>';
         if (in_array($kibType, ['A', 'B', 'D', 'E', 'F'])) $html .= '<td></td>';
         $html .= '</tr>';
@@ -454,18 +482,18 @@ class KibExportService
     {
         switch ($kibType) {
             case 'A':
-                return '<th>LUAS (M2)</th><th>TAHUN PEROLEHAN</th><th>BUKU</th><th>ALAMAT</th>'
+                return '<th>LUAS (M2)</th><th>TAHUN<br>PEROLEHAN</th><th>BUKU</th><th>ALAMAT</th>'
                      . '<th>HAK</th><th>NOMOR</th><th>TGL</th>';
             case 'B':
-                return '<th>MERK/TYPE</th><th>UKURAN/AN/CC</th><th>SAHAN</th><th>TAHUN PEROLEHAN</th><th>BUKU</th>'
+                return '<th>MERK/TYPE</th><th>UKURAN/AN/CC</th><th>SAHAN</th><th>TAHUN<br>PEROLEHAN</th><th>BUKU</th>'
                      . '<th>PABRIK</th><th>RANGKA</th><th>MESIN</th><th>POLISI</th><th>BPKB</th>';
             case 'C':
                 return '<th>BERTINGKAT AT/TIDAK</th><th>BETON/TIDAK</th>'
-                     . '<th>LUAS (M2)</th><th>TAHUN PEROLEHAN</th><th>BUKU</th>'
+                     . '<th>LUAS (M2)</th><th>TAHUN<br>PEROLEHAN</th><th>BUKU</th>'
                      . '<th>TANGGAL</th><th>NOMOR</th><th>ALAMAT</th>';
             case 'D':
                 return '<th>PANJANG (KM)</th><th>LEBAR (M)</th><th>LUAS (M2)</th>'
-                     . '<th>TAHUN PEROLEHAN</th><th>BUKU</th><th>TGL</th><th>NOMOR</th><th>ALAMAT</th>'
+                     . '<th>TAHUN<br>PEROLEHAN</th><th>BUKU</th><th>TGL</th><th>NOMOR</th><th>ALAMAT</th>'
                      . '<th>STATUS</th><th>KODE</th>';
             case 'E':
                 return '<th>JUDUL/PENCIPTA</th><th>SPESIFI-KASI</th>'
@@ -496,7 +524,7 @@ class KibExportService
                 return '-';
             }
             $f = (float)$v;
-            return number_format($f, 2, ',', '.');
+            return number_format($f, fmod($f, 1) != 0 ? 2 : 0, ',', '.');
         };
 
         switch ($kibType) {
@@ -553,6 +581,7 @@ class KibExportService
                      . '<td>' . $kv('bahan') . '</td>'
                      . '<td>' . $kv('jenis_hewan') . '</td>'
                      . '<td>' . $kv('ukuran') . '</td>'
+                     . '<td style="text-align:center;">' . $kondisi . '</td>'
                      . '<td style="text-align:center;">' . $tahunPerolehan . '</td>'
                      . '<td style="text-align:center;">' . $tahunBuku . '</td>';
             case 'F':
@@ -584,11 +613,21 @@ class KibExportService
 
         $html = '<table class="ttd-table"><tr>';
 
-        // Kiri: Sekretaris Desa
+        // Kiri: Mengetahui (Sekretaris Desa / Perbekel / Custom)
+        $kiriJabatan = strtoupper($pejabatKiri['jabatan'] ?? 'SEKRETARIS DESA');
+        $kiriSub = '';
+        if (str_contains($kiriJabatan, 'SEKRETARIS')) {
+            $kiriSub = 'Selaku Pembantu Pengelola Barang Milik Desa';
+        } elseif (str_contains($kiriJabatan, 'PERBEKEL') || str_contains($kiriJabatan, 'KEPALA')) {
+            $kiriSub = 'Selaku Pemegang Kekuasaan Pengelolaan Barang Milik Desa';
+        }
+
         $html .= '<td class="ttd-kiri">';
         $html .= '<div class="ttd-jabatan">MENGETAHUI</div>';
-        $html .= '<div class="ttd-jabatan">SEKRETARIS DESA</div>';
-        $html .= '<div class="ttd-tugas">Selaku Pembantu Pengelola Barang Milik Desa</div>';
+        $html .= '<div class="ttd-jabatan">' . htmlentities($kiriJabatan) . '</div>';
+        if ($kiriSub) {
+            $html .= '<div class="ttd-tugas">' . htmlentities($kiriSub) . '</div>';
+        }
         if ($includeImg && !empty($pejabatKiri['ttd_path'])) {
             $ttdPath = storage_path('app/public/' . ltrim($pejabatKiri['ttd_path'], '/'));
             if (file_exists($ttdPath)) {
@@ -600,12 +639,14 @@ class KibExportService
         $html .= '<div class="ttd-nama">' . htmlentities($pejabatKiri['nama'] ?? '') . '</div>';
         $html .= '</td>';
 
-        // Kanan: Petugas Barang
+        // Kanan: Petugas Barang / Custom
+        $kananJabatan = strtoupper($pejabatKanan['jabatan'] ?? 'PETUGAS / PENGURUS BARANG MILIK DESA');
+
         $html .= '<td class="ttd-kanan">';
         if ($tanggalFormatted) {
             $html .= '<div style="font-size:9px;margin-bottom:4px;">' . htmlentities($tanggalFormatted) . '</div>';
         }
-        $html .= '<div class="ttd-jabatan">PETUGAS / PENGURUS BARANG MILIK DESA</div>';
+        $html .= '<div class="ttd-jabatan">' . htmlentities($kananJabatan) . '</div>';
         $html .= '<div class="ttd-tugas">&nbsp;</div>';
         if ($includeImg && !empty($pejabatKanan['ttd_path'])) {
             $ttdPath = storage_path('app/public/' . ltrim($pejabatKanan['ttd_path'], '/'));
@@ -635,15 +676,44 @@ class KibExportService
                 . '</head><body>' . $html . '</body></html>';
         }
 
+        @ini_set('memory_limit', '2048M');
+        @set_time_limit(300);
+
+        $fontDir = storage_path('fonts');
+        if (!is_dir($fontDir)) {
+            @mkdir($fontDir, 0775, true);
+        }
+        if (!is_writable($fontDir)) {
+            $fontDir = sys_get_temp_dir();
+        }
+
+        $targetDir = Storage::disk($this->disk)->path(dirname($relativePath));
+        if (!is_dir($targetDir)) {
+            @mkdir($targetDir, 0775, true);
+        }
+
+        [$size, $orientation] = $this->resolvePaperSize($paperSize);
+
+        $dompdfOptions = [
+            'isHtml5ParserEnabled'    => true,
+            'isRemoteEnabled'         => true,
+            'isPhpEnabled'            => true,
+            'isFontSubsettingEnabled' => true,
+            'defaultFont'             => 'sans-serif',
+            'fontDir'                 => $fontDir,
+            'fontCache'               => $fontDir,
+            'tempDir'                 => sys_get_temp_dir(),
+            'chroot'                  => [base_path(), storage_path(), sys_get_temp_dir()],
+        ];
+
         if (class_exists('\\Barryvdh\\DomPDF\\Facade\\Pdf')) {
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
-            [$size, $orientation] = $this->resolvePaperSize($paperSize);
+            $pdf->setOptions($dompdfOptions);
             $pdf->setPaper($size, $orientation);
             Storage::disk($this->disk)->put($relativePath, $pdf->output());
         } elseif (class_exists('\\Dompdf\\Dompdf')) {
-            $dompdf = new \Dompdf\Dompdf(['isHtml5ParserEnabled' => true]);
+            $dompdf = new \Dompdf\Dompdf($dompdfOptions);
             $dompdf->loadHtml($html);
-            [$size, $orientation] = $this->resolvePaperSize($paperSize);
             $dompdf->setPaper($size, $orientation);
             $dompdf->render();
             Storage::disk($this->disk)->put($relativePath, $dompdf->output());
@@ -679,19 +749,21 @@ class KibExportService
             .info-table td { padding: 2px 4px; border: none; vertical-align: top; font-weight: bold; }
             .info-table td:first-child { width: 90px; }
             .info-table td:nth-child(2) { width: 10px; text-align: center; }
-            table.inv-table { width: 100%; border-collapse: collapse; font-size: 8px; }
+            table.inv-table { width: 100%; border-collapse: collapse; font-size: 8px; border: 1px solid #000; }
+            table.inv-table thead { display: table-header-group; }
+            table.inv-table tr { page-break-inside: avoid; }
             table.inv-table th { background: #fff; font-weight: bold; text-align: center;
                 border: 1px solid #000; padding: 3px 2px; vertical-align: middle; font-size: 8px; }
             table.inv-table td { border: 1px solid #000; padding: 3px 2px; vertical-align: middle; font-size: 8px; }
             .no-col { text-align: center; width: 20px; }
-            .jumlah-row td { font-weight: bold; text-align: center; }
+            .jumlah-row td { font-weight: bold; text-align: center; border: 1px solid #000; }
             .ttd-table { width: 100%; margin-top: 30px; border-collapse: collapse; page-break-inside: avoid; }
             .ttd-table td { border: none; vertical-align: top; padding: 0; }
             .ttd-kiri { width: 50%; text-align: center; }
             .ttd-kanan { width: 50%; text-align: center; }
             .ttd-jabatan { font-size: 9px; font-weight: bold; margin-bottom: 2px; }
             .ttd-tugas { font-size: 8px; margin-bottom: 40px; }
-            .ttd-nama { font-size: 9px; font-weight: bold; text-decoration: underline; }
+            .ttd-nama { font-size: 9px; font-weight: bold; text-decoration: underline; text-underline-offset: 3px; }
             .page-break { page-break-after: always; }
         ' . \App\Services\ExportService::buildFooterCss();
     }
@@ -700,6 +772,7 @@ class KibExportService
     {
         return match(strtolower($paperSize)) {
             'letter' => 'letter landscape',
+            'a4'     => 'a4 landscape',
             'f4'     => '21cm 33cm landscape',
             default  => 'legal landscape',
         };
@@ -709,6 +782,7 @@ class KibExportService
     {
         return match(strtolower($paperSize)) {
             'letter' => ['letter', 'landscape'],
+            'a4'     => ['a4', 'landscape'],
             'f4'     => [[0, 0, 595.28, 935.43], 'landscape'],
             default  => ['legal', 'landscape'],
         };

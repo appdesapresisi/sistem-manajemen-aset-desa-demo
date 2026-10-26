@@ -1,92 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" data-pc-preset="{{ $pc_preset_theme }}" data-pc-theme="{{ $pc_dark_layout }}">
 <head>
-    @include('layouts.head-page-meta', ['title' => 'Detail Ruangan - '.$ruangan->nama])
+    @include('layouts.head-page-meta', ['title' => 'Detail Ruangan — ' . ($ruangan->nama ?? 'Ruangan')])
     @include('layouts.head-css')
-    <style>
-        .page-center { max-width:720px; margin:0 auto; }
-        .d-card { background:#fff; border-radius:12px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,.05); margin-bottom:14px; overflow:hidden; }
-        .d-card-header { padding:13px 20px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:#064635; text-transform:uppercase; letter-spacing:.5px; }
-        .d-card-header i { width:15px; height:15px; }
-        .detail-list { list-style:none; margin:0; padding:0; }
-        .detail-list li { display:flex; align-items:flex-start; padding:12px 20px; border-bottom:1px solid #f1f5f9; gap:12px; }
-        .detail-list li:last-child { border-bottom:none; }
-        .detail-list li:hover { background:#fafbfc; }
-        .dl-label { width:140px; flex-shrink:0; font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.4px; padding-top:3px; }
-        .dl-value { flex:1; font-size:14px; color:#1e293b; font-weight:500; word-break:break-word; }
-        .dl-value.empty { color:#cbd5e1; font-style:italic; font-weight:400; }
-        .action-bar { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:14px 20px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; box-shadow:0 1px 3px rgba(0,0,0,.05); justify-content:space-between; }
-        .action-bar-right { display:flex; gap:10px; align-items:center; }
-        .btn { padding:9px 18px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; display:inline-flex; align-items:center; gap:7px; text-decoration:none; border:none; white-space:nowrap; }
-        .btn i { width:15px; height:15px; }
-        .btn-back   { border:1px solid #d1d5db !important; background:#fff; color:#374151; }
-        .btn-back:hover { background:#f4faf5; }
-        .btn-edit   { background:#064635; color:#fff; }
-        .btn-edit:hover { background:#1c5240; }
-        .btn-delete { background:#dc2626; color:#fff; }
-        .btn-delete:hover { background:#b91c1c; }
-        .jenis-badge { font-size:13px; font-weight:500; color:#374151; }
-        .code-badge { font-size:12px; font-weight:600; color:#374151; }
-        .aset-table { width:100%; border-collapse:collapse; }
-        .aset-table thead th { background:#f4faf5; padding:12px 16px; text-align:left; font-size:11px; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:.5px; border-bottom:1px solid #f3f4f6; }
-        .aset-table tbody td { padding:12px 16px; border-bottom:1px solid #f3f4f6; font-size:13px; color:#374151; }
-        .aset-table tbody tr:last-child td { border-bottom:none; }
-        .aset-table tbody tr:hover td { background:#f4faf5; }
-
-        /* ── Pagination (sama persis dengan index manajemen-aset) ── */
-        .pagination-bar {
-            display: grid;
-            grid-template-columns: 1fr auto auto 1fr;
-            align-items: center;
-            padding: 16px 20px;
-            border-top: 1px solid #f3f4f6;
-            gap: 16px;
-        }
-        .pagination-info { font-size: 13px; color: #6b7280; }
-        .pagination-info strong { color: #064635; font-weight: 600; }
-        .pagination-info:last-child { text-align: right; }
-        .pagination-nav {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        .page-btn {
-            min-width: 36px;
-            height: 36px;
-            padding: 0 10px;
-            border: none;
-            border-radius: 10px;
-            background: #f3f4f6;
-            color: #6b7280;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-        .page-btn:hover { background: #e5e7eb; color: #374151; }
-        .page-btn.active {
-            background: linear-gradient(135deg, #064635 0%, #1c5240 100%);
-            color: #fff;
-        }
-        .page-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-        .page-btn i { width: 16px; height: 16px; }
-        .page-jump-wrap { display: flex; align-items: center; gap: 6px; margin-left: 6px; }
-        .page-jump-wrap label { font-size: 13px; color: #6b7280; white-space: nowrap; }
-        .page-jump-input { width: 56px; height: 34px; border: 1px solid #d1d5db; border-radius: 6px; text-align: center; font-size: 13px; color: #374151; outline: none; transition: border-color .15s; }
-        .page-jump-input:focus { border-color: #064635; box-shadow: 0 0 0 2px rgba(6, 70, 53,.15); }
-        @media (max-width: 575px) {
-            .pagination-bar { grid-template-columns: 1fr; gap: 10px; padding: 14px 16px; }
-            .pagination-nav { flex-wrap: wrap; justify-content: center; }
-            .page-jump-wrap { margin-left: 0; justify-content: center; }
-            .pagination-info { text-align: center; }
-            .pagination-info:last-child { text-align: center; }
-        }
-    </style>
 </head>
 <body data-pc-preset="{{ $pc_preset_theme }}" data-pc-sidebar-theme="{{ $pc_sidebar_theme ?? 'light' }}">
     @include('layouts.notification')
@@ -94,166 +10,200 @@
     @include('layouts.layout-vertical')
     <div class="pc-container">
         <div class="pc-content">
-            @include('layouts.breadcrumb', ['breadcrumbItemHome'=>'Master Data','breadcrumbItem'=>'Ruangan','breadcrumbItemUrl'=>route('ruangan.index'),'breadcrumbItemActive'=>'Detail Ruangan'])
+            @include('layouts.breadcrumb', [
+                'breadcrumbItemHome' => 'Inventaris Desa',
+                'breadcrumbItem' => 'Ruangan',
+                'breadcrumbItemUrl' => route('ruangan.index'),
+                'breadcrumbItemActive' => 'Detail Ruangan'
+            ])
 
-            <div class="page-center">
-
-                <div class="action-bar">
-                    <a href="{{ route('ruangan.index') }}" class="btn btn-back">
-                        <i data-feather="arrow-left"></i> Kembali
+            <!-- Top Action Bar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                <a href="{{ route('ruangan.index') }}" class="btn-sima-secondary" style="border: none !important; padding-left: 0 !important; background-color: transparent !important;" onclick="try { sessionStorage.setItem('ruangan_returning', '1'); } catch(e) {} if (window.history.length > 1 && document.referrer && document.referrer.includes('/ruangan')) { window.history.back(); return false; }">
+                    <i data-feather="arrow-left" style="width: 14px; height: 14px;"></i>
+                    <span>Kembali ke Daftar Ruangan</span>
+                </a>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    @can('update', $ruangan)
+                    <a href="{{ route('ruangan.edit', $ruangan->id) }}" class="btn-sima-primary">
+                        <i data-feather="edit-2" style="width: 14px; height: 14px;"></i>
+                        <span>Edit Ruangan</span>
                     </a>
-                    <div class="action-bar-right">
-                        @can('update', $ruangan)
-                        <a href="{{ route('ruangan.edit', $ruangan->id) }}" class="btn btn-edit">
-                            <i data-feather="edit-2"></i> Edit
-                        </a>
-                        @endcan
-                        @can('delete', $ruangan)
-                        <form id="deleteForm" action="{{ route('ruangan.destroy', $ruangan->id) }}" method="POST" style="display:none;">
-                            @csrf @method('DELETE')
-                        </form>
-                        <button type="button" class="btn btn-delete"
-                                onclick="AppModal.confirmDelete('{{ addslashes($ruangan->nama) }}', function(){ document.getElementById('deleteForm').submit(); })">
-                            <i data-feather="trash-2"></i> Hapus
-                        </button>
-                        @endcan
+                    @endcan
+                    @can('delete', $ruangan)
+                    <form id="deleteForm" action="{{ route('ruangan.destroy', $ruangan->id) }}" method="POST" style="display:none;">
+                        @csrf @method('DELETE')
+                    </form>
+                    <button type="button" class="btn-sima-danger"
+                            onclick="AppModal.confirmDelete('{{ addslashes($ruangan->nama) }}', function(){ document.getElementById('deleteForm').submit(); })">
+                        <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
+                        <span>Hapus Ruangan</span>
+                    </button>
+                    @endcan
+                </div>
+            </div>
+
+            <!-- ===== MAIN PORTAL CARD ===== -->
+            <div class="portal-card">
+
+                <!-- Section: Informasi & Spesifikasi Ruangan -->
+                <div class="portal-section" style="padding-top: 0; border-top: none; margin-top: 32px;">
+                    <div class="portal-section-header">
+                        <h2 class="portal-section-title">
+                            <span>Informasi Ruangan</span>
+                        </h2>
+                    </div>
+                    <div class="portal-stats-grid" style="grid-template-columns: repeat(2, 1fr); gap: 24px 36px;">
+                        <div class="portal-stat-item">
+                            <span class="portal-stat-label">Nama Ruangan</span>
+                            <span class="portal-stat-value">{{ $ruangan->nama }}</span>
+                        </div>
+                        <div class="portal-stat-item">
+                            <span class="portal-stat-label">Kode Ruangan</span>
+                            <span class="portal-stat-value {{ $ruangan->kode ? '' : 'text-empty-fallback' }}" style="font-family: monospace;">{{ $ruangan->kode ?: '-' }}</span>
+                        </div>
+                        <div class="portal-stat-item">
+                            <span class="portal-stat-label">Penanggung Jawab</span>
+                            <span class="portal-stat-value {{ $ruangan->penanggungJawab ? '' : 'text-empty-fallback' }}">{{ $ruangan->penanggungJawab?->nama ?? 'Belum ditentukan' }}</span>
+                        </div>
+                        <div class="portal-stat-item">
+                            <span class="portal-stat-label">Total Aset Terdaftar</span>
+                            <span class="portal-stat-value">{{ $inventaris->total() }} aset</span>
+                        </div>
+                        <div class="portal-stat-item" style="grid-column: 1 / -1;">
+                            <span class="portal-stat-label">Deskripsi</span>
+                            <span class="portal-stat-value {{ !$ruangan->deskripsi ? 'text-empty-fallback' : '' }}">{{ $ruangan->deskripsi ?: 'Tidak ada deskripsi lokasi' }}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="d-card">
-                    <div class="d-card-header">
-                        <i data-feather="info"></i>
-                        Informasi Ruangan
+                <!-- Section: Tabel Aset dalam Ruangan -->
+                <div class="portal-section" style="border-top: none; margin-top: 0; padding-top: 36px; padding-bottom: 8px;">
+                    <div class="portal-section-header">
+                        <h2 class="portal-section-title">
+                            <span>Daftar Aset di Ruangan Ini ({{ $inventaris->total() }})</span>
+                        </h2>
                     </div>
-                    <ul class="detail-list">
-                        <li>
-                            <span class="dl-label">Nama</span>
-                            <span class="dl-value">{{ $ruangan->nama }}</span>
-                        </li>
-                        <li>
-                            <span class="dl-label">Kode</span>
-                            <span class="dl-value {{ $ruangan->kode ? '' : 'empty' }}">
-                                {{ $ruangan->kode ?: 'Tidak ada kode' }}
-                            </span>
-                        </li>
-                        <li>
-                            <span class="dl-label">Deskripsi</span>
-                            <span class="dl-value {{ $ruangan->deskripsi ? '' : 'empty' }}">
-                                {{ $ruangan->deskripsi ?: 'Tidak ada deskripsi' }}
-                            </span>
-                        </li>
-                        <li>
-                            <span class="dl-label">Penanggung Jawab</span>
-                            <span class="dl-value {{ $ruangan->penanggungJawab ? '' : 'empty' }}">
-                                {{ $ruangan->penanggungJawab?->nama ?? 'Belum ditentukan' }}
-                            </span>
-                        </li>
-                        <li>
-                            <span class="dl-label">Dibuat</span>
-                            <span class="dl-value">{{ $ruangan->created_at?->format('d M Y') }}</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="d-card">
-                    <div class="d-card-header">
-                        <i data-feather="package"></i>
-                        Daftar Aset di Ruangan Ini
-                        <span id="aset-total-badge" style="margin-left:auto;color:#064635;font-size:12px;font-weight:600;text-transform:none;letter-spacing:normal;">
-                            {{ $inventaris->total() }} Aset
-                        </span>
-                    </div>
-
                     <div id="aset-section">
                     @if($inventaris->isEmpty())
-                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;color:#9ca3af;gap:8px;">
-                        <i data-feather="inbox" style="width:40px;height:40px;opacity:0.5;"></i>
-                        <p style="font-size:13px;margin:0;">Belum ada aset di ruangan ini</p>
-                    </div>
+                        <div class="empty-state-sima">
+                            <i data-feather="inbox" style="width: 42px; height: 42px; stroke-width: 1.5; color: var(--color-border-dark);"></i>
+                            <p>Belum ada aset di ruangan ini.</p>
+                        </div>
                     @else
-                    <table class="aset-table" id="aset-table-body">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Aset</th>
-                                <th>Jenis Inventaris</th>
-                                <th>Kode Barang</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="aset-tbody">
+                        <div id="aset-list-container" style="display: flex; flex-direction: column; margin-top: 6px;">
                             @foreach($inventaris as $i => $aset)
-                            <tr>
-                                <td>{{ $inventaris->firstItem() + $i }}</td>
-                                <td>{{ $aset->display_name ?? '-' }}</td>
-                                <td><span class="jenis-badge">{{ $aset->jenis->nama ?? '-' }}</span></td>
-                                <td><span class="code-badge">{{ $aset->kode_barang }}</span></td>
-                                <td>
-                                    <a href="{{ route('manajemen-aset.show', $aset->id) }}"
-                                       style="font-size:12px;color:#064635;font-weight:600;text-decoration:none;">
-                                        Lihat &rarr;
-                                    </a>
-                                </td>
-                            </tr>
+                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; line-height: 1.5; color: var(--color-text); padding: 12px 0; border-bottom: 1px dashed var(--color-border, #cfdcc8);">
+                                <div style="display: flex; align-items: center; min-width: 0; padding-right: 12px;">
+                                    <span style="color: var(--color-text-muted); font-variant-numeric: tabular-nums; min-width: 24px; font-weight: 500; flex-shrink: 0;">
+                                        {{ $inventaris->firstItem() + $i }}.
+                                    </span>
+                                    <span style="font-weight: 600; color: var(--color-text);">
+                                        {{ $aset->display_name ?? '-' }}
+                                    </span>
+                                    <span style="color: var(--color-text-muted); font-size: 13px; font-weight: 500; margin-left: 6px;">
+                                        ({{ $aset->jenis->nama ?? '-' }})
+                                    </span>
+                                </div>
+                                <a href="{{ route('manajemen-aset.show', $aset->id) }}" style="flex-shrink: 0; font-size: 12px; color: var(--color-primary); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: gap 0.15s ease, opacity 0.15s ease;" onmouseenter="this.style.opacity='0.8'; this.style.gap='6px';" onmouseleave="this.style.opacity='1'; this.style.gap='4px';">
+                                    <span>Lihat detail</span>
+                                    <i data-feather="chevron-right" style="width: 13px; height: 13px;"></i>
+                                </a>
+                            </div>
                             @endforeach
-                        </tbody>
-                    </table>
-
-                    {{-- Pagination Bar --}}
-                    @if($inventaris->lastPage() > 1)
-                    <div class="pagination-bar" id="pagination-bar">
-                        <div class="pagination-info" id="pagination-info-left">
-                            Menampilkan <strong>{{ $inventaris->firstItem() }}-{{ $inventaris->lastItem() }}</strong> dari <strong>{{ $inventaris->total() }}</strong> data
                         </div>
-                        <nav class="pagination-nav" id="pagination-nav">
-                            @if($inventaris->onFirstPage())
-                                <span class="page-btn disabled" title="Previous"><i data-feather="chevron-left"></i></span>
-                            @else
-                                <a href="{{ $inventaris->previousPageUrl() }}" class="page-btn page-link" title="Previous"><i data-feather="chevron-left"></i></a>
-                            @endif
 
-                            @php
-                                $currentPage  = $inventaris->currentPage();
-                                $lastPage     = $inventaris->lastPage();
-                                $windowStart  = max(1, $currentPage - 2);
-                                $windowEnd    = min($lastPage, $currentPage + 2);
-                                if (($windowEnd - $windowStart + 1) < 5) {
-                                    if ($windowStart === 1) { $windowEnd = min($lastPage, 5); }
-                                    else { $windowStart = max(1, $windowEnd - 4); }
-                                }
-                                $pageUrls = $inventaris->getUrlRange($windowStart, $windowEnd);
-                            @endphp
-                            @foreach($pageUrls as $page => $url)
-                                @if($page == $currentPage)
-                                    <span class="page-btn active">{{ $page }}</span>
-                                @else
-                                    <a href="{{ $url }}" class="page-btn page-link">{{ $page }}</a>
-                                @endif
-                            @endforeach
+                        {{-- 4. PAGINATION FOOTER BAR --}}
+                        <div class="pagination-bar pagination-sima-container" id="pagination-bar" style="margin-top: 14px; padding: 14px 0; border-top: none !important; background: transparent; flex-wrap: wrap; gap: 14px; {{ $inventaris->total() > 10 ? 'display: flex;' : 'display: none;' }}">
+                            <!-- Per Page Select -->
+                            <div class="pagination-left">
+                                <div class="page-size-wrap">
+                                    <span>Tampilkan</span>
+                                    <select id="perPageSelect" class="per-page-select" style="height: 32px;" onchange="changePerPage(this.value)">
+                                        <option value="10" {{ ($inventaris->perPage() == 10) ? 'selected' : '' }}>10</option>
+                                        <option value="20" {{ ($inventaris->perPage() == 20) ? 'selected' : '' }}>20</option>
+                                        <option value="50" {{ ($inventaris->perPage() == 50) ? 'selected' : '' }}>50</option>
+                                        <option value="100" {{ ($inventaris->perPage() == 100) ? 'selected' : '' }}>100</option>
+                                    </select>
+                                    <span>data</span>
+                                </div>
+                            </div>
 
-                            @if($inventaris->hasMorePages())
-                                <a href="{{ $inventaris->nextPageUrl() }}" class="page-btn page-link" title="Next"><i data-feather="chevron-right"></i></a>
-                            @else
-                                <span class="page-btn disabled" title="Next"><i data-feather="chevron-right"></i></span>
-                            @endif
-                        </nav>
-                        <div class="page-jump-wrap">
-                            <label for="pageJumpInput">Ke hal.</label>
-                            <input id="pageJumpInput" type="number" class="page-jump-input"
-                                   min="1" max="{{ $inventaris->lastPage() }}"
-                                   placeholder="1–{{ $inventaris->lastPage() }}"
-                                   data-last-page="{{ $inventaris->lastPage() }}">
+                            <!-- Page Navigation Numbers & Jump -->
+                            <div class="pagination-center">
+                                <nav class="pagination-sima pagination-nav" id="pagination-nav">
+                                    @if ($inventaris->onFirstPage())
+                                        <span class="page-btn-sima page-btn disabled" style="opacity: 0.5; cursor: not-allowed;" title="Previous"><i data-feather="chevron-left" style="width: 14px; height: 14px;"></i></span>
+                                    @else
+                                        <a href="{{ $inventaris->previousPageUrl() }}" class="page-btn-sima page-btn page-link" title="Previous"><i data-feather="chevron-left" style="width: 14px; height: 14px;"></i></a>
+                                    @endif
+
+                                    @php
+                                        $currentPage  = $inventaris->currentPage();
+                                        $lastPage     = $inventaris->lastPage();
+                                        $windowStart  = max(1, $currentPage - 2);
+                                        $windowEnd    = min($lastPage, $currentPage + 2);
+                                        if (($windowEnd - $windowStart + 1) < 5) {
+                                            if ($windowStart === 1) { $windowEnd = min($lastPage, 5); }
+                                            else { $windowStart = max(1, $windowEnd - 4); }
+                                        }
+                                        $pageUrls = $inventaris->getUrlRange($windowStart, $windowEnd);
+                                    @endphp
+                                    @foreach($pageUrls as $page => $url)
+                                        @if($page == $currentPage)
+                                            <span class="page-btn-sima page-btn active">{{ $page }}</span>
+                                        @else
+                                            <a href="{{ $url }}" class="page-btn-sima page-btn page-link">{{ $page }}</a>
+                                        @endif
+                                    @endforeach
+
+                                    @if ($inventaris->hasMorePages())
+                                        <a href="{{ $inventaris->nextPageUrl() }}" class="page-btn-sima page-btn page-link" title="Next"><i data-feather="chevron-right" style="width: 14px; height: 14px;"></i></a>
+                                    @else
+                                        <span class="page-btn-sima page-btn disabled" style="opacity: 0.5; cursor: not-allowed;" title="Next"><i data-feather="chevron-right" style="width: 14px; height: 14px;"></i></span>
+                                    @endif
+                                </nav>
+
+                                <!-- Jump to Page Input -->
+                                <div class="page-jump-wrap">
+                                    <label for="pageJumpInput" style="color: var(--color-text-muted);">Ke hal.</label>
+                                    <input id="pageJumpInput" type="number" class="page-jump-input form-control-sima" style="width: 52px; height: 32px; padding: 2px 6px; text-align: center; font-size: 13px;" min="1" max="{{ $inventaris->lastPage() }}" value="{{ $inventaris->currentPage() }}" placeholder="1–{{ $inventaris->lastPage() }}" data-last-page="{{ $inventaris->lastPage() }}">
+                                </div>
+                            </div>
+
+                            <!-- Range Info Text -->
+                            <div class="pagination-right" id="paginationRangeInfo" style="font-size: 13px; color: var(--color-text-muted); font-variant-numeric: tabular-nums;">
+                                Menampilkan <strong>{{ $inventaris->firstItem() ?? 0 }}-{{ $inventaris->lastItem() ?? 0 }}</strong> dari <strong>{{ $inventaris->total() }}</strong> aset
+                            </div>
                         </div>
-                        <div class="pagination-info" id="pagination-info-right">
-                            Total <strong>{{ $inventaris->total() }}</strong> aset
-                        </div>
-                    </div>
-                    @endif
                     @endif
                     </div>{{-- /#aset-section --}}
+                </div><!-- /.portal-section -->
+
+                <!-- Section: Audit Data -->
+                <div class="portal-section" style="border-top: none; margin-top: 0; padding-top: 36px; margin-bottom: 32px;">
+                    <div class="portal-section-header">
+                        <h2 class="portal-section-title">
+                            <span>Informasi Sistem & Audit Data</span>
+                        </h2>
+                    </div>
+                    <div style="display: flex; justify-content: space-evenly; gap: 36px; font-size: 12.5px; flex-wrap: wrap;">
+                        <div class="portal-kv-item" style="flex: 1; min-width: 180px;">
+                            <span class="portal-kv-label">ID Ruangan</span>
+                            <span class="portal-kv-value" style="font-family: monospace;">#{{ $ruangan->id }}</span>
+                        </div>
+                        <div class="portal-kv-item" style="flex: 1; min-width: 180px;">
+                            <span class="portal-kv-label">Tanggal Dibuat</span>
+                            <span class="portal-kv-value">{{ $ruangan->created_at ? $ruangan->created_at->format('d M Y, H:i') : '-' }}</span>
+                        </div>
+                        <div class="portal-kv-item" style="flex: 1; min-width: 180px;">
+                            <span class="portal-kv-label">Terakhir Diperbarui</span>
+                            <span class="portal-kv-value">{{ $ruangan->updated_at ? $ruangan->updated_at->format('d M Y, H:i') : '-' }}</span>
+                        </div>
+                    </div>
                 </div>
 
-            </div>{{-- /.page-center --}}
+            </div><!-- /.portal-card -->
         </div>
     </div>
     @include('layouts.footer-block')
@@ -273,46 +223,59 @@
 
         // ── Render rows ────────────────────────────────────────────────────
         function renderRows(items, firstItem) {
-            const tbody = document.getElementById('aset-tbody');
-            if (!tbody) return;
-            tbody.innerHTML = items.map((aset, i) => `
-                <tr>
-                    <td>${firstItem + i}</td>
-                    <td>${escHtml(aset.display_name)}</td>
-                    <td><span class="jenis-badge">${escHtml(aset.jenis_nama)}</span></td>
-                    <td><span class="code-badge">${escHtml(aset.kode_barang)}</span></td>
-                    <td><a href="${escHtml(aset.show_url)}" style="font-size:12px;color:#064635;font-weight:600;text-decoration:none;">Lihat &rarr;</a></td>
-                </tr>
+            const container = document.getElementById('aset-list-container');
+            if (!container) return;
+            container.innerHTML = items.map((aset, i) => `
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; line-height: 1.5; color: var(--color-text); padding: 12px 0; border-bottom: 1px dashed var(--color-border, #cfdcc8);">
+                    <div style="display: flex; align-items: center; min-width: 0; padding-right: 12px;">
+                        <span style="color: var(--color-text-muted); font-variant-numeric: tabular-nums; min-width: 24px; font-weight: 500; flex-shrink: 0;">
+                            ${firstItem + i}.
+                        </span>
+                        <span style="font-weight: 600; color: var(--color-text);">
+                            ${escHtml(aset.display_name)}
+                        </span>
+                        <span style="color: var(--color-text-muted); font-size: 13px; font-weight: 500; margin-left: 6px;">
+                            (${escHtml(aset.jenis_nama)})
+                        </span>
+                    </div>
+                    <a href="${escHtml(aset.show_url)}" style="flex-shrink: 0; font-size: 12px; color: var(--color-primary); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: gap 0.15s ease, opacity 0.15s ease;" onmouseenter="this.style.opacity='0.8'; this.style.gap='6px';" onmouseleave="this.style.opacity='1'; this.style.gap='4px';">
+                        <span>Lihat detail</span>
+                        <i data-feather="chevron-right" style="width: 13px; height: 13px;"></i>
+                    </a>
+                </div>
             `).join('');
+            if (typeof feather !== 'undefined') feather.replace();
         }
 
         // ── Render pagination bar ──────────────────────────────────────────
         function renderPagination(data) {
-            const infoLeft  = document.getElementById('pagination-info-left');
-            const infoRight = document.getElementById('pagination-info-right');
-            const nav       = document.getElementById('pagination-nav');
-            const badge     = document.getElementById('aset-total-badge');
-            const jumpInput = document.getElementById('pageJumpInput');
-            const bar       = document.getElementById('pagination-bar');
+            const rangeEl       = document.getElementById('paginationRangeInfo');
+            const nav           = document.getElementById('pagination-nav');
+            const jumpInput     = document.getElementById('pageJumpInput');
+            const bar           = document.getElementById('pagination-bar');
+            const perPageSelect = document.getElementById('perPageSelect');
 
-            if (badge) badge.textContent = data.total + ' Aset';
-
-            if (infoLeft)  infoLeft.innerHTML  = `Menampilkan <strong>${data.firstItem}-${data.lastItem}</strong> dari <strong>${data.total}</strong> data`;
-            if (infoRight) infoRight.innerHTML = `Total <strong>${data.total}</strong> aset`;
-
-            if (jumpInput) {
-                jumpInput.max = data.lastPage;
-                jumpInput.placeholder = `1–${data.lastPage}`;
-                jumpInput.dataset.lastPage = data.lastPage;
-                jumpInput.value = '';
+            if (rangeEl) {
+                rangeEl.innerHTML = `Menampilkan <strong>${data.firstItem || 0}-${data.lastItem || 0}</strong> dari <strong>${data.total || 0}</strong> aset`;
             }
 
-            if (bar) bar.style.display = data.lastPage > 1 ? '' : 'none';
+            if (perPageSelect && data.perPage) {
+                perPageSelect.value = data.perPage;
+            }
+
+            if (jumpInput) {
+                jumpInput.max = data.lastPage || 1;
+                jumpInput.placeholder = `1–${data.lastPage || 1}`;
+                jumpInput.dataset.lastPage = data.lastPage || 1;
+                jumpInput.value = data.currentPage || 1;
+            }
+
+            if (bar) bar.style.display = (data.total && data.total > 10) ? 'flex' : 'none';
 
             if (!nav) return;
 
             // Hitung window halaman
-            const cur = data.currentPage, last = data.lastPage;
+            const cur = data.currentPage || 1, last = data.lastPage || 1;
             let wStart = Math.max(1, cur - 2);
             let wEnd   = Math.min(last, cur + 2);
             if ((wEnd - wStart + 1) < 5) {
@@ -324,27 +287,27 @@
 
             // Prev
             if (cur <= 1) {
-                html += `<span class="page-btn disabled" title="Previous"><i data-feather="chevron-left"></i></span>`;
+                html += `<span class="page-btn-sima" style="opacity: 0.5; cursor: not-allowed;" title="Previous"><i data-feather="chevron-left" style="width: 14px; height: 14px;"></i></span>`;
             } else {
                 const prevUrl = buildUrl(cur - 1);
-                html += `<a href="${prevUrl}" class="page-btn page-link" title="Previous"><i data-feather="chevron-left"></i></a>`;
+                html += `<a href="${prevUrl}" class="page-btn-sima page-link" title="Previous"><i data-feather="chevron-left" style="width: 14px; height: 14px;"></i></a>`;
             }
 
             // Page numbers
             for (let p = wStart; p <= wEnd; p++) {
                 if (p === cur) {
-                    html += `<span class="page-btn active">${p}</span>`;
+                    html += `<span class="page-btn-sima active">${p}</span>`;
                 } else {
-                    html += `<a href="${buildUrl(p)}" class="page-btn page-link">${p}</a>`;
+                    html += `<a href="${buildUrl(p)}" class="page-btn-sima page-link">${p}</a>`;
                 }
             }
 
             // Next
             if (cur >= last) {
-                html += `<span class="page-btn disabled" title="Next"><i data-feather="chevron-right"></i></span>`;
+                html += `<span class="page-btn-sima" style="opacity: 0.5; cursor: not-allowed;" title="Next"><i data-feather="chevron-right" style="width: 14px; height: 14px;"></i></span>`;
             } else {
                 const nextUrl = buildUrl(cur + 1);
-                html += `<a href="${nextUrl}" class="page-btn page-link" title="Next"><i data-feather="chevron-right"></i></a>`;
+                html += `<a href="${nextUrl}" class="page-btn-sima page-link" title="Next"><i data-feather="chevron-right" style="width: 14px; height: 14px;"></i></a>`;
             }
 
             nav.innerHTML = html;
@@ -354,16 +317,18 @@
             bindPageLinks();
         }
 
-        // ── Build URL dengan query string page ─────────────────────────────
-        function buildUrl(page) {
+        // ── Build URL dengan query string page & per_page ───────────────────
+        function buildUrl(page, limit = null) {
             const u = new URL(window.location.href);
             u.searchParams.set('page', page);
+            const pp = limit || document.getElementById('perPageSelect')?.value;
+            if (pp) u.searchParams.set('per_page', pp);
             return u.toString();
         }
 
         // ── Fetch halaman via AJAX ─────────────────────────────────────────
-        function fetchPage(page) {
-            const url = buildUrl(page);
+        function fetchPage(page, limit = null) {
+            const url = buildUrl(page, limit);
             setLoading(true);
             fetch(url, {
                 headers: {
@@ -383,10 +348,14 @@
             })
             .catch(() => {
                 // Fallback: full page reload jika AJAX gagal
-                window.location.href = buildUrl(page);
+                window.location.href = buildUrl(page, limit);
             })
             .finally(() => setLoading(false));
         }
+
+        window.changePerPage = function(limit) {
+            fetchPage(1, limit);
+        };
 
         // ── Bind click pada semua .page-link ──────────────────────────────
         function bindPageLinks() {
@@ -404,17 +373,22 @@
         function bindJumpInput() {
             const jumpInput = document.getElementById('pageJumpInput');
             if (!jumpInput) return;
-            jumpInput.addEventListener('input', function () {
-                const last = parseInt(this.dataset.lastPage || this.max, 10);
-                const val  = parseInt(this.value, 10);
-                if (!isNaN(val) && val > last) this.value = '';
-            });
             jumpInput.addEventListener('keydown', function (e) {
-                if (e.key !== 'Enter') return;
-                const last = parseInt(this.dataset.lastPage || this.max, 10);
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const last = parseInt(this.dataset.lastPage || this.max || 1, 10);
+                    let val    = parseInt(this.value, 10);
+                    if (isNaN(val)) return;
+                    if (val < 1) val = 1;
+                    if (val > last) val = last;
+                    this.value = val;
+                    fetchPage(val);
+                }
+            });
+            jumpInput.addEventListener('blur', function () {
+                const last = parseInt(this.dataset.lastPage || this.max || 1, 10);
                 const val  = parseInt(this.value, 10);
                 if (isNaN(val) || val < 1 || val > last) return;
-                this.value = '';
                 fetchPage(val);
             });
         }
@@ -427,6 +401,7 @@
         // ── Init ──────────────────────────────────────────────────────────
         bindPageLinks();
         bindJumpInput();
+        try { sessionStorage.setItem('ruangan_returning', '1'); } catch(e) {}
     })();
     </script>
 </body>

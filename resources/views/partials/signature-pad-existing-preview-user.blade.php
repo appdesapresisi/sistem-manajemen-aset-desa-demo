@@ -5,7 +5,7 @@
 @endphp
 <div class="ttd-existing-preview" id="ttd-existing-preview">
   @if(!$ttdIsPdf)
-  <img src="{{ $previewUrl }}" alt="TTD Saat Ini" class="ttd-existing-img" />
+  <img src="{{ $previewUrl }}" alt="TTD Saat Ini" class="ttd-existing-img" onclick="if(window.openSimaImageViewer) openSimaImageViewer('{{ $previewUrl }}', 0, 'Tanda Tangan Digital')" title="Klik untuk memperbesar (Layar Penuh)" style="cursor: zoom-in;" />
   @else
   <div style="width:80px;height:80px;display:flex;align-items:center;justify-content:center;background:#fee2e2;border-radius:8px;">
     <i data-feather="file-text" style="width:28px;height:28px;color:#ef4444;"></i>

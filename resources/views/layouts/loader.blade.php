@@ -42,7 +42,7 @@
           width: 100%;
           height: 100%;
           border: 4px solid transparent;
-          border-top-color: #064635;
+          border-top-color: #1f3a2a;
           border-radius: 50%;
           box-sizing: border-box;
           animation: spin-loader 1s linear infinite;
@@ -53,7 +53,7 @@
         font-family: 'Inter', sans-serif;
         font-size: 15px;
         font-weight: 600;
-        color: #064635;
+        color: #1f3a2a;
         letter-spacing: 0.5px;
         animation: pulse-loader 1.5s ease-in-out infinite;
     ">
@@ -148,15 +148,23 @@
     };
   })();
 
-  // Fallback: pastikan loader pasti disembunyikan setelah maksimal 8 detik
-  // untuk menangani kasus JS error yang mencegah window.load
-  setTimeout(function() {
+  // Auto-dismiss initial page loader as soon as DOM is interactive/loaded
+  function autoDismissInitialLoader() {
     try {
-      const loader = document.querySelector('.loader-bg');
-      if (loader && loader.style.display !== 'none' && loader.style.opacity !== '0') {
+      if (window.AppLoader) {
         window.AppLoader.hide();
       }
     } catch(e) {}
-  }, 8000);
+  }
+
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    autoDismissInitialLoader();
+  } else {
+    document.addEventListener('DOMContentLoaded', autoDismissInitialLoader);
+    window.addEventListener('load', autoDismissInitialLoader);
+  }
+
+  // Safety fallback: pastikan loader disembunyikan maksimal dalam 2 detik
+  setTimeout(autoDismissInitialLoader, 2000);
 </script>
 <!-- [ Pre-loader ] End -->

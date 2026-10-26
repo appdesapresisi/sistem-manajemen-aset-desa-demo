@@ -12,7 +12,7 @@ class RuanganPolicy
         return true;
     }
 
-    public function view(User $user, Ruangan $ruangan): bool
+    public function view(User $user, ?Ruangan $ruangan = null): bool
     {
         return true;
     }
@@ -22,7 +22,7 @@ class RuanganPolicy
         return $user->isSuperAdmin();
     }
 
-    public function update(User $user, Ruangan $ruangan): bool
+    public function update(User $user, ?Ruangan $ruangan = null): bool
     {
         return $user->isSuperAdmin();
     }

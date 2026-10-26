@@ -1,4 +1,4 @@
-<title>{{ $title ?? 'Sistem Manajemen Aset Desa Demo' }}</title>
+<title>{{ $title ?? 'Sistem Manajemen Aset Desa (SIMA Demo)' }}</title>
 <!-- [Meta] -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
@@ -13,9 +13,10 @@
   content="Bootstrap admin template, Dashboard UI Kit, Dashboard Template, Backend Panel, react dashboard, angular dashboard"
 />
 <meta name="author" content="CodedThemes" />
-<meta name="theme-color" content="#064635" />
+<meta name="theme-color" content="#1f3a2a" />
 
 <!-- [Favicon] icon -->
-<link rel="icon" type="image/png" href="{{ asset('assets/images/logo/logo-demo.png') }}?v=20260416" />
-<link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logo/logo-demo.png') }}?v=20260416" />
-<link rel="apple-touch-icon" href="{{ asset('assets/images/logo/logo-demo.png') }}?v=20260416" />
+<link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v={{ file_exists(public_path('favicon.ico')) ? filemtime(public_path('favicon.ico')) : time() }}" />
+<link rel="icon" type="image/png" href="{{ asset('assets/images/logo/logo-sima-desa-demo.png') }}?v=20260416" />
+<link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v={{ file_exists(public_path('favicon.ico')) ? filemtime(public_path('favicon.ico')) : time() }}" />
+<link rel="apple-touch-icon" href="{{ asset('assets/images/logo/logo-sima-desa-demo.png') }}?v=20260416" />

@@ -12,7 +12,7 @@ class JenisInventarisPolicy
         return $user->isAdmin() || $user->isSuperAdmin();
     }
 
-    public function view(User $user, JenisInventaris $jenis)
+    public function view(User $user, ?JenisInventaris $jenis = null)
     {
         return $user->isAdmin() || $user->isSuperAdmin();
     }
@@ -22,7 +22,7 @@ class JenisInventarisPolicy
         return $user->isSuperAdmin();
     }
 
-    public function update(User $user, JenisInventaris $jenis)
+    public function update(User $user, ?JenisInventaris $jenis = null)
     {
         return $user->isSuperAdmin();
     }

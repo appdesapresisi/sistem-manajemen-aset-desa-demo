@@ -22,7 +22,7 @@ use App\Http\Controllers\Api\BidangController;
 
 // Use web middleware to leverage existing session authentication
 // and explicit throttling to reduce abuse/load spikes on API endpoints.
-Route::middleware(['web', 'auth', 'throttle:60,1'])->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     // User info endpoint
     Route::get('/user', function (Request $request) {
         return response()->json($request->user());
@@ -37,10 +37,12 @@ Route::middleware(['web', 'auth', 'throttle:60,1'])->group(function () {
     Route::apiResource('bidangs', BidangController::class)->except(['create','edit'])->names('api.bidangs');
     
     // Dynamic fields endpoint
-    Route::get('jenis-inventaris/{id}/fields', [JenisInventarisFieldApiController::class, 'show']);
+    Route::get('jenis-inventaris/{id}/fields', [JenisInventarisFieldApiController::class, 'show'])->name('api.jenis-inventaris.fields');
 
-    // Ruangan dropdown endpoint
+    // Ruangan & Dropdown endpoints
     Route::get('ruangan', [\App\Http\Controllers\Api\RuanganApiController::class, 'index']);
+    Route::get('dropdown', [\App\Http\Controllers\Dropdown\DropdownController::class, 'index']);
+    Route::get('dropdowns', [\App\Http\Controllers\Dropdown\DropdownController::class, 'index']);
 
     // Dashboard API endpoints
     Route::prefix('dashboard')->group(function () {
@@ -48,6 +50,16 @@ Route::middleware(['web', 'auth', 'throttle:60,1'])->group(function () {
         Route::get('charts', [\App\Http\Controllers\Dashboard\DashboardController::class, 'getChartData']);
         Route::get('activities', [\App\Http\Controllers\Dashboard\DashboardController::class, 'getRecentActivities']);
         Route::get('exports', [\App\Http\Controllers\Dashboard\DashboardController::class, 'getRecentExports']);
+    });
+
+    // Next NUP endpoint
+    Route::get('inventaris/next-nup', [\App\Http\Controllers\ManajemenAset\ManajemenAsetController::class, 'getNextNup'])->name('api.inventaris.next-nup');
+
+    // Kode barang hierarki endpoints (5-level hierarchy search)
+    Route::prefix('kb')->name('api.kb.')->group(function () {
+        Route::get('search', [\App\Http\Controllers\Api\KodeBarangHierarkiController::class, 'search'])->name('search');
+        Route::get('by-kode', [\App\Http\Controllers\Api\KodeBarangHierarkiController::class, 'getByKode'])->name('by-kode');
+        Route::get('resolve-ancestors', [\App\Http\Controllers\Api\KodeBarangHierarkiController::class, 'resolveAncestors'])->name('resolve-ancestors');
     });
 });
 

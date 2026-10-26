@@ -36,6 +36,14 @@ class Ruangan extends Model
     }
 
     /**
+     * Accessor: nama ruangan dengan kode format "Nama Ruangan (Kode: X)"
+     */
+    public function getNamaWithKodeAttribute(): string
+    {
+        return $this->nama . ($this->kode ? ' (Kode: ' . $this->kode . ')' : '');
+    }
+
+    /**
      * Accessor: inisial dari nama ruangan (untuk avatar).
      */
     public function getInitialsAttribute(): string

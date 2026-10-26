@@ -11,7 +11,7 @@ class StoreBidangRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->check() && auth()->user()->isSuperAdmin();
+        return auth()->check() && (auth()->user()->isSuperDeveloper() || auth()->user()->isSuperAdmin());
     }
 
     /**
@@ -22,8 +22,19 @@ class StoreBidangRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nama' => 'required|string|max:255|unique:bidangs,nama',
-            'deskripsi' => 'nullable|string',
+            'nama' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s\/\.,\-\(\)]+$/',
+                'unique:bidangs,nama',
+            ],
+            'deskripsi' => [
+                'nullable',
+                'string',
+                'regex:/[a-zA-Z]/',
+            ],
         ];
     }
 
@@ -33,9 +44,12 @@ class StoreBidangRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nama.required' => 'Nama bidang wajib diisi',
-            'nama.unique' => 'Nama bidang sudah ada, gunakan nama lain',
-            'nama.max' => 'Nama bidang maksimal 255 karakter',
+            'nama.required' => 'Nama bidang wajib diisi.',
+            'nama.min' => 'Nama bidang minimal 3 karakter.',
+            'nama.regex' => 'Nama bidang harus memuat huruf dan tidak boleh hanya berisi angka/simbol.',
+            'nama.unique' => 'Nama bidang sudah ada, gunakan nama lain.',
+            'nama.max' => 'Nama bidang maksimal 255 karakter.',
+            'deskripsi.regex' => 'Deskripsi bidang harus memuat teks huruf.',
         ];
     }
 }

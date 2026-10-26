@@ -30,14 +30,14 @@
 
 <div class="signature-method-toggle">
   <label class="signature-method-option">
-    <input type="radio" name="signature_method" value="draw" {{ $isDrawSelected ? 'checked' : '' }}>
+    <input type="radio" name="signature_method" value="draw" class="sr-only" style="display:none !important;" {{ $isDrawSelected ? 'checked' : '' }}>
     <span>
       <i data-feather="edit-3"></i>
       Gambar Tanda Tangan
     </span>
   </label>
   <label class="signature-method-option">
-    <input type="radio" name="signature_method" value="upload" {{ !$isDrawSelected ? 'checked' : '' }}>
+    <input type="radio" name="signature_method" value="upload" class="sr-only" style="display:none !important;" {{ !$isDrawSelected ? 'checked' : '' }}>
     <span>
       <i data-feather="upload-cloud"></i>
       Upload Tanda Tangan Elektronik
@@ -61,8 +61,8 @@
 
 <div id="upload-signature-section" class="file-upload-wrapper" style="{{ $isDrawSelected ? 'display:none;' : '' }}">
   <label for="ttd_path" class="file-upload-area{{ $uploadAreaClass ? ' ' . $uploadAreaClass : '' }}" id="upload-area" style="cursor: pointer;">
-    <div class="file-upload-icon">
-      <i data-feather="upload"></i>
+    <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: 8px;">
+      <i data-feather="upload-cloud" style="width: 28px; height: 28px; stroke-width: 1.5; color: var(--color-text-muted); display: block; margin: 0 auto;"></i>
     </div>
     <div class="file-upload-text">Klik atau drag &amp; drop untuk upload</div>
     <div class="file-upload-hint">{{ $uploadHint }}</div>
@@ -77,7 +77,7 @@
 @enderror
 
 <div class="file-preview" id="file-preview">
-  <img src="" alt="Preview TTD" class="file-preview-img" id="preview-img" />
+  <img src="" alt="Preview TTD" class="file-preview-img" id="preview-img" onclick="if(this.src && window.openSimaImageViewer) openSimaImageViewer(this.src, 0, 'Tanda Tangan Digital')" title="Klik untuk memperbesar (Layar Penuh)" style="cursor: zoom-in;" />
   <div class="file-preview-info">
     <div class="file-preview-name" id="preview-name">filename.png</div>
     <div class="file-preview-size" id="preview-size">120 KB</div>

@@ -128,8 +128,14 @@ class ExportService
             $query = Inventaris::where('jenis_inventaris_id', $jenis->id)
                 ->with(['jenis', 'values.field']);
         }
+
+        $query->orderBy('kode_barang')
+            ->orderBy('tahun_perolehan')
+            ->orderBy('nama_barang')
+            ->orderByRaw('CAST(nup AS UNSIGNED) ASC')
+            ->orderBy('id');
         
-        if (isset($filters['tahun'])) {
+        if (!empty($filters['tahun']) && $filters['tahun'] !== 'all') {
             $query->where('tahun_perolehan', '<=', $filters['tahun']);
         }
 
@@ -189,9 +195,13 @@ class ExportService
         $query = Inventaris::whereIn('jenis_inventaris_id', $realJenis->pluck('id'))
                    ->with(['jenis', 'values.field'])
                    ->orderBy('jenis_inventaris_id')
-                   ->orderBy('created_at');
+                   ->orderBy('kode_barang')
+                   ->orderBy('tahun_perolehan')
+                   ->orderBy('nama_barang')
+                   ->orderByRaw('CAST(nup AS UNSIGNED) ASC')
+                   ->orderBy('id');
         
-        if (isset($filters['tahun'])) {
+        if (!empty($filters['tahun']) && $filters['tahun'] !== 'all') {
             $query->where('tahun_perolehan', '<=', $filters['tahun']);
         }
 
@@ -216,6 +226,7 @@ class ExportService
     {
         $pageSizeCss = match(strtolower($paperSize)) {
             'letter' => 'letter landscape',
+            'a4'     => 'a4 landscape',
             'f4'     => '21cm 33cm landscape',
             default  => 'legal landscape',
         };
@@ -235,8 +246,10 @@ class ExportService
             .info-table td:first-child { width: 95px; font-weight: bold; }
             .info-table td:nth-child(2) { width: 10px; text-align: center; font-weight: bold; }
             .info-table td:nth-child(3) { font-weight: bold; }
-            table.inv-table { border-collapse: collapse; width: 100%; table-layout: auto; }
-            table.inv-table th { background: #ffffff; font-size: 9px; font-weight: bold; text-align: center;
+            table.inv-table { border-collapse: collapse; width: 100%; border: 1px solid #000000; }
+            table.inv-table thead { display: table-header-group; }
+            table.inv-table tr { page-break-inside: avoid; }
+            table.inv-table th { font-size: 9px; font-weight: bold; text-align: center;
                  border: 1px solid #000000; padding: 3px 2px; vertical-align: middle; }
             table.inv-table td { border: 1px solid #000000; padding: 3px 3px; font-size: 9px; vertical-align: middle; }
             .no-col { text-align: center; width: 25px; }
@@ -375,9 +388,9 @@ class ExportService
                      7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'];
 
         // Periode Tanggal = 31 Desember dari tahun filter (bukan dari tanggal dokumen)
-        $tahunFilter = (int)($filters['tahun'] ?? date('Y'));
-        if (!$tahunFilter) $tahunFilter = (int)date('Y');
-        $periodeStr = 'Periode Tanggal, 31 Desember ' . $tahunFilter;
+        $isAllTahun = empty($filters['tahun']) || $filters['tahun'] === 'all';
+        $tahunFilter = $isAllTahun ? 'Semua Tahun' : (int)$filters['tahun'];
+        $periodeStr = $isAllTahun ? 'Periode Tanggal, 31 Desember (Semua Tahun)' : ('Periode Tanggal, 31 Desember ' . $tahunFilter);
 
         // Tanggal Berita Acara = dari input tanggal dokumen user (default: hari ini)
         $tanggalBeritaAcara = '';
@@ -509,10 +522,11 @@ class ExportService
                 $clean = preg_replace('/[^0-9,.]/', '', $raw);
                 if ($clean === '') continue;
                 // Format Indonesian: 1.000.000 → strip dots, atau 1,5 → 1.5
-                if (substr_count($clean, '.') > 1) {
-                    $clean = str_replace('.', '', $clean); // ribuan bertitik
-                } elseif (str_contains($clean, ',')) {
-                    $clean = str_replace(['.', ','], ['', '.'], $clean);
+                if (str_contains($clean, ',')) {
+                    $clean = str_replace('.', '', $clean);
+                    $clean = str_replace(',', '.', $clean);
+                } elseif (substr_count($clean, '.') > 1) {
+                    $clean = str_replace('.', '', $clean);
                 }
                 $nilaiTotal += is_numeric($clean) ? (float)$clean : 0.0;
             }
@@ -520,6 +534,7 @@ class ExportService
 
         $pageSizeCss = match(strtolower($paperSize)) {
             'letter' => 'letter landscape',
+            'a4'     => 'a4 landscape',
             'f4'     => '21cm 33cm landscape',
             default  => 'legal landscape',
         };
@@ -539,8 +554,10 @@ class ExportService
             .info-table td:first-child { width: 95px; font-weight: bold; }
             .info-table td:nth-child(2) { width: 10px; text-align: center; font-weight: bold; }
             .info-table td:nth-child(3) { font-weight: bold; }
-            table.inv-table { border-collapse: collapse; width: 100%; table-layout: auto; }
-            table.inv-table th { background: #ffffff; font-size: 9px; font-weight: bold; text-align: center;
+            table.inv-table { border-collapse: collapse; width: 100%; border: 1px solid #000000; }
+            table.inv-table thead { display: table-header-group; }
+            table.inv-table tr { page-break-inside: avoid; }
+            table.inv-table th { font-size: 9px; font-weight: bold; text-align: center;
                  border: 1px solid #000000; padding: 3px 2px; vertical-align: middle; }
             table.inv-table td { border: 1px solid #000000; padding: 3px 3px; font-size: 9px;
                  vertical-align: middle; }
@@ -642,8 +659,7 @@ class ExportService
         $hasNomorIdentitas = $nomorIdentitasStartIdx >= 0;
 
         // Build table headers
-        $tableStyle = $hasNomorIdentitas ? ' style="table-layout:fixed;width:100%;"' : '';
-        $html .= '<table class="inv-table"' . $tableStyle . '><thead>';
+        $html .= '<table class="inv-table"><thead>';
         if ($hasUkuran) {
             // 2-row header khusus Jalan Irigasi: baris 1 = kolom normal (rowspan 2) + "UKURAN" (colspan 3)
             $html .= '<tr>';
@@ -804,14 +820,15 @@ class ExportService
                         // Format nilai mata uang — selalu 2 desimal (7.412.000,00)
                         $cleanNum = preg_replace('/[^0-9,.]/', '', $cStr);
                         if ($cleanNum !== '') {
-                            if (substr_count($cleanNum, '.') > 1) {
+                            if (str_contains($cleanNum, ',')) {
                                 $cleanNum = str_replace('.', '', $cleanNum);
-                            } elseif (str_contains($cleanNum, ',')) {
-                                $cleanNum = str_replace(['.', ','], ['', '.'], $cleanNum);
+                                $cleanNum = str_replace(',', '.', $cleanNum);
+                            } elseif (substr_count($cleanNum, '.') > 1) {
+                                $cleanNum = str_replace('.', '', $cleanNum);
                             }
                         }
                         $fv = ($cleanNum !== '' && is_numeric($cleanNum)) ? (float)$cleanNum : 0.0;
-                        $formatted = number_format($fv, 2, ',', '.');
+                        $formatted = number_format($fv, fmod($fv, 1) != 0 ? 2 : 0, ',', '.');
                         $html .= '<td style="text-align:right;">' . htmlentities($formatted) . '</td>';
                     } elseif (in_array($ci, $m2RowIndices, true) && $cStr !== '' && $cStr !== '-') {
                         $cleanNum = preg_replace('/[^0-9,.\-]/', '', $cStr);
@@ -850,7 +867,7 @@ class ExportService
         $jumlahHtml = '<tr class="jumlah-row">';
         if ($nilaiVisualIdx > 0) {
             $jumlahHtml .= '<td colspan="' . $nilaiVisualIdx . '" style="text-align:center;">JUMLAH HARGA</td>';
-            $jumlahHtml .= '<td style="text-align:right;">' . ($nilaiTotal > 0 ? number_format($nilaiTotal, 2, ',', '.') : '') . '</td>';
+            $jumlahHtml .= '<td style="text-align:right;">' . ($nilaiTotal > 0 ? number_format($nilaiTotal, fmod($nilaiTotal, 1) != 0 ? 2 : 0, ',', '.') : '') . '</td>';
             $remaining = $totalVisualCols - $nilaiVisualIdx - 1;
             if ($remaining > 0) {
                 $jumlahHtml .= '<td colspan="' . $remaining . '"></td>';
@@ -935,8 +952,8 @@ class ExportService
     // ── EXPORT ALL ────────────────────────────────────────────────────────────
     public function exportAll(array $opts): array
     {
-        ini_set('memory_limit', '2048M');
-        set_time_limit(300);
+        @ini_set('memory_limit', '-1');
+        @set_time_limit(300);
 
         $format            = strtolower($opts['format'] ?? 'excel');
         $filters           = $opts['filters'] ?? [];
@@ -945,7 +962,7 @@ class ExportService
         $keteranganDokumen = (string)($opts['keterangan_dokumen'] ?? '');
         $pejabatOverride   = $opts['pejabat_override'] ?? null;
         $paperSize         = strtolower((string)($opts['paper_size'] ?? 'legal'));
-        $userId            = $opts['user_id'] ?? null;
+        $userId            = $opts['user_id'] ?? \Illuminate\Support\Facades\Auth::id() ?? \App\Models\User::first()?->id;
         $allJenis          = JenisInventaris::orderBy('id')->get();
         if ($allJenis->isEmpty()) throw new \RuntimeException('Tidak ada jenis inventaris.');
         $baseDir = 'exports/' . Carbon::now()->format('Y/m');
@@ -955,7 +972,7 @@ class ExportService
             $filename     = 'semua_inventaris_' . $timestamp . '.xlsx';
             $relativePath = $baseDir . '/' . $filename;
             $includeImg   = ($signatureOption !== 'without');
-            $export       = new \App\Exports\AllInventarisExport($filters, false, [], $tanggalDokumen, $keteranganDokumen, $includeImg);
+            $export       = new \App\Exports\AllInventarisExport($filters, false, is_array($pejabatOverride) ? $pejabatOverride : [], $tanggalDokumen, $keteranganDokumen, $includeImg);
             Excel::store($export, $relativePath, $this->disk);
             $log = $this->createAllJenisLog($format, $filename, $filters, $userId, $signatureOption);
             return ['filename' => $filename, 'path' => $relativePath, 'log_id' => $log->id ?? null];
@@ -975,8 +992,8 @@ class ExportService
     // ── EXPORT BUKU INVENTARIS STANDALONE ────────────────────────────────────
     public function exportBukuInventarisStandalone(array $opts): array
     {
-        ini_set('memory_limit', '2048M');
-        set_time_limit(300);
+        @ini_set('memory_limit', '-1');
+        @set_time_limit(300);
 
         $format            = strtolower($opts['format'] ?? 'excel');
         $filters           = $opts['filters'] ?? [];
@@ -989,7 +1006,7 @@ class ExportService
         $docLampiran       = (string)($opts['doc_lampiran'] ?? '');
         $docBaNomor        = (string)($opts['doc_ba_nomor'] ?? '');
         $docBaTanggal      = (string)($opts['doc_ba_tanggal'] ?? '');
-        $userId            = $opts['user_id'] ?? null;
+        $userId            = $opts['user_id'] ?? \Illuminate\Support\Facades\Auth::id() ?? \App\Models\User::first()?->id;
         $pejabatSnapshot   = $this->resolvePejabatSnapshot($pejabatOverride, 'Buku Inventaris Aset Desa');
         $baseDir = 'exports/' . Carbon::now()->format('Y/m');
         Storage::disk($this->disk)->makeDirectory($baseDir);
@@ -1001,7 +1018,7 @@ class ExportService
             $bukuSheet = new BukuInventarisSheet($filters, $pejabatSnapshot, $tanggalDokumen, $keteranganDokumen, $includeImg, $docLampiran, $docBaNomor, $docBaTanggal);
             Excel::store($bukuSheet, $relativePath, $this->disk);
         } elseif ($format === 'pdf') {
-            $html = $this->renderBukuInventarisPdf($filters, $pejabatSnapshot, $tanggalDokumen, $keteranganDokumen, $includeImg, $docLampiran, $docBaNomor, $docBaTanggal);
+            $html = $this->renderBukuInventarisPdf($filters, $pejabatSnapshot, $tanggalDokumen, $keteranganDokumen, $includeImg, $docLampiran, $docBaNomor, $docBaTanggal, false, $paperSize);
             $this->savePdfToStorage($html, $relativePath, $paperSize);
         } else {
             throw new \InvalidArgumentException('Unsupported format: ' . $format);
@@ -1013,8 +1030,8 @@ class ExportService
     // ── EXPORT JENIS INVENTARIS ───────────────────────────────────────────────
     public function exportJenisInventaris(array $opts): array
     {
-        ini_set('memory_limit', '2048M');
-        set_time_limit(300);
+        @ini_set('memory_limit', '-1');
+        @set_time_limit(300);
 
         $jenisId         = $opts['jenis_inventaris_id'] ?? null;
         $format          = strtolower($opts['format'] ?? 'excel');
@@ -1029,7 +1046,7 @@ class ExportService
         $docLampiran     = (string)($opts['doc_lampiran'] ?? '');
         $docBaNomor      = (string)($opts['doc_ba_nomor'] ?? '');
         $docBaTanggal    = (string)($opts['doc_ba_tanggal'] ?? '');
-        $userId          = $opts['user_id'] ?? null;
+        $userId          = $opts['user_id'] ?? \Illuminate\Support\Facades\Auth::id() ?? \App\Models\User::first()?->id;
         $isOrphan        = ($jenisId === null);
         if (!$isOrphan && !$jenisId) throw new \InvalidArgumentException('jenis_inventaris_id required');
         if ($isOrphan) {
@@ -1079,8 +1096,8 @@ class ExportService
     // ── EXPORT RUANGAN ────────────────────────────────────────────────────────
     public function exportRuangan(array $opts): array
     {
-        ini_set('memory_limit', '2048M');
-        set_time_limit(300);
+        @ini_set('memory_limit', '-1');
+        @set_time_limit(300);
 
         $ruanganId         = $opts['ruangan_id'] ?? 'all';
         $format            = strtolower($opts['format'] ?? 'pdf');
@@ -1088,15 +1105,26 @@ class ExportService
         $filters           = $opts['filters'] ?? [];
         $signatureOption   = strtolower((string)($opts['signature_option'] ?? 'with'));
         $pejabatOverride   = $opts['pejabat_override'] ?? null;
-        $userId            = $opts['user_id'] ?? null;
+        $userId            = $opts['user_id'] ?? \Illuminate\Support\Facades\Auth::id() ?? \App\Models\User::first()?->id;
         $tanggalDokumen    = (string)($opts['tanggal_dokumen'] ?? '');
         $keteranganDokumen = (string)($opts['keterangan_dokumen'] ?? '');
         $paperSize         = strtolower((string)($opts['paper_size'] ?? 'legal'));
         $includeImg        = ($signatureOption !== 'without');
 
         // Sekretaris Desa — hanya dipakai untuk Format 1
-        $sekretarisUser    = \App\Models\User::with(['role','pejabat'])->whereHas('role', fn($q) => $q->where('nama','like','%sekretaris%'))->first();
-        $sekretarisPejabat = $sekretarisUser?->pejabat?->toArray();
+        $sekretarisPejabatModel = Pejabat::where('is_aktif', 1)
+            ->where(function ($q) {
+                $q->whereRaw("LOWER(jabatan) LIKE ?", ['%sekretaris desa%'])
+                  ->orWhereRaw("LOWER(jabatan) LIKE ?", ['%sekdes%'])
+                  ->orWhereRaw("LOWER(jabatan) LIKE ?", ['%sekretaris%']);
+            })->first();
+
+        if ($sekretarisPejabatModel) {
+            $sekretarisPejabat = $sekretarisPejabatModel->toArray();
+        } else {
+            $sekretarisUser    = \App\Models\User::with(['role','pejabat'])->whereHas('role', fn($q) => $q->where('nama','like','%sekretaris%'))->first();
+            $sekretarisPejabat = $sekretarisUser?->pejabat?->toArray();
+        }
 
         // Resolve pejabat override berdasarkan format KIR
         // Format 1: semua override masuk sebagai Petugas Barang
@@ -1168,8 +1196,12 @@ class ExportService
                 // Exclude jenis template "Inventaris yang tidak ditemukan"
                 ->whereHas('jenis', fn($q) => $q->where('nama', '!=', \App\Models\JenisInventaris::NAMA_TIDAK_DITEMUKAN))
                 ->orderBy('jenis_inventaris_id')
-                ->orderBy('kode_barang');
-            if (!empty($filters['tahun'])) $query->where('tahun_perolehan', '<=', $filters['tahun']);
+                ->orderBy('kode_barang')
+                ->orderBy('tahun_perolehan')
+                ->orderBy('nama_barang')
+                ->orderByRaw('CAST(nup AS UNSIGNED) ASC')
+                ->orderBy('id');
+            if (!empty($filters['tahun']) && $filters['tahun'] !== 'all') $query->where('tahun_perolehan', '<=', $filters['tahun']);
             $inventarisList = $query->get(); $rows = []; $no = 1;
             foreach ($inventarisList as $inv) {
                 $nilai = (float)($inv->nilai_perolehan ?? 0); $totalNilai += $nilai;
@@ -1183,7 +1215,7 @@ class ExportService
                     'identitas'   => $this->buildIdentitasKolom($inv),
                     'no_pol'      => $this->buildNoPol($inv),
                     'asal_usul'   => $asalUsulMap[$inv->asal_usul ?? ''] ?? ($inv->asal_usul ?? ''),
-                    'harga'       => $nilai > 0 ? number_format($nilai, 2, ',', '.') : '',
+                    'harga'       => $nilai > 0 ? number_format($nilai, fmod($nilai, 1) != 0 ? 2 : 0, ',', '.') : '',
                     'keterangan'  => $inv->keterangan ?? '',
                     'inv_obj'     => $inv,
                 ];
@@ -1198,10 +1230,18 @@ class ExportService
         $filename = $slug.'_'.$timestamp.'.'.$this->extForFormat($format);
         $relativePath = $baseDir.'/'.$filename;
 
+        $perbekelModel = null;
+        if ($kirFormat === 'custom') {
+            $perbekelModel = \App\Models\Pejabat::where(function ($q) {
+                $q->whereRaw("LOWER(jabatan) LIKE ?", ['%perbekel%'])
+                  ->orWhereRaw("LOWER(jabatan) LIKE ?", ['%kepala desa%']);
+            })->first();
+        }
+
         if ($format === 'pdf') {
             if ($kirFormat === 'custom') {
-                // Format 2 (Desa Demo)
-                $perbekelPejabat = \App\Models\Pejabat::whereRaw("LOWER(jabatan) LIKE ?", ['%perbekel%'])->first()?->toArray();
+                // Format 2 (Format Khusus 3 TTD)
+                $perbekelPejabat = $perbekelModel?->toArray();
                 $html = $this->renderKartuInventarisRuanganFormat2Pdf(
                     $ruanganData, $totalNilai,
                     $perbekelPejabat, $kasiFormat2, $petugasPejabat,
@@ -1214,8 +1254,8 @@ class ExportService
             $this->savePdfToStorage($html, $relativePath, $paperSize);
         } elseif ($format === 'excel') {
             if ($kirFormat === 'custom') {
-                // Excel Format 2 (Desa Demo)
-                $perbekelPejabat = \App\Models\Pejabat::whereRaw("LOWER(jabatan) LIKE ?", ['%perbekel%'])->first()?->toArray();
+                // Excel Format 2 (Format Khusus 3 TTD)
+                $perbekelPejabat = $perbekelModel?->toArray();
                 $excelExport = new \App\Exports\KartuInventarisRuanganFormat2Export(
                     $ruanganData, $totalNilai,
                     $perbekelPejabat, $kasiFormat2, $petugasPejabat,
@@ -1232,7 +1272,7 @@ class ExportService
 
         // BUG 3 FIX: ExportLog — untuk Format 2 gunakan Perbekel sebagai pejabat_id, bukan Sekretaris
         if ($kirFormat === 'custom') {
-            $logPejabatId = \App\Models\Pejabat::whereRaw("LOWER(jabatan) LIKE ?", ['%perbekel%'])->first()?->id ?? null;
+            $logPejabatId = $perbekelModel?->id ?? null;
             $logPejabatOverride = array_filter([$kasiFormat2, $petugasPejabat[0] ?? null]);
         } else {
             $logPejabatId = $sekretarisPejabat['id'] ?? null;
@@ -1358,22 +1398,67 @@ class ExportService
 
     protected function savePdfToStorage(string $html, string $relativePath, string $paperSize): void
     {
-        ini_set('memory_limit', '2048M');
-        set_time_limit(300);
+        @ini_set('memory_limit', '2048M');
+        @set_time_limit(300);
 
+        // Pastikan font dir ada dan writable, jika gagal gunakan temp dir
+        $fontDir = storage_path('fonts');
+        if (!is_dir($fontDir)) {
+            @mkdir($fontDir, 0775, true);
+        }
+        if (!is_dir($fontDir) || !is_writable($fontDir)) {
+            $fontDir = sys_get_temp_dir();
+        }
+
+        // Pastikan target directory export tersedia
+        try {
+            $targetFullPath = Storage::disk($this->disk)->path($relativePath);
+            $targetDir = dirname($targetFullPath);
+            if (!is_dir($targetDir)) {
+                @mkdir($targetDir, 0775, true);
+            }
+        } catch (\Throwable $e) {
+            // fallback
+        }
+
+        $dompdfOptions = [
+            'isHtml5ParserEnabled'    => true,
+            'isRemoteEnabled'         => false,
+            'isPhpEnabled'            => true,
+            'isFontSubsettingEnabled' => false,
+            'defaultFont'             => 'Helvetica',
+            'fontDir'                 => $fontDir,
+            'fontCache'               => $fontDir,
+            'tempDir'                 => sys_get_temp_dir(),
+            'chroot'                  => [base_path(), storage_path(), sys_get_temp_dir()],
+        ];
+
+        $output = '';
         if (class_exists('\\Barryvdh\\DomPDF\\Facade\\Pdf')) {
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
+            $pdf->setOptions($dompdfOptions);
             $this->applyPaperSize($pdf, $paperSize);
-            Storage::disk($this->disk)->put($relativePath, $pdf->output());
+            $output = $pdf->output();
         } elseif (class_exists('\\Dompdf\\Dompdf')) {
-            $dompdf = new \Dompdf\Dompdf(['isHtml5ParserEnabled'=>true]);
+            $dompdf = new \Dompdf\Dompdf($dompdfOptions);
             $dompdf->loadHtml($html);
             [$size, $orientation] = $this->resolvePaperSize($paperSize);
             $dompdf->setPaper($size, $orientation);
             $dompdf->render();
-            Storage::disk($this->disk)->put($relativePath, $dompdf->output());
+            $output = $dompdf->output();
         } else {
-            Storage::disk($this->disk)->put($relativePath, $html);
+            $output = $html;
+        }
+
+        try {
+            Storage::disk($this->disk)->put($relativePath, $output);
+        } catch (\Throwable $e) {
+            // Jika Storage put gagal, tulis manual ke path fisik jika memungkinkan
+            if (isset($targetFullPath)) {
+                @file_put_contents($targetFullPath, $output);
+            } else {
+                throw $e;
+            }
         }
     }
 
@@ -1387,6 +1472,7 @@ class ExportService
     {
         return match(strtolower($paperSize)) {
             'letter' => ['letter', 'landscape'],
+            'a4'     => ['a4', 'landscape'],
             'f4'     => [[0, 0, 595.28, 935.43], 'landscape'],
             default  => ['legal', 'landscape'],
         };
@@ -1423,15 +1509,19 @@ class ExportService
         return ExportLog::create(['user_id'=>$userId,'jenis_inventaris_id'=>null,'tipe_export'=>$format,'nama_file'=>$filename,'pejabat_override'=>[],'filters'=>array_merge($filters,['mode'=>'buku_inventaris_standalone','signature_option'=>$signatureOption])]);
     }
 
-    protected function renderBukuInventarisPdf(array $filters, array $pejabatSnapshot, string $tanggalDokumen, string $keteranganDokumen, bool $includeImg, string $docLampiran = '', string $docBaNomor = '', string $docBaTanggal = '', bool $bodyOnly = false): string
+    protected function renderBukuInventarisPdf(array $filters, array $pejabatSnapshot, string $tanggalDokumen, string $keteranganDokumen, bool $includeImg, string $docLampiran = '', string $docBaNomor = '', string $docBaTanggal = '', bool $bodyOnly = false, string $paperSize = 'legal'): string
     {
-        return '<!-- Buku Inventaris PDF placeholder -->';
+        $tahun = (int) ($filters['tahun'] ?? date('Y'));
+        $periode = (string) ($filters['periode'] ?? 'tahunan');
+        $bukuService = app(BukuInventarisAsetService::class);
+        $rows = $bukuService->buildRows($tahun, $periode);
+        return $bukuService->renderPdf($rows, $tahun, $periode, $tanggalDokumen, $includeImg, $paperSize);
     }
 
     protected function renderKartuInventarisRuanganPdf(array $ruanganData, float $totalNilai, ?array $sekretarisPejabat, array $petugasPejabat, bool $includeImg, array $filters = [], string $tanggalDokumen = '', string $keteranganDokumen = '', string $paperSize = 'legal'): string
     {
         $desa = config('desa');
-        $pageSizeCss = match(strtolower($paperSize)) { 'letter'=>'letter landscape','f4'=>'21cm 33cm landscape',default=>'legal landscape' };
+        $pageSizeCss = match(strtolower($paperSize)) { 'letter'=>'letter landscape','a4'=>'a4 landscape','f4'=>'21cm 33cm landscape',default=>'legal landscape' };
         $css = '@page{size:'.$pageSizeCss.';margin:10mm 8mm 22mm 8mm;}body{font-family:Arial,sans-serif;font-size:9px;color:#000;margin:0;}h1.doc-title{text-align:center;font-size:13px;font-weight:bold;margin:0 0 45px 0;}.info-table{width:50%;border-collapse:collapse;margin-top:14px;margin-bottom:14px;font-size:9px;}.info-table td{padding:2px 4px;border:none;vertical-align:top;font-weight:bold;}.info-table td:first-child{width:95px;}.info-table td:nth-child(2){width:10px;text-align:center;}.inv-table{width:100%;border-collapse:collapse;font-size:8px;}.inv-table th{background:#fff;font-weight:bold;text-align:center;border:1px solid #000;padding:3px 2px;vertical-align:middle;font-size:8px;}.inv-table td{border:1px solid #000;padding:2px 3px;vertical-align:top;}.ruangan-row td{background:#d9d9d9;font-style:italic;font-weight:bold;font-size:8.5px;padding:3px 4px;border:1px solid #000;}.jumlah-row td{font-weight:bold;border:1px solid #000;padding:2px 3px;}.footer-section{margin-top:30px;page-break-inside:avoid;}.ttd-table{width:100%;border-collapse:collapse;}.ttd-table td{border:none;vertical-align:top;padding:0 8px;text-align:center;font-size:9px;}.ttd-space{height:55px;}.ttd-name{text-decoration:underline;font-weight:bold;}' . self::buildFooterCss();
 
         $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kartu Inventaris Ruangan</title><style>'.$css.'</style></head><body>';
@@ -1446,7 +1536,7 @@ class ExportService
                 $html .= '<tr><td style="text-align:center;">'.$row['no'].'</td><td>'.htmlspecialchars($row['nama_barang']).'</td><td style="text-align:center;">'.htmlspecialchars($row['kode_barang']).'</td><td style="text-align:center;">'.htmlspecialchars($row['nup']).'</td><td style="text-align:center;">'.htmlspecialchars($row['tahun']).'</td><td style="text-align:center;">'.htmlspecialchars($row['identitas']).'</td><td style="text-align:center;">'.htmlspecialchars($row['no_pol']).'</td><td>'.htmlspecialchars($row['asal_usul']).'</td><td style="text-align:right;">'.htmlspecialchars($row['harga']).'</td><td>'.htmlspecialchars($row['keterangan']).'</td></tr>';
             }
         }
-        $html .= '<tr class="jumlah-row"><td colspan="8" style="text-align:center;font-weight:bold;">JUMLAH HARGA</td><td style="text-align:right;font-weight:bold;">'.number_format($totalNilai,2,',','.').'</td><td></td></tr>';
+        $html .= '<tr class="jumlah-row"><td colspan="8" style="text-align:center;font-weight:bold;">JUMLAH HARGA</td><td style="text-align:right;font-weight:bold;">'.number_format($totalNilai, fmod($totalNilai, 1) != 0 ? 2 : 0, ',', '.').'</td><td></td></tr>';
         $html .= '</tbody></table>';
         $html .= $this->renderKirTtd($sekretarisPejabat, $petugasPejabat, $includeImg, $filters, $tanggalDokumen, $keteranganDokumen);
         $html .= self::buildFooterHtml('Kartu Inventaris Ruangan');
@@ -1465,7 +1555,7 @@ class ExportService
     }
 
     /**
-     * Header tabel Format 2 (Desa Demo) — 13 kolom sesuai dokumen fisik desa.
+     * Header tabel Format 2 (Format Khusus 3 TTD) — 13 kolom sesuai dokumen fisik desa.
      * Kolom: NO | JENIS BARANG/NAMA BARANG | MERK/MODEL | NO.SERI PABRIK |
      *        UKURAN(PxLxT) | BAHAN | THN.PEMBUATAN/PEMBELIAN | NO.KODE BARANG |
      *        JUMLAH | KEADAAN BARANG (B|KB|RB) | KET.
@@ -1568,10 +1658,10 @@ class ExportService
             return $col;
         };
 
-        // Kiri: Perbekel Mengwi
+        // Kiri: Perbekel
         $html .= $renderCol(
             $perbekelPejabat,
-            'Mengetahui<br>Perbekel Mengwi,'
+            'Mengetahui<br>Perbekel ' . (config('desa.nama_lokasi') ?: 'Desa') . ','
         );
 
         // Tengah: posisi Kasi — label jabatan dari data pejabat (bukan hardcode)
@@ -1587,7 +1677,7 @@ class ExportService
         $petugasData         = $petugasPejabat[0] ?? null;
         $petugasJabatanLabel = !empty($petugasData['jabatan'])
             ? htmlentities($petugasData['jabatan'])
-            : 'Pengurus Barang Desa Demo';
+            : 'Pengurus Barang ' . (config('desa.nama_lokasi') ?: 'Desa');
         $html .= $renderCol(
             $petugasData,
             $petugasJabatanLabel.',',
@@ -1599,15 +1689,15 @@ class ExportService
     }
 
     /**
-     * Generate PDF Format 2 (Desa Demo) untuk Kartu Inventaris Ruangan.
+     * Generate PDF Format 2 (Format Khusus 3 TTD) untuk Kartu Inventaris Ruangan.
      */
     protected function renderKartuInventarisRuanganFormat2Pdf(array $ruanganData, float $totalNilai, ?array $perbekelPejabat, ?array $kasiKesejahteraan, array $petugasPejabat, bool $includeImg, array $filters = [], string $tanggalDokumen = '', string $keteranganDokumen = '', string $paperSize = 'legal'): string
     {
         $desa = config('desa');
-        $tahunFilter = (int)($filters['tahun'] ?? date('Y'));
-        if (!$tahunFilter) $tahunFilter = (int)date('Y');
+        $isAllTahun = empty($filters['tahun']) || $filters['tahun'] === 'all';
+        $tahunFilter = $isAllTahun ? 'SEMUA TAHUN' : (int)$filters['tahun'];
 
-        $pageSizeCss = match(strtolower($paperSize)) { 'letter'=>'letter landscape','f4'=>'21cm 33cm landscape',default=>'legal landscape' };
+        $pageSizeCss = match(strtolower($paperSize)) { 'letter'=>'letter landscape','a4'=>'a4 landscape','f4'=>'21cm 33cm landscape',default=>'legal landscape' };
         $css = '@page{size:'.$pageSizeCss.';margin:10mm 8mm 22mm 8mm;}body{font-family:Arial,sans-serif;font-size:9px;color:#000;margin:0;}h1.doc-title{text-align:center;font-size:13px;font-weight:bold;margin:0 0 45px 0;}.info-table{width:60%;border-collapse:collapse;margin-top:14px;margin-bottom:14px;font-size:9px;}.info-table td{padding:1px 3px;border:none;vertical-align:top;font-weight:bold;}.info-table td:first-child{width:90px;}.info-table td:nth-child(2){width:10px;text-align:center;}.info-kode{font-size:9px;font-weight:bold;text-align:right;margin-bottom:6px;}.inv-table{width:100%;border-collapse:collapse;font-size:7.5px;}.inv-table th{background:#fff;font-weight:bold;text-align:center;border:1px solid #000;padding:2px 1px;vertical-align:middle;font-size:7px;}.inv-table td{border:1px solid #000;padding:2px 2px;vertical-align:top;}.ruangan-row td{background:#d9d9d9;font-style:italic;font-weight:bold;font-size:8px;padding:2px 3px;border:1px solid #000;}.jumlah-row td{font-weight:bold;border:1px solid #000;padding:2px 3px;}.footer-section{margin-top:30px;page-break-inside:avoid;}.ttd-table{width:100%;border-collapse:collapse;}.ttd-table td{border:none;vertical-align:top;padding:0 6px;text-align:center;font-size:9px;}.ttd-space{height:55px;}.ttd-name{text-decoration:underline;font-weight:bold;}' . self::buildFooterCss();
 
         $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kartu Inventaris Ruangan - Format Desa</title><style>'.$css.'</style></head><body>';
@@ -1710,7 +1800,7 @@ class ExportService
 
             $html .= '</tbody></table>';
             $html .= $this->renderKirFormat2Ttd($perbekelPejabat, $roomSigner, $petugasPejabat, $includeImg, $filters, $tanggalDokumen, $keteranganDokumen);
-            $html .= self::buildFooterHtml('Kartu Inventaris Ruangan - Format Desa Demo');
+            $html .= self::buildFooterHtml('Kartu Inventaris Ruangan - Format Khusus (3 TTD)');
             $html .= '</div>';
 
             if ($idx < $totalRooms) {
@@ -1750,5 +1840,15 @@ class ExportService
 
         $html .= '</tr></table></div>';
         return $html;
+    }
+
+    public static function pageSizeCss(string $paper, string $orientation = 'landscape'): string
+    {
+        return match (strtolower($paper)) {
+            'f4'     => '21cm 33cm ' . $orientation,
+            'letter' => 'letter ' . $orientation,
+            'a4'     => 'a4 ' . $orientation,
+            default  => 'legal ' . $orientation,
+        };
     }
 }

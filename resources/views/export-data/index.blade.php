@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        @include('layouts.head-page-meta', ['title' => 'Export Data - Sistem Manajemen Aset Desa Demo'])
+        @include('layouts.head-page-meta', ['title' => 'Export Data - Sistem Manajemen Aset Desa'])
         @include('layouts.head-css')
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         <style>
@@ -14,39 +14,23 @@
             
             /* Page Header Card */
             .page-header-card {
-                background: linear-gradient(135deg, #064635 0%, #1c5240 50%, #0b2d21 100%);
-                background-size: 200% 200%;
-                animation: gradientShift 8s ease infinite;
-                border-radius: 20px;
-                padding: 32px 40px;
-                margin-bottom: 28px;
+                background: var(--color-surface);
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-lg);
+                padding: 24px 28px;
+                margin-bottom: 24px;
                 position: relative;
-                overflow: hidden;
-            }
-            .page-header-card::before {
-                content: '';
-                position: absolute;
-                top: -50%;
-                right: -20%;
-                width: 400px;
-                height: 400px;
-                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-                pointer-events: none;
             }
             .page-header-card h1 {
-                color: #fff;
-                font-size: 28px;
+                color: var(--color-text);
+                font-size: 22px;
                 font-weight: 700;
-                margin: 0 0 8px 0;
-                position: relative;
-                z-index: 1;
+                margin: 0 0 6px 0;
             }
             .page-header-card p {
-                color: rgba(255,255,255,0.8);
-                font-size: 15px;
+                color: var(--color-text-muted);
+                font-size: 13.5px;
                 margin: 0;
-                position: relative;
-                z-index: 1;
             }
 
             /* Container Grid */
@@ -54,7 +38,7 @@
                 display: grid !important;
                 grid-template-columns: minmax(0, 1fr) 320px !important;
                 gap: 20px;
-                margin-bottom: 20px;
+                margin-bottom: 40px;
                 width: 100%;
                 grid-auto-flow: row !important;
             }
@@ -70,57 +54,151 @@
             }
 
             /* Section Card */
-            .section-card {
-                background: #fff;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-                border: 1px solid rgba(0,0,0,0.04);
+            .section-card{
+                background: var(--color-surface);
+                border-radius: var(--radius-lg);
+                box-shadow: none;
+                border: 1px solid var(--color-border);
                 overflow: visible;
-                transition: margin-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
             .section-header {
-                padding: 20px 24px;
-                border-bottom: 1px solid #f3f4f6;
+                padding: 24px 28px 0;
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                justify-content: space-between;
+                gap: 16px;
             }
             .section-header-icon {
-                width: 40px;
-                height: 40px;
-                border-radius: 12px;
+                width: 36px;
+                height: 36px;
+                border-radius: var(--radius-sm);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
+                background: var(--color-primary-tint) !important;
             }
             .section-header-icon svg,
             .section-header-icon i { 
-                width: 20px; 
-                height: 20px; 
-                color: #fff !important; 
-                stroke: #fff !important;
+                width: 18px; 
+                height: 18px; 
+                color: var(--color-primary) !important; 
+                stroke: var(--color-primary) !important;
             }
-            .section-header-icon.blue { background: #519259; }
-            .section-header-icon.green { background: #519259; }
-            .section-header-icon.orange { background: #519259; }
-            .section-header-icon.teal { background: #519259; }
+            .section-header-icon.blue,
+            .section-header-icon.green,
+            .section-header-icon.orange,
+            .section-header-icon.teal { background: var(--color-primary-tint) !important; }
             .section-header-title h5 {
-                font-size: 16px;
+                font-size: 15px;
                 font-weight: 600;
-                color: #064635;
+                color: var(--color-text);
                 margin: 0 0 2px 0;
             }
             .section-header-title span {
-                font-size: 12px;
-                color: #9ca3af;
+                font-size: 12.5px;
+                color: var(--color-text-muted);
             }
             .section-body {
-                padding: 20px 24px;
+                padding: 20px 28px 28px;
+            }
+            .export-summary-card .section-header {
+                padding: 20px 20px 0;
+            }
+            .export-summary-card .section-body {
+                padding: 16px 20px 24px;
+            }
+            @media (max-width: 768px) {
+                .section-header {
+                    padding: 16px 16px 0;
+                }
+                .section-body {
+                    padding: 16px 16px 20px;
+                }
+            }
+
+            /* Visual Export Type Cards Grid (Modern Enterprise Report Catalog) */
+            .export-type-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 12px;
+                margin-top: 8px;
+                margin-bottom: 4px;
+            }
+            .export-type-card {
+                background: var(--color-surface);
+                border: 1.5px solid var(--color-border);
+                border-radius: var(--radius-md);
+                padding: 18px 14px 16px;
+                cursor: pointer;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 8px;
+                user-select: none;
+            }
+            .export-type-card:hover {
+                border-color: var(--color-primary);
+                background: var(--color-row-hover);
+                transform: translateY(-2px);
+            }
+            .export-type-card.active {
+                border-color: var(--color-primary) !important;
+                background: var(--color-primary-tint) !important;
+                box-shadow: 0 4px 14px rgba(31, 58, 42, 0.1) !important;
+            }
+            .export-type-card-badge {
+                display: none !important;
+            }
+            .export-type-card-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: var(--radius-sm);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: transparent !important;
+                color: var(--color-primary) !important;
+                transition: all 0.2s;
+            }
+            .export-type-card-icon i,
+            .export-type-card-icon svg {
+                width: 20px;
+                height: 20px;
+                color: var(--color-primary) !important;
+                stroke: var(--color-primary) !important;
+            }
+            .export-type-card.active .export-type-card-icon {
+                background: transparent !important;
+                color: var(--color-primary) !important;
+            }
+            .export-type-card.active .export-type-card-icon i,
+            .export-type-card.active .export-type-card-icon svg {
+                color: var(--color-primary) !important;
+                stroke: var(--color-primary) !important;
+            }
+            .export-type-card-title {
+                font-size: 13.5px;
+                font-weight: 600;
+                color: var(--color-text);
+                margin-top: 4px;
+                line-height: 1.3;
+                text-align: center;
+            }
+            .export-type-card.active .export-type-card-title {
+                color: var(--color-primary);
+            }
+            .export-type-card-desc {
+                font-size: 11.5px;
+                color: var(--color-text-muted);
+                line-height: 1.4;
+                text-align: center;
             }
 
             /* Data Selection Section */
-
             .jenis-selection-grid {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
@@ -142,44 +220,44 @@
             .jenis-option label {
                 display: flex;
                 align-items: center;
-                gap: 14px;
-                padding: 14px;
-                background: #f8f9fa;
-                border: 2px solid #e2e8f0;
-                border-radius: 12px;
+                gap: 12px;
+                padding: 12px 14px;
+                background: var(--color-surface);
+                border: 1.5px solid var(--color-border);
+                border-radius: var(--radius-md);
                 cursor: pointer;
                 transition: all 0.2s;
             }
             .jenis-option label:hover {
-                border-color: #064635;
-                background: #f4faf5;
+                border-color: var(--color-primary);
+                background: var(--color-row-hover);
             }
             .jenis-option input:checked + label {
-                border-color: #064635;
-                background: #e6f4ea;
-                box-shadow: 0 4px 12px rgba(6, 70, 53,0.15);
+                border-color: var(--color-primary);
+                background: var(--color-primary-tint);
             }
             .jenis-option-icon {
-                width: 48px;
-                height: 48px;
-                border-radius: 12px;
+                width: 40px;
+                height: 40px;
+                border-radius: var(--radius-sm);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
+                background: var(--color-primary-tint);
             }
             .jenis-option-icon svg,
             .jenis-option-icon i { 
-                width: 22px; 
-                height: 22px; 
-                color: #fff !important; 
-                stroke: #fff !important;
+                width: 20px; 
+                height: 20px; 
+                color: var(--color-primary) !important; 
+                stroke: var(--color-primary) !important;
             }
             .jenis-option-info {
                 flex: 1;
             }
-            .jenis-option-name { font-size: 13px; font-weight: 600; color: #1f2937; margin-bottom: 2px; }
-            .jenis-option-count { font-size: 11px; color: #9ca3af; }
+            .jenis-option-name { font-size: 13px; font-weight: 600; color: var(--color-text); margin-bottom: 2px; }
+            .jenis-option-count { font-size: 11.5px; color: var(--color-text-muted); }
 
             .data-controls {
                 display: flex;
@@ -191,17 +269,17 @@
             .search-box {
                 display: flex;
                 align-items: center;
-                background: #ffffff;
-                border-radius: 10px;
+                background: var(--color-surface);
+                border-radius: var(--radius-sm);
                 padding: 0 14px;
-                border: 1px solid #d1d5db;
+                border: 1px solid var(--color-border);
                 transition: all 0.2s;
                 flex: 1;
                 min-width: 200px;
             }
             .search-box:focus-within {
-                border-color: #064635;
-                box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1);
+                border-color: var(--color-primary);
+                box-shadow: none;
             }
             .search-box input {
                 border: none;
@@ -210,69 +288,87 @@
                 font-size: 13px;
                 width: 100%;
                 outline: none;
+                color: var(--color-text);
             }
             .search-box button {
                 border: none;
                 background: transparent;
                 padding: 0;
                 cursor: pointer;
-                color: #9ca3af;
+                color: var(--color-text-muted);
             }
             .search-box button i { width: 16px; height: 16px; }
 
             .filter-select {
-                padding: 10px 12px;
-                border: 1px solid #d1d5db;
-                background: #ffffff;
-                border-radius: 10px;
+                padding: 8px 12px;
+                border: 1px solid var(--color-border);
+                background: var(--color-surface);
+                border-radius: var(--radius-sm);
                 font-size: 13px;
-                color: #374151;
+                color: var(--color-text);
                 outline: none;
                 transition: all 0.2s;
                 min-width: 100px;
             }
             .filter-select:focus {
-                border-color: #064635;
-                box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1);
+                border-color: var(--color-primary);
+                box-shadow: none;
             }
 
-            .btn-action {
-                padding: 10px 16px;
-                border: 1px solid #e5e7eb;
-                background: #f3f4f6;
-                border-radius: 10px;
+            .btn-action{
+                padding: 8px 16px;
+                border: 1px solid var(--color-border);
+                background: var(--color-surface);
+                border-radius: var(--radius-full) !important;
                 font-size: 12px;
                 font-weight: 600;
-                color: #374151;
+                color: var(--color-text);
                 cursor: pointer;
                 transition: all 0.2s;
             }
             .btn-action:hover {
-                background: #e5e7eb;
-                border-color: #d1d5db;
+                background: var(--color-row-hover);
+                border-color: var(--color-primary);
             }
             .btn-action:disabled {
                 opacity: 0.55;
                 cursor: not-allowed;
-                background: #f3f4f6;
-                border-color: #e5e7eb;
+                background: var(--color-surface);
+                border-color: var(--color-border);
             }
 
-            /* Table */
+            #history-view-all-btn,
+            #btn-custom-pejabat {
+                background: var(--color-primary) !important;
+                color: #eaf1e7 !important;
+                border: 1px solid var(--color-primary) !important;
+                border-radius: var(--radius-full) !important;
+                box-shadow: none !important;
+                transition: background 0.2s ease;
+                font-weight: 600;
+                cursor: pointer;
+            }
+            #history-view-all-btn:hover,
+            #btn-custom-pejabat:hover {
+                background: var(--color-primary-hover) !important;
+                color: #eaf1e7 !important;
+            }
+
+            /* Table (Prodex Style) */
             .data-table {
                 width: 100%;
                 border-collapse: collapse;
                 font-size: 13px;
             }
             .data-table thead th {
-                background: #f9fafb;
-                padding: 14px 16px;
+                background: var(--color-surface);
+                padding: 12px 16px;
                 text-align: left;
-                font-weight: 600;
-                color: #6b7280;
-                border-bottom: 1px solid #f3f4f6;
+                font-weight: 700;
+                color: var(--color-text-muted);
+                border-bottom: 1px solid var(--color-border);
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.05em;
                 font-size: 11px;
             }
             .data-table thead th:first-child {
@@ -280,24 +376,24 @@
                 text-align: center;
             }
             .data-table tbody tr {
-                transition: all 0.2s;
-                border-bottom: 1px solid #f3f4f6;
+                transition: all 0.15s ease;
+                border-bottom: 1px solid var(--color-border);
             }
             .data-table tbody tr:hover {
-                background: #f9fafb;
+                background: var(--color-row-hover);
             }
             .data-table tbody td {
-                padding: 14px 16px;
+                padding: 12px 16px;
                 vertical-align: middle;
-                color: #374151;
+                color: var(--color-text);
             }
             .data-table tbody td:first-child {
                 text-align: center;
             }
             .data-table input[type="checkbox"] {
-                width: 18px;
-                height: 18px;
-                accent-color: #064635;
+                width: 16px;
+                height: 16px;
+                accent-color: var(--color-primary);
                 cursor: pointer;
             }
 
@@ -307,128 +403,222 @@
                 align-items: center;
                 gap: 6px;
                 padding: 4px 10px;
-                border-radius: 16px;
+                border-radius: var(--radius-sm);
                 font-size: 11px;
                 font-weight: 600;
             }
-            .jenis-badge.kendaraan { background: #d1fae5; color: #059669; }
-            .jenis-badge.peralatan { background: #fef3c7; color: #b45309; }
-            .jenis-badge.bangunan { background: #dbeafe; color: #2563eb; }
-            .jenis-badge.tanah { background: #fce7f3; color: #be185d; }
-            .jenis-badge.infrastruktur { background: #e9d5ff; color: #7c3aed; }
+            .jenis-badge.kendaraan { background: var(--color-success-soft); color: var(--color-success); }
+            .jenis-badge.peralatan { background: var(--color-warning-soft); color: var(--color-warning); }
+            .jenis-badge.bangunan { background: var(--color-info-soft); color: var(--color-info); }
+            .jenis-badge.tanah { background: var(--color-primary-tint); color: var(--color-primary); }
+            .jenis-badge.infrastruktur { background: var(--color-primary-tint); color: var(--color-primary); }
 
             .ttd-indicator {
                 display: inline-flex;
                 align-items: center;
                 gap: 4px;
                 padding: 4px 10px;
-                border-radius: 6px;
+                border-radius: var(--radius-sm);
                 font-size: 11px;
                 font-weight: 600;
             }
-            .ttd-indicator.default { background: #eff6ff; color: #0369a1; }
-            .ttd-indicator.custom { background: #fef3c7; color: #b45309; }
+            .ttd-indicator.default { background: var(--color-primary-tint); color: var(--color-primary); }
+            .ttd-indicator.custom { background: var(--color-warning-soft); color: var(--color-warning); }
 
             .jenis-flow-helper {
                 display: flex;
+                width: 100%;
+                box-sizing: border-box;
                 align-items: center;
                 gap: 8px;
-                margin-bottom: 12px;
-                padding: 7px 10px;
-                border-radius: 8px;
-                background: #eff6ff;
-                border: 1px solid #bfdbfe;
-                color: #1d4ed8;
-                font-size: 11px;
+                margin-bottom: 16px;
+                padding: 8px 14px;
+                border-radius: var(--radius-sm);
+                background: var(--color-primary-tint);
+                border: 1px solid var(--color-border);
+                color: var(--color-text);
+                font-size: 12px;
                 font-weight: 500;
-                line-height: 1.45;
+                line-height: 1.4;
             }
-            .jenis-flow-helper i {
+            .jenis-flow-helper i,
+            .jenis-flow-helper svg {
                 width: 14px;
                 height: 14px;
+                min-width: 14px;
+                min-height: 14px;
                 flex-shrink: 0;
+                color: var(--color-primary);
+                stroke: var(--color-primary);
+                display: block;
+                margin: 0;
+            }
+            .jenis-flow-helper span {
+                font-size: 12px;
+                font-weight: 500;
+                color: var(--color-text);
+                line-height: 1.4;
+                flex: 1;
             }
 
             /* TTD Setup Section */
             .ttd-setup {
                 display: flex;
                 flex-direction: column;
-                gap: 16px;
+                gap: 20px;
             }
 
             .ttd-subsection {
-                padding: 16px;
-                background: #f8f9fa;
-                border-radius: 12px;
-                border: 1px solid #e2e8f0;
+                padding: 0;
+                background: transparent;
+                border: none;
+                border-radius: 0;
             }
             .ttd-subsection-title {
                 font-size: 13px;
                 font-weight: 600;
-                color: #064635;
-                margin-bottom: 12px;
+                color: var(--color-text);
+                margin-bottom: 10px;
                 display: flex;
                 align-items: center;
                 gap: 8px;
             }
             .ttd-subsection-title i { width: 16px; height: 16px; }
+
+            .filter-tahun-wrap {
+                display: flex;
+                gap: 12px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .filter-tahun-wrap input.year-picker-export {
+                flex: 1 1 160px;
+                min-width: 0;
+                width: 100%;
+                padding: 10px 14px;
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-sm);
+                font-size: 13px;
+                outline: none;
+                cursor: pointer;
+                background: var(--color-surface);
+                color: var(--color-text);
+                box-sizing: border-box;
+                transition: border-color 0.2s ease;
+            }
+            .filter-tahun-wrap input.year-picker-export:focus {
+                border-color: var(--color-primary);
+            }
+            .filter-tahun-wrap .data-info-badge {
+                background: var(--color-primary-tint);
+                color: var(--color-primary);
+                padding: 9px 14px;
+                border-radius: var(--radius-sm);
+                font-size: 12.5px;
+                font-weight: 600;
+                border: 1px solid var(--color-border);
+                white-space: nowrap;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+            @media (max-width: 640px) {
+                .filter-tahun-wrap {
+                    flex-direction: column;
+                    align-items: stretch;
+                    gap: 10px;
+                }
+                .filter-tahun-wrap input.year-picker-export {
+                    width: 100%;
+                    flex: 1 1 100%;
+                }
+                .filter-tahun-wrap .data-info-badge {
+                    width: 100%;
+                    text-align: center;
+                    justify-content: center;
+                    box-sizing: border-box;
+                    white-space: normal;
+                }
+            }
             .doc-flow-helper {
                 display: flex;
+                width: 100%;
+                box-sizing: border-box;
                 align-items: center;
                 gap: 8px;
-                margin-bottom: 10px;
-                padding: 7px 10px;
-                border-radius: 8px;
-                background: #eff6ff;
-                border: 1px solid #bfdbfe;
-                color: #1d4ed8;
-                font-size: 11px;
+                margin-bottom: 14px;
+                padding: 8px 14px;
+                border-radius: var(--radius-sm);
+                background: var(--color-primary-tint);
+                border: 1px solid var(--color-border);
+                color: var(--color-text);
+                font-size: 12px;
                 font-weight: 500;
                 line-height: 1.4;
             }
-            .doc-flow-helper i {
+            .doc-flow-helper i,
+            .doc-flow-helper svg {
                 width: 14px;
                 height: 14px;
+                min-width: 14px;
+                min-height: 14px;
                 flex-shrink: 0;
+                color: var(--color-primary);
+                stroke: var(--color-primary);
+                display: block;
+                margin: 0;
+            }
+            .doc-flow-helper span {
+                font-size: 12px;
+                font-weight: 500;
+                color: var(--color-text);
+                line-height: 1.4;
+                flex: 1;
             }
 
             /* Pejabat Display */
             .pejabat-display {
-                background: #fff;
-                border: 1px solid #e2e8f0;
-                border-radius: 10px;
-                padding: 12px;
+                background: var(--color-surface);
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-md);
+                padding: 16px 18px;
+                min-height: 105px;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
             }
             .pejabat-display-label {
-                font-size: 11px;
+                font-size: 12px;
                 font-weight: 600;
-                color: #9ca3af;
-                text-transform: uppercase;
-                margin-bottom: 8px;
+                color: var(--color-text-muted);
+                text-transform: none;
+                margin-bottom: 10px;
                 display: block;
             }
             .pejabat-items {
                 display: flex;
                 flex-direction: column;
-                gap: 12px;
+                gap: 10px;
+                flex: 1;
+                justify-content: center;
             }
             .pejabat-card {
-                background: #f8f9fa;
-                border: 1px solid #e2e8f0;
-                border-left: 3px solid #064635;
-                border-radius: 8px;
-                padding: 14px 16px;
+                background: var(--color-bg);
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-sm);
+                padding: 12px 14px;
                 display: flex;
                 align-items: center;
                 gap: 12px;
             }
             .pejabat-order {
-                width: 32px;
-                height: 32px;
-                border-radius: 8px;
-                background: #064635;
-                color: #fff;
-                font-size: 14px;
+                width: 30px;
+                height: 30px;
+                border-radius: var(--radius-sm);
+                background: var(--color-primary);
+                color: var(--color-text-on-primary);
+                font-size: 13px;
                 font-weight: 700;
                 display: flex;
                 align-items: center;
@@ -439,19 +629,19 @@
                 flex: 1;
             }
             .pejabat-nama {
-                font-size: 14px;
+                font-size: 13.5px;
                 font-weight: 600;
-                color: #1e293b;
+                color: var(--color-text);
             }
             .pejabat-jabatan {
                 font-size: 12px;
-                color: #64748b;
+                color: var(--color-text-muted);
             }
             .pejabat-empty {
-                font-size: 12px;
-                color: #9ca3af;
+                font-size: 12.5px;
+                color: var(--color-text-muted);
                 text-align: center;
-                padding: 12px;
+                padding: 16px 12px;
                 font-style: italic;
             }
 
@@ -462,128 +652,128 @@
                 gap: 6px;
             }
             .date-input-label {
-                font-size: 11px;
+                font-size: 12px;
                 font-weight: 600;
-                color: #6b7280;
-                text-transform: uppercase;
+                color: var(--color-text-muted);
+                text-transform: none;
             }
             .date-input-field {
-                padding: 10px 12px;
-                border: 1px solid #e5e7eb;
-                border-radius: 8px;
+                padding: 10px 14px;
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-sm);
+                background: var(--color-surface);
+                color: var(--color-text);
                 font-size: 13px;
                 outline: none;
-                transition: all 0.2s;
+                transition: border-color 0.2s;
                 text-align: left;
                 cursor: text;
             }
             #doc-tanggal { cursor: pointer; }
             .date-input-field:focus {
-                border-color: #064635;
-                box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1);
+                border-color: var(--color-primary);
+                box-shadow: none;
             }
 
             .date-preview-box {
-                background: #eff6ff;
-                border: 1px solid #93c5fd;
-                border-radius: 8px;
-                padding: 10px;
-                margin-top: 8px;
+                background: var(--color-primary-tint);
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-sm);
+                padding: 10px 14px;
+                margin-top: 10px;
             }
-            .date-preview-label {
-                font-size: 10px;
-                font-weight: 600;
-                color: #0369a1;
-                margin-bottom: 4px;
-            }
-            .date-preview-text {
-                font-size: 13px;
-                font-weight: 600;
-                color: #0c4a6e;
-            }
-
-            /* Info Box (for alerts/helper text) */
-            .info-box {
-                background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-                border: 1px solid #93c5fd;
-                border-radius: 8px;
-                padding: 12px 16px;
-                display: flex;
-                align-items: flex-start;
-                gap: 10px;
-                margin-top: 16px;
-            }
-            .info-box i {
-                color: #1e40af;
-                stroke: #1e40af;
-                flex-shrink: 0;
-                width: 18px;
-                height: 18px;
-                margin-top: 2px;
-            }
-            .info-box-text {
-                font-size: 13px;
-                color: #1e40af;
-                line-height: 1.5;
-            }
-
-            /* Preview Box (khusus untuk preview dokumen info) */
             .preview-doc-box {
-                background: #eff6ff;
-                border: 1px solid #bfdbfe;
-                border-radius: 8px;
-                padding: 12px 14px;
-                margin-top: 12px;
+                background: var(--color-primary-tint);
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-sm);
+                padding: 10px 14px;
+                margin-top: 18px;
             }
+            .date-preview-label,
             .preview-doc-box-title {
                 font-size: 11px;
                 font-weight: 600;
-                color: #2563eb;
-                margin-bottom: 8px;
-                display: flex;
-                align-items: center;
-                gap: 6px;
+                color: var(--color-primary);
+                margin-bottom: 4px;
+                display: block;
             }
-            .preview-doc-box-title i {
-                width: 14px;
-                height: 14px;
-                color: #2563eb;
-            }
+            .date-preview-text,
             .preview-doc-box-content {
-                font-size: 12px;
-                color: #1e40af;
-                line-height: 1.7;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--color-text);
+                line-height: 1.5;
             }
             .preview-doc-box-content div {
-                margin-bottom: 3px;
+                margin-bottom: 2px;
             }
             .preview-doc-box-content div:last-child {
                 margin-bottom: 0;
             }
             .preview-doc-box-content strong {
-                color: #1e3a8a;
+                color: var(--color-text);
+                font-weight: 600;
+            }
+            .preview-doc-box-content span {
+                color: var(--color-text);
                 font-weight: 600;
             }
 
-            /* Flatpickr clean compact look (mirip referensi) */
+            /* Info Box (for alerts/helper text) */
+            .info-box {
+                background: var(--color-primary-tint);
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-sm);
+                padding: 8px 14px;
+                display: flex;
+                width: 100%;
+                box-sizing: border-box;
+                align-items: center;
+                gap: 8px;
+                margin-top: 16px;
+            }
+            .info-box i,
+            .info-box svg {
+                color: var(--color-primary);
+                stroke: var(--color-primary);
+                flex-shrink: 0;
+                width: 14px;
+                height: 14px;
+                min-width: 14px;
+                min-height: 14px;
+                display: block;
+                margin: 0;
+            }
+            .info-box-text,
+            .info-box span {
+                font-size: 12px;
+                color: var(--color-text);
+                line-height: 1.4;
+                font-weight: 500;
+                flex: 1;
+            }
+
+            /* Flatpickr clean compact look */
             .flatpickr-calendar {
-                border: 1px solid #e5e7eb;
-                border-radius: 10px;
-                box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
-                font-family: 'Open Sans', sans-serif;
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-md);
+                background: var(--color-surface);
+                box-shadow: var(--shadow-float);
+                font-family: var(--font-main);
             }
             .flatpickr-calendar .flatpickr-months {
                 padding: 8px 10px 0;
+                background: var(--color-surface);
             }
             .flatpickr-calendar .flatpickr-current-month {
                 font-size: 14px;
                 font-weight: 600;
-                color: #1f2937;
+                color: var(--color-text);
             }
             .flatpickr-calendar .flatpickr-current-month .cur-month,
             .flatpickr-calendar .flatpickr-current-month input.cur-year {
                 font-weight: 600;
-                color: #1f2937;
+                color: var(--color-text);
                 user-select: none;
                 -webkit-user-select: none;
                 -moz-user-select: none;
@@ -593,41 +783,41 @@
             }
             .flatpickr-calendar .flatpickr-weekdays {
                 margin-top: 4px;
+                background: var(--color-surface);
             }
             .flatpickr-calendar span.flatpickr-weekday {
-                color: #6b7280;
+                color: var(--color-text-muted);
                 font-size: 12px;
                 font-weight: 600;
             }
             .flatpickr-calendar .flatpickr-day {
-                border-radius: 50%;
-                color: #374151;
+                border-radius: var(--radius-sm);
+                color: var(--color-text);
                 font-size: 13px;
             }
             .flatpickr-calendar .flatpickr-day.selected,
             .flatpickr-calendar .flatpickr-day.startRange,
             .flatpickr-calendar .flatpickr-day.endRange {
-                background: #1f2937;
-                border-color: #1f2937;
-                color: #ffffff;
+                background: var(--color-primary);
+                border-color: var(--color-primary);
+                color: var(--color-text-on-primary);
             }
             .flatpickr-calendar .flatpickr-day:hover {
-                background: #f3f4f6;
-                border-color: #f3f4f6;
+                background: var(--color-row-hover);
+                border-color: var(--color-border);
             }
             .flatpickr-calendar .flatpickr-prev-month,
             .flatpickr-calendar .flatpickr-next-month {
-                color: #6b7280;
-                fill: #6b7280;
+                color: var(--color-text-muted);
+                fill: var(--color-text-muted);
             }
             .flatpickr-calendar .flatpickr-prev-month:hover,
             .flatpickr-calendar .flatpickr-next-month:hover {
-                color: #111827;
-                fill: #111827;
+                color: var(--color-text);
+                fill: var(--color-text);
             }
 
             /* ===== Date Clean Picker Enhancement ===== */
-            /* Header sejajar */
             .flatpickr-calendar.date-clean-picker .flatpickr-months {
                 display: flex !important; align-items: center !important; padding: 8px 4px 0 !important;
             }
@@ -636,14 +826,15 @@
                 position: static !important; flex-shrink: 0;
                 display: flex !important; align-items: center !important; justify-content: center !important;
                 top: unset !important; padding: 0 !important; width: 28px !important; height: 28px !important;
-                border: 1px solid #e5e7eb !important; border-radius: 6px !important;
-                background: #fff !important; color: #374151 !important; transition: background 0.15s !important;
-                fill: #374151 !important;
+                border: none !important; border-radius: var(--radius-sm) !important;
+                background: transparent !important; color: var(--color-text) !important; transition: background 0.15s !important;
+                fill: var(--color-text) !important;
+                box-shadow: none !important;
             }
             .flatpickr-calendar.date-clean-picker .flatpickr-prev-month:hover,
-            .flatpickr-calendar.date-clean-picker .flatpickr-next-month:hover { background: #f3f4f6 !important; }
+            .flatpickr-calendar.date-clean-picker .flatpickr-next-month:hover { background: var(--color-row-hover) !important; }
             .flatpickr-calendar.date-clean-picker .flatpickr-prev-month svg,
-            .flatpickr-calendar.date-clean-picker .flatpickr-next-month svg { fill: #374151 !important; width: 12px !important; height: 12px !important; }
+            .flatpickr-calendar.date-clean-picker .flatpickr-next-month svg { fill: var(--color-text) !important; width: 12px !important; height: 12px !important; }
             .flatpickr-calendar.date-clean-picker .flatpickr-month {
                 flex: 1 !important; height: auto !important;
                 display: flex !important; align-items: center !important; justify-content: center !important;
@@ -655,42 +846,42 @@
             }
             .flatpickr-calendar.date-clean-picker .flatpickr-current-month .numInputWrapper { display: none !important; }
             .flatpickr-calendar.date-clean-picker .fp-cur-year {
-                cursor: pointer; padding: 2px 8px; border-radius: 6px; font-weight: 700;
-                font-size: 14px; color: #1f2937; user-select: none; transition: background 0.15s;
+                cursor: pointer; padding: 2px 8px; border-radius: var(--radius-sm); font-weight: 700;
+                font-size: 14px; color: var(--color-primary); user-select: none; transition: background 0.15s;
             }
-            .flatpickr-calendar.date-clean-picker .fp-cur-year:hover { background: #f3f4f6; }
+            .flatpickr-calendar.date-clean-picker .fp-cur-year:hover { background: var(--color-row-hover); }
             .flatpickr-calendar.date-clean-picker .cur-month {
-                cursor: pointer; border-radius: 6px; padding: 2px 6px;
+                cursor: pointer; border-radius: var(--radius-sm); padding: 2px 6px; font-weight: 700; color: var(--color-primary);
             }
-            .flatpickr-calendar.date-clean-picker .cur-month:hover { background: #f3f4f6; }
+            .flatpickr-calendar.date-clean-picker .cur-month:hover { background: var(--color-row-hover); }
             /* Hari nama warna sistem */
-            .flatpickr-calendar.date-clean-picker .flatpickr-weekday { color: #064635 !important; font-weight: 600 !important; }
+            .flatpickr-calendar.date-clean-picker .flatpickr-weekday { color: var(--color-primary) !important; font-weight: 600 !important; }
             /* Sembunyikan tanggal bulan lain */
             .flatpickr-calendar.date-clean-picker .flatpickr-day.prevMonthDay,
             .flatpickr-calendar.date-clean-picker .flatpickr-day.nextMonthDay { visibility: hidden !important; pointer-events: none !important; }
             /* Panel bulan & tahun */
             .fp-exp-month-panel, .fp-exp-year-panel {
                 display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-                background: #fff; border-radius: inherit; padding: 10px; z-index: 10;
+                background: var(--color-surface); border-radius: inherit; padding: 10px; z-index: 10;
                 flex-direction: column; gap: 8px; box-sizing: border-box;
             }
             .fp-exp-month-panel.show, .fp-exp-year-panel.show { display: flex; }
             .fp-exp-panel-header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-            .fp-exp-panel-title { font-size: 12px; font-weight: 700; color: #1f2937; }
+            .fp-exp-panel-title { font-size: 12px; font-weight: 700; color: var(--color-primary); }
             .fp-exp-panel-close, .fp-exp-panel-nav {
-                width: 26px; height: 26px; border: 1px solid #e5e7eb; background: #fff; font-size: 13px; cursor: pointer;
-                display: flex; align-items: center; justify-content: center; color: #374151; border-radius: 6px; transition: background 0.15s;
+                width: 26px; height: 26px; border: none; background: transparent; font-size: 13px; cursor: pointer;
+                display: flex; align-items: center; justify-content: center; color: var(--color-text); border-radius: var(--radius-sm); transition: background 0.15s;
             }
-            .fp-exp-panel-close:hover, .fp-exp-panel-nav:hover:not(:disabled) { background: #f3f4f6; }
+            .fp-exp-panel-close:hover, .fp-exp-panel-nav:hover:not(:disabled) { background: var(--color-row-hover); }
             .fp-exp-panel-nav:disabled { opacity: 0.45; cursor: not-allowed; }
             .fp-exp-month-grid, .fp-exp-year-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 8px; flex: 1; }
             .fp-exp-month-btn, .fp-exp-year-btn {
-                border-radius: 8px; border: 1px solid #d1d5db; background: #fff;
-                font-size: 12px; font-weight: 600; color: #374151; cursor: pointer; text-align: center; transition: all 0.15s;
+                border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-surface);
+                font-size: 12px; font-weight: 600; color: var(--color-text); cursor: pointer; text-align: center; transition: all 0.15s;
                 display: flex; align-items: center; justify-content: center; padding: 0;
             }
-            .fp-exp-month-btn:hover, .fp-exp-year-btn:hover { background: #f3f4f6; }
-            .fp-exp-month-btn.active, .fp-exp-year-btn.active { background: #1f2937; border-color: #1f2937; color: #fff; }
+            .fp-exp-month-btn:hover, .fp-exp-year-btn:hover { background: var(--color-row-hover); }
+            .fp-exp-month-btn.active, .fp-exp-year-btn.active { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-text-on-primary); }
 
             /* Sidebar */
             .export-sidebar {
@@ -700,28 +891,65 @@
             }
 
             /* Export Options Card */
-            .export-options-card {
-                background: #fff;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-                border: 1px solid rgba(0,0,0,0.04);
+            .export-options-card{
+                background: var(--color-surface);
+                border-radius: var(--radius-lg);
+                box-shadow: none;
+                border: 1px solid var(--color-border);
                 overflow: hidden;
             }
+            /* Summary Card Smooth Transitions */
+            .export-summary-card {
+                background: var(--color-surface);
+                border-radius: var(--radius-lg);
+                box-shadow: none;
+                border: 1px solid var(--color-border);
+                overflow: hidden;
+                transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .export-summary-card.fade-in {
+                animation: summarySlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+            .export-summary-card.fade-out {
+                animation: summarySlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+            @keyframes summarySlideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-8px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            @keyframes summarySlideUp {
+                from {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateY(-8px);
+                }
+            }
             .export-options-header {
-                padding: 16px;
-                background: linear-gradient(135deg, #064635 0%, #1c5240 100%);
-                color: #fff;
+                padding: 16px 20px;
+                background: var(--color-surface);
+                border-bottom: 1px solid var(--color-border);
+                color: var(--color-text);
             }
             .export-options-header h5 {
                 font-size: 14px;
                 font-weight: 600;
+                color: var(--color-text);
                 margin: 0;
             }
             .export-options-body {
-                padding: 16px;
+                padding: 20px 20px 24px 20px;
                 display: flex;
                 flex-direction: column;
-                gap: 12px;
+                gap: 16px;
             }
 
             /* Export Format Options */
@@ -734,76 +962,74 @@
                 position: relative;
             }
             .format-option input {
-                display: none;
+                display: none !important;
+                position: absolute !important;
+                opacity: 0 !important;
+                width: 0 !important;
+                height: 0 !important;
+                pointer-events: none !important;
+                visibility: hidden !important;
             }
             .format-option label {
                 display: flex;
                 align-items: center;
                 gap: 12px;
                 padding: 12px;
-                background: #f8f9fa;
-                border: 2px solid #e2e8f0;
-                border-radius: 10px;
+                background: var(--color-surface);
+                border: 1.5px solid var(--color-border);
+                border-radius: var(--radius-md);
                 cursor: pointer;
                 transition: all 0.2s;
             }
             .format-option label:hover {
-                border-color: #064635;
-                background: #f4faf5;
+                border-color: var(--color-primary);
+                background: var(--color-row-hover);
             }
             .format-option input:checked + label {
-                border-color: #064635;
-                background: #e6f4ea;
+                border-color: var(--color-primary);
+                background: var(--color-primary-tint);
             }
             .format-icon {
-                width: 36px;
-                height: 36px;
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
+                display: none !important;
             }
-            .format-icon svg,
-            .format-icon i { 
-                width: 18px; 
-                height: 18px; 
-                color: #fff !important; 
-                stroke: #fff !important;
-            }
-
-            .format-icon.excel { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-            .format-icon.pdf { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
             .format-info {
                 flex: 1;
                 display: flex;
                 flex-direction: column;
                 gap: 2px;
             }
-            .format-label { font-size: 12px; font-weight: 600; color: #064635; }
-            .format-desc { font-size: 10px; color: #9ca3af; }
+            .format-label { font-size: 12.5px; font-weight: 600; color: var(--color-text); }
+            .format-desc { font-size: 11px; color: var(--color-text-muted); }
 
             /* Signature Options */
             .signature-options {
-                padding: 12px;
-                background: #f8f9fa;
-                border: 1px solid #e2e8f0;
-                border-radius: 10px;
+                padding: 0;
+                background: transparent;
+                border: none;
             }
             .signature-label {
-                font-size: 12px;
+                font-size: 13.5px;
                 font-weight: 600;
-                color: #064635;
-                margin-bottom: 10px;
+                color: var(--color-text);
+                margin-top: 10px;
+                margin-bottom: 8px;
                 display: flex;
                 align-items: center;
                 gap: 8px;
+            }
+            .signature-label.no-margin-top {
+                margin-top: 0;
             }
             .signature-label i { width: 12px; height: 12px; }
             .signature-options-group {
                 display: flex;
                 flex-direction: column;
                 gap: 8px;
+            }
+            #paper-size-section {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
             }
             .signature-option {
                 display: flex;
@@ -813,18 +1039,18 @@
             .signature-option input[type="radio"] {
                 width: 16px;
                 height: 16px;
-                accent-color: #064635;
+                accent-color: var(--color-primary);
                 cursor: pointer;
             }
             .signature-option label {
-                font-size: 12px;
-                color: #374151;
+                font-size: 12.5px;
+                color: var(--color-text);
                 cursor: pointer;
                 flex: 1;
             }
             .signature-option span {
-                font-size: 10px;
-                color: #9ca3af;
+                font-size: 10.5px;
+                color: var(--color-text-muted);
             }
 
             /* Locked state sebelum jenis inventaris dipilih */
@@ -835,8 +1061,8 @@
                 opacity: 0.65;
             }
             .export-options-card.is-locked .format-option label:hover {
-                border-color: #e2e8f0;
-                background: #f8f9fa;
+                border-color: var(--color-border);
+                background: var(--color-surface);
             }
             #section-ttd-setup.is-locked .ttd-subsection {
                 opacity: 0.72;
@@ -846,26 +1072,27 @@
             }
 
             /* Export Button */
-            .export-action-btn {
+            .export-action-btn{
                 width: 100%;
-                padding: 12px;
-                background: linear-gradient(135deg, #519259 0%, #064635 100%);
-                color: #fff;
-                border: none;
-                border-radius: 10px;
+                margin-top: 10px;
+                padding: 12px 18px;
+                background: var(--color-primary);
+                color: var(--color-text-on-primary);
+                border: 1px solid var(--color-primary);
+                border-radius: var(--radius-full);
                 font-weight: 600;
-                font-size: 13px;
+                font-size: 13.5px;
                 cursor: pointer;
-                transition: all 0.3s;
+                transition: all 0.2s ease;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                box-shadow: 0 4px 12px rgba(6, 70, 53,0.3);
+                box-shadow: none;
             }
             .export-action-btn:hover:not(:disabled) {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(6, 70, 53,0.4);
+                background: var(--color-primary-hover);
+                color: var(--color-text-on-primary);
             }
             .export-action-btn:disabled {
                 opacity: 0.5;
@@ -873,9 +1100,9 @@
             }
             .export-action-btn i {
                  width: 16px; height: 16px; 
-                }
+            }
 
-             /* Export Info Grid summary card*/
+            /* Export Info Grid summary card*/
             .simple-info-list {
                 display: flex;
                 flex-direction: column;
@@ -887,32 +1114,32 @@
                 align-items: center;
                 gap: 14px;
                 padding: 14px 16px;
-                border: 1px solid #e5e7eb;
-                border-radius: 14px;
-                background: #fff;
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-md);
+                background: var(--color-surface);
                 transition: all 0.2s ease;
             }
 
             .simple-item:hover {
-                background: #f9fafb;
+                background: var(--color-row-hover);
             }
 
             /* Icon box */
             .simple-icon {
-                width: 30px;
-                height: 30px;
-                border-radius: 12px;
-                background: #e6f4ea;
+                width: 32px;
+                height: 32px;
+                border-radius: var(--radius-sm);
+                background: var(--color-primary-tint);
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
 
             .simple-icon svg {
-                width: 20px;
-                height: 20px;
-                stroke-width: 2;
-                color: #334155; 
+                width: 18px;
+                height: 18px;
+                color: var(--color-primary); 
+                stroke: var(--color-primary);
             }
 
             /* Text */
@@ -924,85 +1151,14 @@
 
             .simple-title {
                 font-size: 13px;
-                font-weight: 700;
-                color: #111827;
+                font-weight: 600;
+                color: var(--color-text);
             }
 
             .simple-sub {
                 font-size: 12px;
-                color: #6b7280;
+                color: var(--color-text-muted);
             }
-
-            /* Colors */
-            /* .simple-icon.blue { background: #3b82f6; }
-            .simple-icon.orange { background: #f59e0b; }
-            .simple-icon.green { background: #22c55e; }
-            .simple-icon.red { background: #ef4444; } */
-            /* Export Tab Switcher */
-            .export-tab-switcher {
-                display: flex;
-                gap: 0;
-                background: #fff;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-                border: 1px solid rgba(0,0,0,0.04);
-                overflow: hidden;
-                margin-bottom: 20px;
-            }
-            .export-tab-btn {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-                padding: 16px 20px;
-                background: #fff;
-                border: none;
-                cursor: pointer;
-                font-size: 14px;
-                font-weight: 600;
-                color: #6b7280;
-                transition: all 0.2s;
-                border-bottom: 3px solid transparent;
-                position: relative;
-            }
-            .export-tab-btn:not(:last-child) {
-                border-right: 1px solid #f3f4f6;
-            }
-            .export-tab-btn:hover {
-                background: #f9fafb;
-                color: #064635;
-            }
-            .export-tab-btn.active {
-                color: #064635;
-                background: linear-gradient(135deg, #f0f4f8 0%, #e8ecf0 100%);
-                border-bottom-color: #064635;
-            }
-            .export-tab-btn .tab-icon {
-                width: 36px;
-                height: 36px;
-                border-radius: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-                transition: all 0.2s;
-            }
-            .export-tab-btn .tab-icon svg,
-            .export-tab-btn .tab-icon i {
-                width: 18px;
-                height: 18px;
-                color: #fff !important;
-                stroke: #fff !important;
-            }
-            .export-tab-btn.active .tab-icon,
-            .export-tab-btn:hover .tab-icon {
-                box-shadow: 0 4px 12px rgba(6, 70, 53,0.25);
-            }
-            .export-tab-label { text-align: left; }
-            .export-tab-label .tab-title { font-size: 14px; font-weight: 600; }
-            .export-tab-label .tab-sub { font-size: 11px; color: #9ca3af; font-weight: 400; }
-            .export-tab-btn.active .export-tab-label .tab-sub { color: #6b7280; }
 
             /* Ruangan selection grid - sama persis dengan jenis-selection-grid */
             .ruangan-selection-grid {
@@ -1020,61 +1176,53 @@
                 align-items: center;
                 gap: 14px;
                 padding: 14px;
-                background: #f8f9fa;
-                border: 2px solid #e2e8f0;
-                border-radius: 12px;
+                background: var(--color-surface);
+                border: 1.5px solid var(--color-border);
+                border-radius: var(--radius-md);
                 cursor: pointer;
                 transition: all 0.2s;
             }
-            .ruangan-option label:hover { border-color: #064635; background: #f4faf5; }
+            .ruangan-option label:hover { border-color: var(--color-primary); background: var(--color-row-hover); }
             .ruangan-option input:checked + label {
-                border-color: #064635;
-                background: #e6f4ea;
-                box-shadow: 0 4px 12px rgba(6, 70, 53,0.15);
+                border-color: var(--color-primary);
+                background: var(--color-primary-tint);
             }
             .ruangan-option-icon {
-                width: 48px; height: 48px; border-radius: 12px;
+                width: 40px; height: 40px; border-radius: var(--radius-sm);
                 display: flex; align-items: center; justify-content: center; flex-shrink: 0;
             }
             .ruangan-option-icon svg, .ruangan-option-icon i {
-                width: 22px; height: 22px; color: #fff !important; stroke: #fff !important;
+                width: 20px; height: 20px; color: var(--color-primary) !important; stroke: var(--color-primary) !important;
             }
             .ruangan-option-info { flex: 1; }
-            .ruangan-option-name { font-size: 13px; font-weight: 600; color: #1f2937; margin-bottom: 2px; }
-            .ruangan-option-count { font-size: 11px; color: #9ca3af; }
-                background: #fff;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-                border: 1px solid rgba(0,0,0,0.04);
-                overflow: hidden;
-                margin-top: 20px;
-            }
+            .ruangan-option-name { font-size: 13px; font-weight: 600; color: var(--color-text); margin-bottom: 2px; }
+            .ruangan-option-count { font-size: 11px; color: var(--color-text-muted); }
 
             .history-table {
                 width: 100%;
                 border-collapse: collapse;
-                font-size: 12px;
+                font-size: 12.5px;
             }
             .history-table thead th {
-                background: #f9fafb;
+                background: var(--color-surface);
                 padding: 12px 16px;
                 text-align: left;
                 font-weight: 600;
-                color: #6b7280;
-                border-bottom: 1px solid #f3f4f6;
+                color: var(--color-text-muted);
+                border-bottom: 1px solid var(--color-border);
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-                font-size: 10px;
+                font-size: 11px;
             }
             .history-table tbody tr {
-                border-bottom: 1px solid #f3f4f6;
+                border-bottom: 1px solid var(--color-border);
             }
             .history-table tbody tr:hover {
-                background: #f9fafb;
+                background: var(--color-row-hover);
             }
             .history-table tbody td {
                 padding: 12px 16px;
-                color: #374151;
+                color: var(--color-text);
             }
 
             .user-info {
@@ -1083,7 +1231,6 @@
                 gap: 8px;
                 text-align: left;
             }
-            /* .user-avatar removed */
 
             .export-meta {
                 display: flex;
@@ -1095,11 +1242,11 @@
                 align-items: center;
                 gap: 4px;
                 padding: 3px 8px;
-                background: #f0f9ff;
-                border: 1px solid #bfdbfe;
-                border-radius: 4px;
-                font-size: 10px;
-                color: #0369a1;
+                background: var(--color-primary-tint);
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-sm);
+                font-size: 11px;
+                color: var(--color-primary);
                 font-weight: 600;
             }
             .meta-badge i { width: 12px; height: 12px; }
@@ -1109,7 +1256,7 @@
                 display: none;
                 position: fixed;
                 inset: 0;
-                background: rgba(0,0,0,0.5);
+                background: rgba(31, 58, 42, 0.4);
                 align-items: center;
                 justify-content: center;
                 z-index: 2000;
@@ -1117,13 +1264,14 @@
             }
             .modal-overlay.show { display: flex; }
             .modal-box {
-                background: #fff;
-                border-radius: 16px;
+                background: var(--color-surface);
+                border-radius: var(--radius-xl);
+                border: 1px solid var(--color-border);
                 width: 90%;
                 max-width: 900px;
                 max-height: 90vh;
                 overflow: auto;
-                box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+                box-shadow: var(--shadow-float);
                 animation: modalSlideIn 0.3s ease;
             }
             @keyframes modalSlideIn {
@@ -1132,12 +1280,12 @@
             }
             .modal-header {
                 padding: 20px 24px;
-                background: linear-gradient(135deg, #064635 0%, #1c5240 100%);
-                color: #fff;
-                border-bottom: 1px solid #e5e7eb;
+                background: var(--color-surface);
+                color: var(--color-text);
+                border-bottom: none !important;
             }
             .modal-header h5 {
-                color: #fff;
+                color: var(--color-text);
                 font-size: 16px;
                 font-weight: 600;
                 margin: 0;
@@ -1149,16 +1297,16 @@
             }
             .modal-footer {
                 padding: 16px 24px;
-                background: #f9fafb;
-                border-top: 1px solid #e5e7eb;
+                background: var(--color-surface);
+                border-top: none !important;
                 display: flex;
                 justify-content: flex-end;
                 gap: 12px;
             }
-            .modal-btn {
+            .modal-btn{
                 padding: 10px 20px;
-                border-radius: 10px;
-                font-size: 12px;
+                border-radius: var(--radius-full);
+                font-size: 13px;
                 font-weight: 600;
                 display: flex;
                 align-items: center;
@@ -1168,21 +1316,25 @@
                 transition: all 0.2s;
                 border: none;
             }
-            .modal-btn-cancel {
-                background: #f3f4f6;
-                color: #374151;
-                border: 1px solid #e5e7eb;
+            .modal-btn-cancel{
+                background: var(--color-surface);
+                color: var(--color-text);
+                border: 1px solid var(--color-border);
             }
             .modal-btn-cancel:hover {
-                background: #e5e7eb;
+                background: var(--color-row-hover);
             }
-            .modal-btn-confirm {
-                background: linear-gradient(135deg, #519259 0%, #064635 100%);
-                color: #fff;
+            .modal-btn-confirm{
+                background: var(--color-primary);
+                color: var(--color-text-on-primary);
+                border: 1px solid var(--color-primary);
+                border-radius: var(--radius-full);
+                box-shadow: none;
+                transition: background 0.2s ease;
             }
             .modal-btn-confirm:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 4px 12px rgba(6, 70, 53,0.3);
+                background: var(--color-primary-hover);
+                color: var(--color-text-on-primary);
             }
 
             /* Preview Content */
@@ -1196,7 +1348,7 @@
                 padding: 16px;
                 background: #f8f9fa;
                 border: 1px solid #e2e8f0;
-                border-radius: 10px;
+                border-radius: 8px;
             }
             .preview-info-label {
                 font-size: 11px;
@@ -1215,7 +1367,7 @@
                 margin-top: 12px;
                 padding: 12px;
                 border: 1px solid #e2e8f0;
-                border-radius: 10px;
+                border-radius: 8px;
                 background: #f8f9fa;
             }
             .preview-signer-title {
@@ -1334,12 +1486,66 @@
             }
             .excel-cell-data.alt { background: #ffffff; }
 
+            /* PDF Preview Styles - strict overrides to match actual PDF export files and eliminate system green & black background */
+            #pdf-preview-content {
+                background: #ffffff !important;
+                padding: 16px 20px !important;
+                font-family: Arial, sans-serif !important;
+                color: #000000 !important;
+            }
+            #pdf-preview-content * {
+                box-sizing: border-box;
+            }
+            #pdf-preview-content table {
+                border-collapse: collapse !important;
+                background: #ffffff !important;
+                font-family: Arial, sans-serif !important;
+            }
+            #pdf-preview-content table thead th,
+            #pdf-preview-content table th {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
+                font-weight: bold !important;
+            }
+            #pdf-preview-content table.pdf-blue-table thead th,
+            #pdf-preview-content table.pdf-blue-table th,
+            #pdf-preview-content table.pdf-blue-header thead th,
+            #pdf-preview-content table.pdf-blue-header th {
+                background: #9bc2e6 !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
+                font-weight: bold !important;
+            }
+            #pdf-preview-content table tbody td,
+            #pdf-preview-content table tbody tr td,
+            #pdf-preview-content table tbody tr:hover td {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
+            }
+            #pdf-preview-content table tr.pdf-blue-total td,
+            #pdf-preview-content table tr.pdf-blue-total:hover td,
+            #pdf-preview-content table td.pdf-blue-bg {
+                background: #9bc2e6 !important;
+                color: #000000 !important;
+                font-weight: bold !important;
+            }
+            #pdf-preview-content table tr.pdf-gray-subheader td,
+            #pdf-preview-content table tr.pdf-gray-subheader:hover td,
+            #pdf-preview-content table td.pdf-gray-bg {
+                background: #d9d9d9 !important;
+                color: #000000 !important;
+                font-style: italic !important;
+                font-weight: bold !important;
+            }
+
             /* History Card */
-            .history-card {
+            .history-card{
                 background: #fff;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-                border: 1px solid rgba(0,0,0,0.04);
+                border-radius: 8px;
+                box-shadow: none;
+                border: 1px solid #e5e7eb;
                 overflow: hidden;
                 margin-top: 20px;
             }
@@ -1407,7 +1613,7 @@
                 align-items: center;
                 gap: 6px;
                 padding: 4px 10px;
-                border-radius: 16px;
+                border-radius: 8px;
                 font-size: 11px;
                 font-weight: 600;
                 background: #dbeafe;
@@ -1428,10 +1634,10 @@
                     grid-column: 1 / -1;
                 }
                 /* Di mobile: Ringkasan Export di atas, Opsi Export di bawah */
-                .export-sidebar .export-options-card {
+                .export-sidebar .export-options-card{
                     order: 2;
                 }
-                .export-sidebar .section-card {
+                .export-sidebar .section-card{
                     order: 1;
                 }
             }
@@ -1441,9 +1647,9 @@
                 .data-controls { flex-direction: column; align-items: stretch; }
                 .search-box { flex: unset; }
                 .filter-select { width: 100%; }
-                .btn-action { width: 100%; }
+                .btn-action{ width: 100%; }
                 .preview-grid { grid-template-columns: 1fr; }
-                .page-header-card {
+                .page-header-card{
                     padding: 24px 20px;
                 }
                 .page-header-card h1 {
@@ -1451,6 +1657,30 @@
                 }
                 .page-header-card p {
                     font-size: 13px;
+                }
+                .jenis-flow-helper,
+                .doc-flow-helper {
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    text-align: center !important;
+                    gap: 6px !important;
+                    padding: 10px 14px !important;
+                }
+                .jenis-flow-helper i,
+                .jenis-flow-helper svg,
+                .doc-flow-helper i,
+                .doc-flow-helper svg {
+                    margin: 0 auto !important;
+                    align-self: center !important;
+                }
+                .jenis-flow-helper span,
+                .jenis-flow-helper div,
+                .doc-flow-helper span,
+                .doc-flow-helper div {
+                    text-align: center !important;
+                    width: 100% !important;
+                    flex: none !important;
                 }
             }
 
@@ -1462,6 +1692,9 @@
                     padding: 16px;
                 }
                 .section-header {
+                    padding: 16px 16px 0;
+                }
+                .history-card .section-header {
                     padding: 16px;
                 }
                 .export-options-body {
@@ -1489,12 +1722,12 @@
                 width: 100%;
             }
 
-            /* Buku Inventaris Section - kotak pembungkus mirip create manajemen aset */
+            /* Buku Inventaris Section */
             .buku-inventaris-section {
-                background: #f8f9fa;
-                border: 1.5px solid #d1d5db;
-                border-radius: 10px;
-                padding: 16px;
+                background: transparent;
+                border: none;
+                border-radius: 0;
+                padding: 0;
                 margin-top: 16px;
                 overflow: visible;
             }
@@ -1507,8 +1740,8 @@
             .buku-inventaris-header-icon {
                 width: 28px;
                 height: 28px;
-                border-radius: 7px;
-                background: #064635;
+                border-radius: var(--radius-sm);
+                background: var(--color-primary);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -1519,7 +1752,7 @@
             .buku-inventaris-header-icon svg {
                 width: 14px;
                 height: 14px;
-                stroke: #fff;
+                stroke: var(--color-text-on-primary);
             }
             .buku-inventaris-header-content {
                 display: flex;
@@ -1527,15 +1760,15 @@
                 justify-content: center;
             }
             .buku-inventaris-title {
-                font-size: 13px;
+                font-size: 14px;
                 font-weight: 600;
-                color: #064635;
+                color: var(--color-text);
                 line-height: 1.4;
             }
             .buku-inventaris-desc {
-                font-size: 11px;
-                color: #6b7280;
-                margin: 2px 0 0 0;
+                font-size: 12px;
+                color: var(--color-text-muted);
+                margin: 3px 0 0 0;
                 line-height: 1.4;
             }
 
@@ -1543,23 +1776,28 @@
             .dropdown-trigger {
                 width: 100% !important;
                 text-align: left !important;
-                background-color: #fff !important;
+                background-color: var(--color-surface) !important;
                 cursor: pointer !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: space-between !important;
-                padding: 10px 16px !important;
-                border: 1px solid #d1d5db !important;
-                border-radius: 8px !important;
+                padding: 12px 18px !important;
+                border: 1px solid var(--color-border) !important;
+                border-radius: var(--radius-sm) !important;
+                color: var(--color-text) !important;
                 transition: all 0.2s !important;
-                min-height: 46px !important;
+                min-height: 48px !important;
             }
             .dropdown-trigger:hover {
-                border-color: #9ca3af !important;
+                border-color: var(--color-primary) !important;
+                background-color: var(--color-row-hover) !important;
             }
-            .dropdown-trigger:focus {
-                border-color: #064635 !important;
-                box-shadow: 0 0 0 3px rgba(6, 70, 53, 0.1) !important;
+            .dropdown-trigger:focus,
+            .dropdown-trigger.open,
+            .searchable-dropdown.open .dropdown-trigger {
+                border-color: var(--color-primary) !important;
+                background-color: var(--color-surface) !important;
+                box-shadow: none !important;
                 outline: none !important;
             }
 
@@ -1567,10 +1805,10 @@
             .dropdown-menu-panel {
                 position: relative !important;
                 z-index: 10 !important;
-                background: #fff !important;
-                border: 1px solid #d1d5db !important;
-                border-radius: 8px !important;
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+                background: var(--color-surface) !important;
+                border: 1px solid var(--color-border) !important;
+                border-radius: var(--radius-md) !important;
+                box-shadow: var(--shadow-float) !important;
                 width: 100% !important;
                 margin-top: 8px !important;
                 padding: 0 !important;
@@ -1591,11 +1829,6 @@
                 transform: scaleY(1) !important;
                 padding: 8px !important;
                 overflow-y: auto !important;
-            }
-
-            /* Smooth transition untuk section yang turun */
-            .section-card {
-                transition: margin-top 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             }
 
             /* Responsive untuk mobile dan tablet */
@@ -1634,7 +1867,7 @@
                 left: 12px;
                 top: 50%;
                 transform: translateY(-50%);
-                color: #9ca3af;
+                color: var(--color-text-muted);
                 width: 14px;
                 height: 14px;
                 pointer-events: none;
@@ -1643,14 +1876,20 @@
                 width: 100% !important;
                 padding: 8px 12px 8px 34px !important;
                 font-size: 13px !important;
-                border: 1px solid #d1d5db !important;
-                border-radius: 6px !important;
+                border: 1px solid var(--color-border) !important;
+                border-radius: var(--radius-sm) !important;
+                background: var(--color-surface) !important;
+                color: var(--color-text) !important;
                 outline: none !important;
                 box-sizing: border-box !important;
+                box-shadow: none !important;
+                transition: border-color 0.2s ease;
             }
+            .dropdown-search-input:hover,
             .dropdown-search-input:focus {
-                border-color: #064635 !important;
-                box-shadow: 0 0 0 2px rgba(6, 70, 53, 0.1) !important;
+                border-color: var(--color-primary) !important;
+                box-shadow: none !important;
+                outline: none !important;
             }
 
             /* Opsi Item List */
@@ -1666,40 +1905,24 @@
                 align-items: center;
                 gap: 10px;
                 padding: 10px 12px;
-                border-radius: 6px;
+                border-radius: var(--radius-sm);
                 cursor: pointer;
                 transition: background 0.15s;
                 user-select: none;
-                border-bottom: 1px solid #f3f4f6;
+                border-bottom: 1px solid var(--color-border);
             }
             .dropdown-option-item:last-child {
                 border-bottom: none;
             }
             .dropdown-option-item:hover {
-                background: #f3f4f6;
+                background: var(--color-row-hover);
             }
             .dropdown-option-item.selected {
-                background: #eff6ff;
-                color: #2563eb;
+                background: var(--color-primary-tint) !important;
+                color: var(--color-primary) !important;
             }
             .dropdown-option-icon {
-                width: 32px;
-                height: 32px;
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-            }
-            .dropdown-option-icon i,
-            .dropdown-option-icon svg,
-            .dropdown-option-icon svg * {
-                color: #fff !important;
-                stroke: #fff !important;
-            }
-            .dropdown-option-icon svg {
-                width: 16px;
-                height: 16px;
+                display: none !important;
             }
             .dropdown-option-text {
                 flex: 1;
@@ -1707,12 +1930,12 @@
             .dropdown-option-name {
                 font-size: 13px;
                 font-weight: 600;
-                color: #374151;
+                color: var(--color-text);
                 line-height: 1.4;
             }
             .dropdown-option-desc {
                 font-size: 11px;
-                color: #9ca3af;
+                color: var(--color-text-muted);
                 margin-top: 2px;
                 line-height: 1.3;
             }
@@ -1720,7 +1943,7 @@
             /* Animasi Chevron */
             .dropdown-trigger-caret {
                 transition: transform 0.2s;
-                color: #9ca3af;
+                color: var(--color-text-muted);
                 width: 18px !important;
                 height: 18px !important;
             }
@@ -1737,6 +1960,7 @@
             }
             .flatpickr-calendar.year-only-picker .year-picker-panel {
                 padding: 10px;
+                background: var(--color-surface);
             }
             .flatpickr-calendar.year-only-picker .year-picker-header {
                 display: flex;
@@ -1747,22 +1971,23 @@
             .flatpickr-calendar.year-only-picker .year-picker-range {
                 font-size: 12px;
                 font-weight: 700;
-                color: #1f2937;
+                color: var(--color-primary);
             }
             .flatpickr-calendar.year-only-picker .year-picker-nav {
                 width: 26px;
                 height: 26px;
-                border: 1px solid #e5e7eb;
-                border-radius: 6px;
-                background: #fff;
+                border: none;
+                border-radius: var(--radius-sm, 6px);
+                background: transparent;
                 font-size: 14px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
+                color: var(--color-text);
             }
             .flatpickr-calendar.year-only-picker .year-picker-nav:hover:not(:disabled) {
-                background: #f3f4f6;
+                background: var(--color-row-hover);
             }
             .flatpickr-calendar.year-only-picker .year-picker-nav:disabled {
                 opacity: .45;
@@ -1774,23 +1999,24 @@
                 gap: 8px;
             }
             .flatpickr-calendar.year-only-picker .year-picker-option {
-                border: 1px solid #d1d5db;
-                border-radius: 8px;
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-sm);
                 padding: 7px 4px;
                 font-size: 12px;
                 font-weight: 600;
                 text-align: center;
-                background: #fff;
+                background: var(--color-surface);
+                color: var(--color-text);
                 cursor: pointer;
                 transition: all 0.15s;
             }
             .flatpickr-calendar.year-only-picker .year-picker-option:hover {
-                background: #f3f4f6;
+                background: var(--color-row-hover);
             }
             .flatpickr-calendar.year-only-picker .year-picker-option.active {
-                background: #1f2937;
-                border-color: #1f2937;
-                color: #fff;
+                background: var(--color-primary);
+                border-color: var(--color-primary);
+                color: var(--color-text-on-primary);
             }
         </style>
     </head>
@@ -1800,18 +2026,15 @@
         @include('layouts.layout-vertical')
 
         <div class="pc-container">
-            <div class="pc-content">
-                @include('layouts.breadcrumb', [
-                    'breadcrumbItemHome' => 'Inventaris',
-                    'breadcrumbItem' => 'Export Data',
-                    'breadcrumbItemActive' => 'Export Jenis'
-                ])
- 
-                <!-- Page Header -->
-                <div class="page-header-card">
-                    {{-- <h1><i data-feather="download" style="width: 32px; height: 32px; display: inline-block; vertical-align: middle; margin-right: 12px;"></i>Export Data Jenis Inventaris</h1> --}}
-                    <h1>Export Data Jenis Inventaris</h1>
-                    <p>Ekspor data keseluruhan untuk setiap jenis inventaris dengan kustomisasi pejabat dan tanggal dokumen sesuai kebutuhan.</p>
+            <div class="pc-content" style="max-width: 1560px; margin: 0 auto;">
+
+                <!-- PAGE HEADER & PRIMARY ACTIONS -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+                    <div>
+                        <h1 style="font-size: 22px; font-weight: 700; margin: 0; color: var(--color-text); line-height: 1.2; letter-spacing: -0.02em;">
+                            Pusat Ekspor
+                        </h1>
+                    </div>
                 </div>
 
                 <!-- Main Content -->
@@ -1821,75 +2044,97 @@
                         <!-- Section 0: Pilih Tipe Export - selalu tampil -->
                         <div class="section-card" id="section-pilih-tipe">
                             <div class="section-header">
-                                <div class="section-header-icon blue">
-                                    <i data-feather="download"></i>
-                                </div>
-                                <div class="section-header-title">
-                                    <h5>Pilih Export Data</h5>
-                                    <span>Pilih jenis data yang akan diekspor</span>
+                                <div class="section-header-title" style="padding-top: 16px;">
+                                    <h5>Katalog Dokumen & Laporan Resmi</h5>
+                                    <span>Pilih format buku inventaris atau dokumen laporan yang akan diekspor</span>
                                 </div>
                             </div>
-                            <div class="section-body">
-                                <div class="buku-inventaris-section" style="margin-top:0;">
-                                    <div class="buku-inventaris-header" style="margin-bottom:16px;">
-                                        <div class="buku-inventaris-header-content">
-                                            <span class="buku-inventaris-title">Jenis Export</span>
-                                            <p class="buku-inventaris-desc">Pilih jenis export data yang akan digunakan.</p>
+                            <div class="section-body" style="padding-top: 14px;">
+                                <input type="hidden" name="export_type" id="export_type_hidden" value="buku_inventaris_aset">
+                                
+                                <!-- Visual Report Cards Grid -->
+                                <div class="export-type-grid" id="export-type-cards-container">
+                                    <div class="export-type-card active" data-id="buku_inventaris_aset" onclick="selectExportTypeCard('buku_inventaris_aset')">
+                                        <div class="export-type-card-icon" style="background-color: transparent !important;">
+                                            <i data-feather="archive"></i>
                                         </div>
+                                        <div class="export-type-card-title">Buku Inventaris Desa</div>
+                                        <div class="export-type-card-desc">Rekapitulasi seluruh aset desa lengkap (KIB A s/d F)</div>
                                     </div>
-                                    <input type="hidden" name="export_type" id="export_type_hidden" value="">
-                                    
-                                    <div class="searchable-dropdown" id="export-type-dropdown-container">
-                                        <button type="button" class="dropdown-trigger" id="export-type-dropdown-trigger">
-                                            <span id="export-type-selected-label" style="color:#9ca3af;font-size:13px;font-weight:500;">-- Pilih Jenis Export Data --</span>
-                                            <i data-feather="chevron-down" class="dropdown-trigger-caret" style="width:16px;height:16px;"></i>
-                                        </button>
-                                        
-                                        <div class="dropdown-menu-panel" id="export-type-dropdown-menu">
-                                            <ul class="dropdown-options-list" id="export-type-dropdown-options-list"></ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Section 1: Pilih Jenis Inventaris - hidden sampai tipe dipilih -->
-                        <div class="section-card" id="section-pilih-jenis" style="display:none;">
-                            <div class="section-header">
-                                <div class="section-header-icon" id="section-pilih-icon" style="background:#519259;">
-                                    <i data-feather="list" id="section-pilih-icon-el"></i>
+                                    <div class="export-type-card" data-id="kib" onclick="selectExportTypeCard('kib')">
+                                        <div class="export-type-card-icon" style="background-color: transparent !important;">
+                                            <i data-feather="book-open"></i>
+                                        </div>
+                                        <div class="export-type-card-title">Buku Inventaris (KIB)</div>
+                                        <div class="export-type-card-desc">Format standar KIB A (Tanah) s/d KIB F (KDP)</div>
+                                    </div>
+
+                                    <div class="export-type-card" data-id="ruangan" onclick="selectExportTypeCard('ruangan')">
+                                        <div class="export-type-card-icon" style="background-color: transparent !important;">
+                                            <i data-feather="grid"></i>
+                                        </div>
+                                        <div class="export-type-card-title">Kartu Inventaris Ruangan (KIR)</div>
+                                        <div class="export-type-card-desc">Cetak KIR per ruangan kantor desa & unit kerja</div>
+                                    </div>
+
+                                    <div class="export-type-card" data-id="jenis" onclick="selectExportTypeCard('jenis')">
+                                        <div class="export-type-card-icon" style="background-color: transparent !important;">
+                                            <i data-feather="file-text"></i>
+                                        </div>
+                                        <div class="export-type-card-title">Format Jenis Barang</div>
+                                        <div class="export-type-card-desc">Cetak format tabel khusus per kategori inventaris</div>
+                                    </div>
+
+                                    <div class="export-type-card" data-id="laporan" onclick="selectExportTypeCard('laporan')">
+                                        <div class="export-type-card-icon" style="background-color: transparent !important;">
+                                            <i data-feather="bar-chart-2"></i>
+                                        </div>
+                                        <div class="export-type-card-title">Laporan Periodik / Mutasi</div>
+                                        <div class="export-type-card-desc">Laporan saldo awal, mutasi penambahan, &amp; saldo akhir</div>
+                                    </div>
                                 </div>
-                                <div class="section-header-title">
-                                    <h5>Pilih Jenis Inventaris</h5>
-                                    <span>Pilih jenis inventaris yang akan diekspor</span>
+
+                                <div class="searchable-dropdown" id="export-type-dropdown-container" style="display:none;">
+                                    <button type="button" class="dropdown-trigger" id="export-type-dropdown-trigger">
+                                        <span id="export-type-selected-label" style="color:#9ca3af;font-size:13px;font-weight:500;">Buku Inventaris Aset Desa</span>
+                                        <i data-feather="chevron-down" class="dropdown-trigger-caret" style="width:16px;height:16px;"></i>
+                                    </button>
+                                    
+                                    <div class="dropdown-menu-panel" id="export-type-dropdown-menu">
+                                        <ul class="dropdown-options-list" id="export-type-dropdown-options-list"></ul>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="section-body">
-                                <!-- Konten Jenis Inventaris - hidden sampai dipilih -->
+
+                                <!-- Container Form Dinamis -->
+                                <div id="section-pilih-jenis" style="display:none; margin-top:24px;">
+                                    {{-- Divider antara Katalog Dokumen & Laporan Resmi dan Section Format Terpilih --}}
+                                    <hr class="sima-divider" style="margin: 0 0 24px 0 !important;" />
+                                    <!-- Konten Jenis Inventaris - hidden sampai dipilih -->
                                 <div id="content-jenis" style="display:none;">
                                 @if($jenisInventaris->isEmpty())
                                 <div style="width:100%;padding:40px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#9ca3af;gap:8px;">
-                                    <i data-feather="inbox" style="width:44px;height:44px;opacity:0.5;"></i>
+                                    <i data-feather="inbox" style="width:44px;height:44px;color:var(--color-text-muted);stroke:var(--color-text-muted);"></i>
                                     <div style="font-size:14px;font-weight:600;color:#6b7280;margin:0;">Tidak Ada Data</div>
-                                    <div style="font-size:12px;color:#9ca3af;">Belum ada jenis inventaris yang tersedia.<br>Tambahkan terlebih dahulu di menu <a href="{{ route('jenis-inventaris.index') }}" style="color:#064635;font-weight:600;">Jenis Inventaris</a>.</div>
+                                    <div style="font-size:12px;color:#9ca3af;">Belum ada jenis inventaris yang tersedia.<br>Tambahkan terlebih dahulu di menu <a href="{{ route('jenis-inventaris.index') }}" style="color:#1f3a2a;font-weight:600;">Jenis Inventaris</a>.</div>
                                 </div>
                                 @else
-                                <div class="jenis-flow-helper" id="jenis-flow-helper">
-                                    <i data-feather="info"></i>
-                                    Pilih jenis inventaris terlebih dahulu untuk mengaktifkan opsi export, tanda tangan, pejabat custom, dan tanggal dokumen.
-                                </div>
                                 <div class="buku-inventaris-section" style="margin-top:0;">
-                                    <div class="buku-inventaris-header" style="margin-bottom:16px;">
+                                    <div class="buku-inventaris-header" style="margin-bottom:14px;">
                                         <div class="buku-inventaris-header-content">
                                             <span class="buku-inventaris-title">Jenis Inventaris</span>
                                             <p class="buku-inventaris-desc">Pilih jenis inventaris untuk menampilkan form isian data yang sesuai.</p>
                                         </div>
                                     </div>
+                                    <div class="jenis-flow-helper" id="jenis-flow-helper" style="margin-bottom:16px;">
+                                        <i data-feather="info"></i>
+                                        <span>Pilih jenis inventaris terlebih dahulu untuk mengaktifkan opsi export, tanda tangan, pejabat custom, dan tanggal dokumen.</span>
+                                    </div>
                                     <input type="hidden" name="jenis_inventaris_id" id="jenis_inventaris_id_hidden" value="">
                                     
                                     <div class="searchable-dropdown" id="jenis-dropdown-container">
                                         <button type="button" class="dropdown-trigger" id="jenis-dropdown-trigger">
-                                            <span id="jenis-selected-label" style="color:#9ca3af;font-size:13px;font-weight:500;">-- Pilih Jenis Inventaris --</span>
+                                            <span id="jenis-selected-label" style="color:#9ca3af;font-size:13px;font-weight:500;">Pilih Jenis Inventaris</span>
                                             <i data-feather="chevron-down" class="dropdown-trigger-caret" style="width:16px;height:16px;"></i>
                                         </button>
                                         
@@ -1909,27 +2154,27 @@
                                 <div id="content-ruangan" style="display:none;">
                                 @if($ruanganList->isEmpty())
                                 <div style="width:100%;padding:40px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#9ca3af;gap:8px;">
-                                    <i data-feather="inbox" style="width:44px;height:44px;opacity:0.5;"></i>
+                                    <i data-feather="inbox" style="width:44px;height:44px;color:var(--color-text-muted);stroke:var(--color-text-muted);"></i>
                                     <div style="font-size:14px;font-weight:600;color:#6b7280;margin:0;">Belum Ada Ruangan</div>
-                                    <div style="font-size:12px;color:#9ca3af;">Tambahkan data ruangan di menu <a href="{{ route('ruangan.index') }}" style="color:#064635;font-weight:600;">Master Data &raquo; Ruangan</a>.</div>
+                                    <div style="font-size:12px;color:#9ca3af;">Tambahkan data ruangan di menu <a href="{{ route('ruangan.index') }}" style="color:#1f3a2a;font-weight:600;">Master Data &raquo; Ruangan</a>.</div>
                                 </div>
                                 @else
-                                <div class="jenis-flow-helper">
-                                    <i data-feather="info"></i>
-                                    Pilih ruangan untuk mengaktifkan opsi export Kartu Inventaris Ruangan.
-                                </div>
                                 <div class="buku-inventaris-section" style="margin-top:0;">
-                                    <div class="buku-inventaris-header" style="margin-bottom:16px;">
+                                    <div class="buku-inventaris-header" style="margin-bottom:14px;">
                                         <div class="buku-inventaris-header-content">
                                             <span class="buku-inventaris-title">Ruangan</span>
                                             <p class="buku-inventaris-desc">Pilih ruangan yang akan diekspor sebagai Kartu Inventaris Ruangan.</p>
                                         </div>
                                     </div>
+                                    <div class="jenis-flow-helper" style="margin-bottom:16px;">
+                                        <i data-feather="info"></i>
+                                        <span>Pilih ruangan untuk mengaktifkan opsi export Kartu Inventaris Ruangan.</span>
+                                    </div>
                                     <input type="hidden" name="ruangan_id_selected" id="ruangan_id_hidden" value="">
 
                                     <div class="searchable-dropdown" id="ruangan-dropdown-container">
                                         <button type="button" class="dropdown-trigger" id="ruangan-dropdown-trigger">
-                                            <span id="ruangan-selected-label" style="color:#9ca3af;font-size:13px;font-weight:500;">-- Pilih Ruangan --</span>
+                                            <span id="ruangan-selected-label" style="color:#9ca3af;font-size:13px;font-weight:500;">Pilih Ruangan</span>
                                             <i data-feather="chevron-down" class="dropdown-trigger-caret" style="width:16px;height:16px;"></i>
                                         </button>
 
@@ -1944,26 +2189,26 @@
 
                                     {{-- Pilihan format KIR — muncul hanya setelah ruangan dipilih --}}
                                     <div id="kir-format-section" style="display:none;margin-top:14px;">
-                                        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px;">
+                                        <div style="font-size:12.5px;font-weight:600;color:var(--color-text);margin-bottom:8px;">
                                             Template Format KIR
                                         </div>
                                         <div style="display:flex;flex-direction:column;gap:8px;">
-                                            <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid #064635;border-radius:8px;cursor:pointer;transition:all 0.15s;" id="kir-format-standard-label">
+                                            <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--color-primary);background:var(--color-surface);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;" id="kir-format-standard-label">
                                                 <input type="radio" name="kir-format" value="standard" checked
-                                                       style="width:16px;height:16px;accent-color:#064635;flex-shrink:0;margin-top:2px;"
+                                                       style="width:16px;height:16px;accent-color:var(--color-primary);flex-shrink:0;margin:0;"
                                                        onchange="onKirFormatChange(this)">
                                                 <div>
-                                                    <div style="font-size:13px;font-weight:600;color:#374151;">Format Standar (Permendagri)</div>
-                                                    <div style="font-size:11px;color:#6b7280;margin-top:1px;">2 TTD: Sekretaris Desa &amp; Petugas Barang</div>
+                                                    <div style="font-size:13px;font-weight:600;color:var(--color-text);">Format Standar (Permendagri)</div>
+                                                    <div style="font-size:11.5px;color:var(--color-text-muted);margin-top:1px;">2 TTD: Sekretaris Desa &amp; Petugas Barang</div>
                                                 </div>
                                             </label>
-                                            <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:8px;cursor:pointer;transition:all 0.15s;" id="kir-format-custom-label">
+                                            <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--color-border);background:var(--color-surface);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;" id="kir-format-custom-label">
                                                 <input type="radio" name="kir-format" value="custom"
-                                                       style="width:16px;height:16px;accent-color:#064635;flex-shrink:0;margin-top:2px;"
+                                                       style="width:16px;height:16px;accent-color:var(--color-primary);flex-shrink:0;margin:0;"
                                                        onchange="onKirFormatChange(this)">
                                                 <div>
-                                                    <div style="font-size:13px;font-weight:600;color:#374151;">Format Desa Demo</div>
-                                                    <div style="font-size:11px;color:#6b7280;margin-top:1px;">3 TTD: Perbekel, Penanggung Jawab, &amp; Pengurus Barang</div>
+                                                    <div style="font-size:13px;font-weight:600;color:var(--color-text);">Format Khusus Desa (3 TTD)</div>
+                                                    <div style="font-size:11.5px;color:var(--color-text-muted);margin-top:1px;">3 TTD: Perbekel, Penanggung Jawab, &amp; Pengurus Barang</div>
                                                 </div>
                                             </label>
                                         </div>
@@ -1975,7 +2220,7 @@
                                 {{-- Konten KIB --}}
                                 @php
                                 $kibColors = [
-                                    'all' => ['bg' => 'linear-gradient(135deg,#064635,#1c5240)', 'icon' => 'layers'],
+                                    'all' => ['bg' => 'linear-gradient(135deg,#1f3a2a,#1c5240)', 'icon' => 'layers'],
                                     'A'   => ['bg' => 'linear-gradient(135deg,#10b981,#059669)', 'icon' => 'map-pin'],
                                     'B'   => ['bg' => 'linear-gradient(135deg,#3b82f6,#2563eb)', 'icon' => 'tool'],
                                     'C'   => ['bg' => 'linear-gradient(135deg,#8b5cf6,#7c3aed)', 'icon' => 'home'],
@@ -1985,21 +2230,21 @@
                                 ];
                                 @endphp
                                 <div id="content-kib" style="display:none;">
-                                  <div class="jenis-flow-helper" style="margin-bottom:12px;">
-                                    <i data-feather="info"></i>
-                                    Pilih KIB terlebih dahulu untuk mengaktifkan opsi export. Filter tahun perolehan berlaku untuk semua KIB.
-                                  </div>
                                   <div class="buku-inventaris-section" style="margin-top:0;">
-                                    <div class="buku-inventaris-header" style="margin-bottom:16px;">
+                                    <div class="buku-inventaris-header" style="margin-bottom:14px;">
                                         <div class="buku-inventaris-header-content">
                                             <span class="buku-inventaris-title">Buku Inventaris (KIB)</span>
                                             <p class="buku-inventaris-desc">Pilih KIB yang akan diekspor sesuai standar Permendagri.</p>
                                         </div>
                                     </div>
+                                    <div class="jenis-flow-helper" style="margin-bottom:16px;">
+                                      <i data-feather="info"></i>
+                                      <span>Pilih KIB terlebih dahulu untuk mengaktifkan opsi export. Filter tahun perolehan berlaku untuk semua KIB.</span>
+                                    </div>
                                     <input type="hidden" name="kib_type_selected" id="kib_type_hidden" value="">
                                     <div class="searchable-dropdown" id="kib-dropdown-container">
                                         <button type="button" class="dropdown-trigger" id="kib-dropdown-trigger">
-                                            <span id="kib-selected-label" style="color:#9ca3af;font-size:13px;font-weight:500;">-- Pilih KIB --</span>
+                                            <span id="kib-selected-label" style="color:#9ca3af;font-size:13px;font-weight:500;">Pilih KIB</span>
                                             <i data-feather="chevron-down" class="dropdown-trigger-caret" style="width:16px;height:16px;"></i>
                                         </button>
 
@@ -2014,19 +2259,59 @@
                                   </div>
                                 </div>{{-- end content-kib --}}
 
-                                {{-- Konten Laporan Aset --}}
-                                <div id="content-laporan" style="display:none;">
-                                    <div class="jenis-flow-helper">
+                                {{-- Konten Buku Inventaris Aset Desa --}}
+                                <div id="content-buku-inventaris-aset" style="display:none;">
+                                  <div class="buku-inventaris-section" style="margin-top:0;">
+                                    <div class="buku-inventaris-header" style="margin-bottom:14px;">
+                                        <div class="buku-inventaris-header-content">
+                                            <span class="buku-inventaris-title">Buku Inventaris Aset Desa</span>
+                                            <p class="buku-inventaris-desc">Export Buku Inventaris Aset Desa mencakup seluruh aset di sistem (KIB A-F).</p>
+                                        </div>
+                                    </div>
+                                    <div class="jenis-flow-helper" style="margin-bottom:16px;">
                                         <i data-feather="info"></i>
-                                        Pilih periode laporan. Tahun perolehan dipilih melalui Filter Tahun Perolehan di bawah.
+                                        <span>Export Buku Inventaris Aset Desa mencakup seluruh aset di sistem (KIB A-F). Pilih periode laporan di bawah.</span>
                                     </div>
 
                                     {{-- Pilih Periode --}}
-                                    <div style="font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Periode Laporan</div>
-                                    <input type="hidden" name="laporan-periode" id="laporan_periode_hidden" value="tahunan">
+                                    <div style="font-size:12px;font-weight:600;color:#6b7280;margin-bottom:8px;">Periode Buku Inventaris</div>
+                                    <input type="hidden" name="buku_inventaris_periode" id="buku_inventaris_periode_hidden" value="tahunan">
+                                    <div class="searchable-dropdown" id="buku-inventaris-dropdown-container">
+                                        <button type="button" class="dropdown-trigger" id="buku-inventaris-dropdown-trigger">
+                                            <span id="buku-inventaris-selected-label" style="color:#9ca3af;font-size:13px;font-weight:500;">Pilih Periode</span>
+                                            <i data-feather="chevron-down" class="dropdown-trigger-caret" style="width:16px;height:16px;"></i>
+                                        </button>
+                                        <div class="dropdown-menu-panel" id="buku-inventaris-dropdown-menu">
+                                            <div class="dropdown-search-wrapper">
+                                                <i data-feather="search"></i>
+                                                <input type="text" id="buku-inventaris-dropdown-search" class="dropdown-search-input" placeholder="Cari periode..." autocomplete="off">
+                                            </div>
+                                            <ul class="dropdown-options-list" id="buku-inventaris-dropdown-options-list"></ul>
+                                        </div>
+                                    </div>
+                                  </div>
+                                </div>{{-- end content-buku-inventaris-aset --}}
+
+                                {{-- Konten Laporan Aset --}}
+                                <div id="content-laporan" style="display:none;">
+                                  <div class="buku-inventaris-section" style="margin-top:0;">
+                                    <div class="buku-inventaris-header" style="margin-bottom:14px;">
+                                        <div class="buku-inventaris-header-content">
+                                            <span class="buku-inventaris-title">Laporan Periodik / Mutasi</span>
+                                            <p class="buku-inventaris-desc">Laporan saldo awal, mutasi penambahan, dan saldo akhir per semester atau tahunan.</p>
+                                        </div>
+                                    </div>
+                                    <div class="jenis-flow-helper" style="margin-bottom:16px;">
+                                        <i data-feather="info"></i>
+                                        <span>Pilih periode laporan. Tahun perolehan dipilih melalui Filter Tahun Perolehan di bawah.</span>
+                                    </div>
+
+                                    {{-- Pilih Periode --}}
+                                    <div style="font-size:12px;font-weight:600;color:#6b7280;margin-bottom:8px;">Periode Laporan</div>
+                                    <input type="hidden" name="laporan_periode" id="laporan_periode_hidden" value="tahunan">
                                     <div class="searchable-dropdown" id="laporan-dropdown-container">
                                         <button type="button" class="dropdown-trigger" id="laporan-dropdown-trigger">
-                                            <span id="laporan-selected-label" style="color:#9ca3af;font-size:13px;font-weight:500;">-- Pilih Periode Laporan --</span>
+                                            <span id="laporan-selected-label" style="color:#9ca3af;font-size:13px;font-weight:500;">Pilih Periode Laporan</span>
                                             <i data-feather="chevron-down" class="dropdown-trigger-caret" style="width:16px;height:16px;"></i>
                                         </button>
                                         <div class="dropdown-menu-panel" id="laporan-dropdown-menu">
@@ -2037,236 +2322,185 @@
                                             <ul class="dropdown-options-list" id="laporan-dropdown-options-list"></ul>
                                         </div>
                                     </div>
+                                  </div>
                                 </div>{{-- end content-laporan --}}
 
-                            </div>
-                        </div>
-
-                        <!-- Section 1.5: Informasi Dokumen (Lampiran & Nomor BA) - Hanya untuk Export Jenis Inventaris -->
-                        <div class="section-card" id="section-dokumen-info" style="display:none; margin-top: 20px;">
-                            <div class="section-header">
-                                <div class="section-header-icon teal">
-                                    <i data-feather="file-text"></i>
-                                </div>
-                                <div class="section-header-title">
-                                    <h5>Informasi Dokumen</h5>
-                                    <span>Isi informasi lampiran dan berita acara (opsional)</span>
-                                </div>
-                            </div>
-                            <div class="section-body">
-                                <div class="ttd-setup">
+                                <!-- Subsection: Informasi Dokumen (Lampiran & Nomor BA) - Hanya untuk Export Jenis Inventaris -->
+                                <div id="section-dokumen-info" style="display:none; margin-top: 24px;">
+                                    {{-- Divider antara Section Format dan Informasi Dokumen --}}
+                                    <hr class="sima-divider" style="margin: 0 0 24px 0 !important;" />
+                                    <div class="buku-inventaris-header" style="margin-bottom: 14px;">
+                                        <div class="buku-inventaris-header-content">
+                                            <span class="buku-inventaris-title">Informasi Dokumen</span>
+                                            <p class="buku-inventaris-desc">Isi informasi lampiran dan berita acara (opsional)</p>
+                                        </div>
+                                    </div>
                                     <!-- Info Helper -->
-                                    <div class="info-box" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #93c5fd; margin-bottom: 16px;">
-                                        <i data-feather="info" style="color: #1e40af; stroke: #1e40af;"></i>
-                                        <div class="info-box-text" style="color: #1e40af;">
-                                            Informasi ini akan muncul di bagian header laporan export. Boleh dikosongkan jika tidak diperlukan.
-                                        </div>
+                                    <div class="doc-flow-helper" style="margin-bottom: 16px;">
+                                        <i data-feather="info"></i>
+                                        <span>Informasi ini akan muncul di bagian header laporan export. Boleh dikosongkan jika tidak diperlukan.</span>
                                     </div>
+                                    <div class="ttd-setup">
+                                        <!-- Form Input menggunakan form-grid seperti di create.blade.php -->
+                                        <div class="ttd-subsection">
+                                            <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+                                                <!-- Lampiran -->
+                                                <div class="form-group">
+                                                    <label class="form-label" for="doc-lampiran">
+                                                        Lampiran <span class="optional">(opsional)</span>
+                                                    </label>
+                                                    <input type="text" id="doc-lampiran" class="form-control" placeholder="Contoh: 3 / 1 - 2">
+                                                    <div class="form-hint">Format: [Nomor Urut] / [Halaman] - [Total Halaman]</div>
+                                                </div>
 
-                                    <!-- Form Input menggunakan form-grid seperti di create.blade.php -->
-                                    <div class="ttd-subsection">
-                                        <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
-                                            <!-- Lampiran -->
-                                            <div class="form-group">
-                                                <label class="form-label" for="doc-lampiran">
-                                                    Lampiran <span class="optional">(opsional)</span>
-                                                </label>
-                                                <input type="text" id="doc-lampiran" class="form-control" placeholder="Contoh: 3 / 1 - 2">
-                                                <div class="form-hint">Format: [Nomor Urut] / [Halaman] - [Total Halaman]</div>
+                                                <!-- Berita Acara Nomor -->
+                                                <div class="form-group">
+                                                    <label class="form-label" for="doc-ba-nomor">
+                                                        Berita Acara Inventarisasi Aset Desa Nomor <span class="optional">(opsional)</span>
+                                                    </label>
+                                                    <input type="text" id="doc-ba-nomor" class="form-control" placeholder="Contoh: 029/025/35.09.08.2001/2024">
+                                                    <div class="form-hint">Nomor surat resmi Berita Acara</div>
+                                                </div>
+
+                                                <!-- Tanggal Berita Acara -->
+                                                <div class="form-group">
+                                                    <label class="form-label" for="doc-ba-tanggal">
+                                                        Tanggal Berita Acara <span class="optional">(opsional)</span>
+                                                    </label>
+                                                    <input type="text" id="doc-ba-tanggal" class="form-control" placeholder="Pilih tanggal" style="cursor:pointer;">
+                                                    <div class="form-hint">Tanggal penerbitan Berita Acara</div>
+                                                </div>
                                             </div>
 
-                                            <!-- Berita Acara Nomor -->
-                                            <div class="form-group">
-                                                <label class="form-label" for="doc-ba-nomor">
-                                                    Berita Acara Inventarisasi Aset Desa Nomor <span class="optional">(opsional)</span>
-                                                </label>
-                                                <input type="text" id="doc-ba-nomor" class="form-control" placeholder="Contoh: 029/025/35.09.08.2001/2024">
-                                                <div class="form-hint">Nomor surat resmi Berita Acara</div>
-                                            </div>
-
-                                            <!-- Tanggal Berita Acara -->
-                                            <div class="form-group">
-                                                <label class="form-label" for="doc-ba-tanggal">
-                                                    Tanggal Berita Acara <span class="optional">(opsional)</span>
-                                                </label>
-                                                <input type="text" id="doc-ba-tanggal" class="form-control" placeholder="Pilih tanggal" style="cursor:pointer;">
-                                                <div class="form-hint">Tanggal penerbitan Berita Acara</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Preview Box -->
-                                        <div class="preview-doc-box">
-                                            <div class="preview-doc-box-title">
-                                                <i data-feather="eye"></i>
-                                                Preview di Export
-                                            </div>
-                                            <div class="preview-doc-box-content">
-                                                <div><strong>Lampiran:</strong> <span id="preview-lampiran">-</span></div>
-                                                <div><strong>Berita Acara Inventarisasi Aset Desa</strong></div>
-                                                <div><strong>Nomor:</strong> <span id="preview-ba-nomor">-</span></div>
-                                                <div><strong>Tanggal:</strong> <span id="preview-ba-tanggal">-</span></div>
+                                            <!-- Preview Box -->
+                                            <div class="preview-doc-box">
+                                                <div class="preview-doc-box-title">
+                                                    Preview di Export:
+                                                </div>
+                                                <div class="preview-doc-box-content">
+                                                    <div><strong>Lampiran:</strong> <span id="preview-lampiran">-</span></div>
+                                                    <div><strong>Berita Acara Inventarisasi Aset Desa</strong></div>
+                                                    <div><strong>Nomor:</strong> <span id="preview-ba-nomor">-</span></div>
+                                                    <div><strong>Tanggal:</strong> <span id="preview-ba-tanggal">-</span></div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- Section 2: Atur TTD & Filter Tahun -->
-                        <div class="section-card" id="section-ttd-setup" style="display:none; margin-top: 20px;">
-                            <div class="section-header">
-                                <div class="section-header-icon green">
-                                    <i data-feather="users"></i>
-                                </div>
-                                <div class="section-header-title">
-                                    <h5>Atur Pejabat & Tanggal Export</h5>
-                                    <span>Konfigurasi pejabat dan filter tahun data untuk export</span>
-                                </div>
-                            </div>
-                            <div class="section-body">
-                                <div class="ttd-setup">
-                                    <!-- Filter Tahun -->
-                                    <div class="ttd-subsection">
-                                        <div class="ttd-subsection-title">
-                                            <i data-feather="calendar"></i>
-                                            Filter Tahun Perolehan
+                                <!-- Subsection: Atur Pejabat & Tanggal Export -->
+                                <div id="section-ttd-setup" style="display:none; margin-top: 24px;">
+                                    {{-- Divider antara Section Pilihan Format dan Atur Pejabat & Tanggal Export --}}
+                                    <hr class="sima-divider" style="margin: 0 0 24px 0 !important;" />
+                                    <div class="buku-inventaris-header" style="margin-bottom: 14px;">
+                                        <div class="buku-inventaris-header-content">
+                                            <span class="buku-inventaris-title">Atur Pejabat &amp; Tanggal Export</span>
+                                            <p class="buku-inventaris-desc">Konfigurasi pejabat dan filter tahun data untuk export</p>
                                         </div>
-                                        <div style="display: flex; gap: 12px; align-items: center;">
-                                            <input type="text" id="filter-tahun"
-                                                class="year-picker-export date-input-field"
-                                                placeholder="Pilih tahun"
-                                                value="{{ date('Y') }}"
-                                                inputmode="numeric" maxlength="4"
-                                                data-min-year="2000"
-                                                data-max-year="{{ date('Y') + 1 }}"
-                                                style="flex:1;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;outline:none;cursor:pointer;background:#f9fafb;">
-                                            <div class="data-info-badge" style="background: #dbeafe; color: #2563eb; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; white-space: nowrap;">
-                                                <span id="tahun-data-count">-</span> aset akan diexport
+                                    </div>
+                                    <div class="ttd-setup">
+                                        <!-- Filter Tahun -->
+                                        <div class="ttd-subsection">
+                                            <div class="ttd-subsection-title" id="filter-tahun-section-title">                                      
+                                                <span id="filter-tahun-title-text">Filter Tahun Perolehan</span>
+                                            </div>
+                                            <div class="filter-tahun-wrap">
+                                                <input type="text" id="filter-tahun"
+                                                    class="year-picker-export date-input-field"
+                                                    placeholder="Pilih tahun atau semua tahun"
+                                                    value="{{ date('Y') }}"
+                                                    readonly>
+                                                <div class="data-info-badge">
+                                                    <span id="tahun-data-count-text"><span id="tahun-data-count">-</span> aset akan diexport</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Pejabat Default -->
+                                        <div class="ttd-subsection" id="ttd-subsec-pejabat-default">
+                                            <div class="ttd-subsection-title">
+                                                <span id="default-pejabat-section-title">Penandatangan Saat Ini</span>
+                                            </div>
+                                            <div class="pejabat-display">
+                                                <span class="pejabat-display-label" id="default-pejabat-section-label">Penandatangan yang akan muncul di dokumen:</span>
+                                                <div class="pejabat-items" id="default-pejabat-list">
+                                                    <div class="pejabat-empty">Pilih jenis inventaris untuk melihat penandatangan</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Pejabat Pengganti -->
+                                        <div class="ttd-subsection" id="ttd-subsec-pejabat-custom">
+                                            <div class="ttd-subsection-title" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+                                                <span id="custom-pejabat-section-title">Ganti Penandatangan (Opsional)</span>
+                                                <button type="button" id="btn-custom-pejabat" class="btn-sima-primary" onclick="openCustomPejabatModal()" style="margin: 0; padding: 7px 18px; font-size: 12px; white-space: nowrap; flex-shrink: 0; width: auto; border-radius: var(--radius-full) !important;">
+                                                    Ganti Penandatangan
+                                                </button>
+                                            </div>
+                                            <div class="pejabat-display">
+                                                <span class="pejabat-display-label" id="custom-pejabat-section-label">Penandatangan pengganti untuk dokumen ini:</span>
+                                                <div class="pejabat-items" id="custom-pejabat-list">
+                                                    <div class="pejabat-empty">Belum diubah — menggunakan penandatangan default dari sistem.</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tanggal Dokumen -->
+                                        <div class="ttd-subsection" id="ttd-subsection-dokumen" style="margin-top: 24px;">
+                                            {{-- Divider antara Atur Pejabat & Tanggal Export dan Tanggal Dokumen --}}
+                                            <hr class="sima-divider" style="margin: 0 0 24px 0 !important;" />
+                                            <div class="buku-inventaris-header-content" style="margin-bottom: 10px;">
+                                                <span class="ttd-subsection-title" style="margin-bottom: 2px;">Tanggal Dokumen</span>
+                                                <p class="buku-inventaris-desc">Atur tanggal penerbitan yang akan dicantumkan pada dokumen export</p>
+                                            </div>
+                                            <div class="doc-flow-helper" id="doc-flow-helper-text" style="margin-bottom: 12px;">
+                                                <i data-feather="info"></i>
+                                                <span>Tanggal dokumen digunakan untuk mengisi informasi tanggal pada hasil export. Default adalah hari ini.</span>
+                                            </div>
+                                            <div class="date-input-group" style="padding-bottom: 16px;">
+                                                <label class="date-input-label">Tanggal Dokumen</label>
+                                                <input type="text" id="doc-tanggal" class="date-input-field" placeholder="Pilih tanggal dokumen">
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Pejabat Default -->
-                                    <div class="ttd-subsection" id="ttd-subsec-pejabat-default">
-                                        <div class="ttd-subsection-title">
-                                            <i data-feather="check"></i>
-                                            <span id="default-pejabat-section-title">Penandatangan Saat Ini</span>
-                                        </div>
-                                        <div class="pejabat-display">
-                                            <span class="pejabat-display-label" id="default-pejabat-section-label">Penandatangan yang akan muncul di dokumen:</span>
-                                            <div class="pejabat-items" id="default-pejabat-list">
-                                                <div class="pejabat-empty">Pilih jenis inventaris untuk melihat penandatangan</div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                </div>{{-- close #section-ttd-setup --}}
 
-                                     <!-- Pejabat Pengganti -->
-                                     <div class="ttd-subsection" id="ttd-subsec-pejabat-custom">
-                                         <div class="ttd-subsection-title">
-                                             <i data-feather="edit-3"></i>
-                                             <span id="custom-pejabat-section-title">Ganti Penandatangan (Opsional)</span>
-                                         </div>
-                                         <div class="pejabat-display">
-                                             <div class="pejabat-items" id="custom-pejabat-list">
-                                                 <div class="pejabat-empty">Belum diubah — menggunakan penandatangan default dari sistem.</div>
-                                             </div>
-                                             <div style="display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; margin-top: 14px; flex-wrap: wrap;">
-                                                 <button class="btn-action" id="btn-custom-pejabat" style="min-width: 220px; max-width: 340px; padding: 10px 24px; font-weight: 600; text-align: center; background: linear-gradient(135deg, #519259 0%, #064635 100%); color: #ffffff !important; border: none; box-shadow: 0 4px 12px rgba(6, 70, 53, 0.15); cursor: pointer;" onclick="openCustomPejabatModal()">
-                                                     + Ganti Penandatangan
-                                                 </button>
-                                                 <button class="btn-action" id="btn-reset-custom-pejabat" style="display: none; background: #fee2e2; color: #dc2626; border-color: #fca5a5; padding: 10px 18px; font-weight: 600; cursor: pointer;" onclick="resetCustomPejabat()">
-                                                     Reset Default
-                                                 </button>
-                                             </div>
-                                         </div>
-                                     </div>
-
-                                    <!-- Tanggal Dokumen -->
-                                    <div class="ttd-subsection" id="ttd-subsection-dokumen">
-                                        <div class="ttd-subsection-title">
-                                            <i data-feather="calendar"></i>
-                                            Tanggal Dokumen
-                                        </div>
-                                        <div class="doc-flow-helper" id="doc-flow-helper-text">
-                                            <i data-feather="info"></i>
-                                            Tanggal dokumen digunakan untuk mengisi informasi tanggal pada hasil export. Default adalah hari ini.
-                                        </div>
-                                        <div class="date-input-group">
-                                            <label class="date-input-label">Tanggal Dokumen</label>
-                                            <input type="text" id="doc-tanggal" class="date-input-field" placeholder="Pilih tanggal dokumen">
-                                        </div>
-                                        <div class="date-preview-box">
-                                            <div class="date-preview-label">Preview Tanggal:</div>
-                                            <div class="date-preview-text" id="date-preview">-</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Section 3: History Export -->
-                        <div class="history-card" id="history-section" style="display: block;">
-                            <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
-                                <div style="display:flex; align-items:center; gap:14px; min-width:0;">
-                                    <div class="section-header-icon orange">
-                                        <i data-feather="server"></i>
-                                    </div>
-                                    <div class="section-header-title">
-                                        <h5 id="history-title">Riwayat Export</h5>
-                                        <span id="history-subtitle">Riwayat lengkap export tersedia di halaman khusus dengan filter semua jenis atau per jenis inventaris.</span>
-                                    </div>
-                                </div>
-                                <a href="{{ route('export-data.history', ['from' => 'export_index']) }}" id="history-view-all-btn" class="btn-action" style="background: linear-gradient(135deg, #519259 0%, #064635 100%); color: #ffffff !important; white-space: nowrap;">
-                                    Lihat Semua Riwayat
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                            </div>{{-- close #section-pilih-jenis --}}
+                        </div>{{-- close .section-body --}}
+                    </div>{{-- close #section-pilih-tipe --}}
+                </div>{{-- close .export-main --}}
 
                     <!-- Right Sidebar: Export Options -->
                     <div class="export-sidebar">
                         <!-- Export Options -->
                         <div class="export-options-card" id="export-options-card">
-                            <div class="export-options-header">
-                                <h5 class="text-white">Opsi Export</h5>
-                            </div>
                             <div class="export-options-body">
                                 <!-- Format Selection -->
-                                <div>
-                                    <div style="font-size: 12px; font-weight: 600; color: #064635; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                                        <i data-feather="download" style="width: 14px; height: 14px;"></i>
-                                        Format File
+                                <div class="signature-label" style="padding-top:16px;">
+                                    Opsi Format File
+                                </div>
+                                <div class="format-options">
+                                    <div class="format-option">
+                                        <input type="radio" name="export-format" id="format-excel" value="excel" checked class="sr-only" style="display:none !important;">
+                                        <label for="format-excel">
+                                            <div class="format-info">
+                                                <div class="format-label">Excel</div>
+                                                <div class="format-desc">Format .xlsx</div>
+                                            </div>
+                                        </label>
                                     </div>
-                                    <div class="format-options">
-                                        <div class="format-option">
-                                            <input type="radio" name="export-format" id="format-excel" value="excel" checked>
-                                            <label for="format-excel">
-                                                <div class="format-icon excel">
-                                                    <i data-feather="file-minus"></i>
-                                                </div>
-                                                <div class="format-info">
-                                                    <div class="format-label">Excel</div>
-                                                    <div class="format-desc">Format .xlsx</div>
-                                                </div>
-                                            </label>
-                                        </div>
-                                        <div class="format-option">
-                                            <input type="radio" name="export-format" id="format-pdf" value="pdf">
-                                            <label for="format-pdf">
-                                                <div class="format-icon pdf">
-                                                    <i data-feather="file-text"></i>
-                                                </div>
-                                                <div class="format-info">
-                                                    <div class="format-label">PDF</div>
-                                                    <div class="format-desc">Format PDF</div>
-                                                </div>
-                                            </label>
-                                        </div>
+                                    <div class="format-option">
+                                        <input type="radio" name="export-format" id="format-pdf" value="pdf" class="sr-only" style="display:none !important;">
+                                        <label for="format-pdf">
+                                            <div class="format-info">
+                                                <div class="format-label">PDF</div>
+                                                <div class="format-desc">Format PDF</div>
+                                            </div>
+                                        </label>
                                     </div>
                                 </div>
 
                                 <!-- Signature Options -->
                                 <div class="signature-label">
-                                    <i data-feather="pen-tool"></i>
                                     Opsi Tanda Tangan
                                 </div>
                                 <div class="signature-options">
@@ -2284,40 +2518,36 @@
 
                                 <!-- Ukuran Kertas - hanya muncul saat format PDF dipilih -->
                                 <div id="paper-size-section" style="display:none;">
-                                    <div class="signature-label" style="margin-bottom:10px;">
-                                        <i data-feather="file" style="width:12px;height:12px;"></i>
+                                    <div class="signature-label">
                                         Ukuran Kertas
                                     </div>
-                                    <div style="display:flex;flex-direction:column;gap:8px;">
+                                    <div class="signature-options-group">
                                         <div class="signature-option">
-                                            <input type="radio" name="paper-size" id="paper-legal" value="legal" checked
-                                                   style="width:16px;height:16px;accent-color:#064635;cursor:pointer;">
-                                            <label for="paper-legal" style="cursor:pointer;flex:1;">
-                                                <span style="font-size:12px;font-weight:600;color:#1f2937;display:block;">Legal</span>
-                                                <span style="font-size:10px;color:#9ca3af;">8.5 &times; 14 in &nbsp;|&nbsp; 21.59 &times; 35.56 cm</span>
+                                            <input type="radio" name="paper-size" id="paper-legal" value="legal" checked>
+                                            <label for="paper-legal">
+                                                <span style="font-size:12.5px;font-weight:600;color:var(--color-text);display:block;">Legal</span>
+                                                <span style="font-size:11px;color:var(--color-text-muted);">8.5 &times; 14 in &nbsp;|&nbsp; 21.59 &times; 35.56 cm</span>
                                             </label>
                                         </div>
                                         <div class="signature-option">
-                                            <input type="radio" name="paper-size" id="paper-letter" value="letter"
-                                                   style="width:16px;height:16px;accent-color:#064635;cursor:pointer;">
-                                            <label for="paper-letter" style="cursor:pointer;flex:1;">
-                                                <span style="font-size:12px;font-weight:600;color:#1f2937;display:block;">Letter</span>
-                                                <span style="font-size:10px;color:#9ca3af;">8.5 &times; 11 in &nbsp;|&nbsp; 21.59 &times; 27.94 cm</span>
+                                            <input type="radio" name="paper-size" id="paper-letter" value="letter">
+                                            <label for="paper-letter">
+                                                <span style="font-size:12.5px;font-weight:600;color:var(--color-text);display:block;">Letter</span>
+                                                <span style="font-size:11px;color:var(--color-text-muted);">8.5 &times; 11 in &nbsp;|&nbsp; 21.59 &times; 27.94 cm</span>
                                             </label>
                                         </div>
                                         <div class="signature-option">
-                                            <input type="radio" name="paper-size" id="paper-f4" value="f4"
-                                                   style="width:16px;height:16px;accent-color:#064635;cursor:pointer;">
-                                            <label for="paper-f4" style="cursor:pointer;flex:1;">
-                                                <span style="font-size:12px;font-weight:600;color:#1f2937;display:block;">F4 / Folio</span>
-                                                <span style="font-size:10px;color:#9ca3af;">8.27 &times; 13 in &nbsp;|&nbsp; 21 &times; 33 cm</span>
+                                            <input type="radio" name="paper-size" id="paper-f4" value="f4">
+                                            <label for="paper-f4">
+                                                <span style="font-size:12.5px;font-weight:600;color:var(--color-text);display:block;">F4 / Folio</span>
+                                                <span style="font-size:11px;color:var(--color-text-muted);">8.27 &times; 13 in &nbsp;|&nbsp; 21 &times; 33 cm</span>
                                             </label>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Export Button -->
-                                <button class="export-action-btn" id="btn-preview-export" disabled>
+                                <button class="export-action-btn" id="btn-preview-export" style="margin-bottom:16px"disabled>
                                     <i data-feather="eye"></i>
                                     Preview Export
                                 </button>
@@ -2325,36 +2555,17 @@
                         </div>
 
                         <!-- Summary Card -->
-                        <div class="section-card">
+                        <div class="section-card export-summary-card" id="export-summary-card" style="display: none;">
                             <div class="section-header">
-                                <div class="section-header-icon blue">
-                                    <i data-feather="info"></i>
-                                </div>
-                                <div class="section-header-title">
+                                <div class="section-header-title" style="margin-top:16px;">
                                     <h5>Ringkasan Export</h5>
                                 </div>
                             </div>
-                            {{-- <div class="section-body">
-                                <div style="display: flex; flex-direction: column; gap: 12px; font-size: 12px;">
-                                    <div style="padding: 0; background: transparent; color: #0369a1;">
-                                        <strong style="background: #eff6ff; padding: 4px 8px; border-radius: 4px; display: inline-block;">Jenis:</strong> <span id="info-jenis">Pilih jenis</span>
-                                    </div>
-                                    <div style="padding: 0; background: transparent; color: #92400e;">
-                                        <strong style="background: #fef3c7; padding: 4px 8px; border-radius: 4px; display: inline-block;">Tahun:</strong> <span id="info-tahun">2025</span>
-                                    </div>
-                                    <div style="padding: 0; background: transparent; color: #15803d;">
-                                        <strong style="background: #f0fdf4; padding: 4px 8px; border-radius: 4px; display: inline-block;">Format:</strong> <span id="info-format">Excel (.xlsx)</span>
-                                    </div>
-                                    <div style="padding: 0; background: transparent; color: #7f1d1d;">
-                                        <strong style="background: #fecaca; padding: 4px 8px; border-radius: 4px; display: inline-block;">TTD:</strong> <span id="info-signature">Dengan Tanda Tangan</span>
-                                    </div>
-                                </div>
-                            </div> --}}
                             <div class="section-body">
                                 <div class="simple-info-list">
 
                                     <div class="simple-item">
-                                        <div class="simple-icon blue">
+                                        <div class="simple-icon">
                                             <i data-feather="book"></i>
                                         </div>
                                         <div class="simple-text">
@@ -2364,7 +2575,7 @@
                                     </div>
 
                                     <div class="simple-item">
-                                        <div class="simple-icon orange">
+                                        <div class="simple-icon">
                                             <i data-feather="calendar"></i>
                                         </div>
                                         <div class="simple-text">
@@ -2374,7 +2585,7 @@
                                     </div>
 
                                     <div class="simple-item">
-                                        <div class="simple-icon green">
+                                        <div class="simple-icon">
                                             <i data-feather="file-text"></i>
                                         </div>
                                         <div class="simple-text">
@@ -2383,8 +2594,8 @@
                                         </div>
                                     </div>
 
-                                    <div class="simple-item">
-                                        <div class="simple-icon red">
+                                    <div class="simple-item" style="margin-bottom:16px;">
+                                        <div class="simple-icon">
                                             <i data-feather="edit-3"></i>
                                         </div>
                                         <div class="simple-text">
@@ -2409,18 +2620,18 @@
                 </div>
                 <div class="modal-body">
                     {{-- Hint khusus Format 2 KIR - muncul/hilang via JS --}}
-                    <div id="kir-format2-hint" style="display:none; margin-bottom:14px; padding:14px 16px; background:linear-gradient(135deg,#eff6ff,#dbeafe); border:1px solid #93c5fd; border-radius:10px;">
-                        <div style="font-size:12px;font-weight:700;color:#1e40af;margin-bottom:10px;">
-                            Cara memilih penandatangan Format Desa Demo
+                    <div id="kir-format2-hint" style="display:none; margin-bottom:14px; padding:14px 16px; background:var(--color-primary-tint); border:1px solid var(--color-border); border-radius:var(--radius-sm);">
+                        <div style="font-size:12.5px;font-weight:700;color:var(--color-primary);margin-bottom:8px;">
+                            Cara memilih penandatangan Format Desa {{ config('desa.nama_lokasi', 'Demo') }}
                         </div>
-                        <div style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:#1e40af;line-height:1.6;">
+                        <div style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--color-text);line-height:1.6;">
                             <div>— Orang pertama yang anda centang menjadi <strong>Penanggung Jawab</strong></div>
                             <div>— Orang kedua yang anda centang menjadi <strong>Pengurus Barang</strong></div>
                             <div>— Pilih tepat <strong>2 orang</strong>. Perbekel sudah otomatis diisi sistem dan tidak perlu dipilih di sini.</div>
                         </div>
-                        <div id="kir-format2-hint-count" style="margin-top:10px;font-size:11px;font-weight:600;color:#1e40af;"></div>
+                        <div id="kir-format2-hint-count" style="margin-top:8px;font-size:11.5px;font-weight:600;color:var(--color-primary);"></div>
                     </div>
-                    <div class="pejabat-list" id="modal-pejabat-list" style="border: 1px solid #e2e8f0; border-radius: 10px; max-height: 300px; overflow-y: auto;">
+                    <div class="pejabat-list" id="modal-pejabat-list" style="border: 1px solid var(--color-border); border-radius: var(--radius-sm); max-height: 300px; overflow-y: auto; background: var(--color-surface);">
                         <!-- Populated by JS -->
                     </div>
                 </div>
@@ -2453,7 +2664,7 @@
                         </div>
                         <div class="preview-info-box">
                             <div class="preview-info-label">Tanggal Dokumen</div>
-                            <div class="preview-info-value" id="preview-date">Mengwi, -</div>
+                            <div class="preview-info-value" id="preview-date">Demo, -</div>
                         </div>
                     </div>
 
@@ -2473,12 +2684,12 @@
                         </div>
 
                         {{-- PDF preview --}}
-                        <div id="preview-wrapper-pdf" style="display:none; border-radius:6px; overflow:hidden; border:1px solid #e5e7eb;">
+                        <div id="preview-wrapper-pdf" style="display:none; border-radius:8px; overflow:hidden; border:1px solid #e5e7eb;">
                             <div class="excel-toolbar" style="background:#dc2626;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8" fill="none" stroke="white" stroke-width="2"/></svg>
                                 <span id="pdf-filename">export.pdf</span>
                             </div>
-                            <div id="pdf-preview-content" style="background:#f9fafb; max-height:260px; overflow-y:auto; padding:12px 16px;"></div>
+                            <div id="pdf-preview-content" style="background:#ffffff; max-height:360px; overflow-y:auto; overflow-x:auto; padding:16px 20px;"></div>
                         </div>
 
                         <div class="preview-signer-panel" id="preview-signer-panel" style="display:none !important;">
@@ -2504,33 +2715,54 @@
         <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 
         <script>
+            // ===== DATA DESA & KONFIGURASI DARI PHP =====
+            const desaConfig = {!! json_encode([
+                'nama_lokasi'    => strtoupper(config('desa.nama_lokasi') ?: (config('desa.desa_nama') ?: 'DEMO')),
+                'provinsi_nama'  => strtoupper(config('desa.provinsi_nama') ?: 'BALI'),
+                'kabupaten_nama' => strtoupper(config('desa.kabupaten_nama') ?: 'KABUPATEN DEMO'),
+                'kecamatan_nama' => strtoupper(config('desa.kecamatan_nama') ?: 'KECAMATAN DEMO'),
+                'desa_nama'      => strtoupper(config('desa.desa_nama') ?: (config('desa.nama_lokasi') ?: 'DEMO')),
+                'provinsi_kode'  => config('desa.provinsi_kode') ?: '51',
+                'kabupaten_kode' => config('desa.kabupaten_kode') ?: '03',
+                'kecamatan_kode' => config('desa.kecamatan_kode') ?: '06',
+                'kode_lokasi'    => config('desa.kode_lokasi') ?: '51.03.06.2002',
+                'upb'            => config('desa.upb') ?: 'PEMERINTAH DESA DEMO',
+            ]) !!};
+
             // ===== DATA DARI PHP =====
             const exportTypeOptions = [
                 {
-                    id: 'jenis',
-                    nama: 'Export Jenis Inventaris',
-                    deskripsi: 'Export per jenis atau semua jenis',
-                    icon: 'file-text',
-                    gradient: 'linear-gradient(135deg,#3b82f6 0%,#2563eb 100%)'
-                },
-                {
-                    id: 'ruangan',
-                    nama: 'Export Ruangan',
-                    deskripsi: 'Kartu Inventaris per Ruangan',
-                    icon: 'grid',
-                    gradient: 'linear-gradient(135deg,#10b981 0%,#059669 100%)'
+                    id: 'buku_inventaris_aset',
+                    nama: 'Buku Inventaris Desa',
+                    deskripsi: 'Rekapitulasi seluruh aset desa lengkap (KIB A s/d F)',
+                    icon: 'archive',
+                    gradient: 'linear-gradient(135deg,#1f3a2a 0%,#1c5240 100%)'
                 },
                 {
                     id: 'kib',
-                    nama: 'Export Buku Inventaris (KIB)',
-                    deskripsi: 'KIB A-F sesuai standar Permendagri',
+                    nama: 'Buku Inventaris (KIB)',
+                    deskripsi: 'Format standar KIB A (Tanah) s/d KIB F (KDP)',
                     icon: 'book-open',
                     gradient: 'linear-gradient(135deg,#f59e0b 0%,#d97706 100%)'
                 },
                 {
+                    id: 'ruangan',
+                    nama: 'Kartu Inventaris Ruangan (KIR)',
+                    deskripsi: 'Cetak KIR per ruangan kantor desa & unit kerja',
+                    icon: 'grid',
+                    gradient: 'linear-gradient(135deg,#10b981 0%,#059669 100%)'
+                },
+                {
+                    id: 'jenis',
+                    nama: 'Format Jenis Barang',
+                    deskripsi: 'Cetak format tabel khusus per kategori inventaris',
+                    icon: 'file-text',
+                    gradient: 'linear-gradient(135deg,#3b82f6 0%,#2563eb 100%)'
+                },
+                {
                     id: 'laporan',
-                    nama: 'Laporan Aset Per Semester / Tahunan',
-                    deskripsi: 'Saldo awal, mutasi, dan saldo akhir',
+                    nama: 'Laporan Periodik / Mutasi',
+                    deskripsi: 'Laporan saldo awal, mutasi penambahan, & saldo akhir',
                     icon: 'bar-chart-2',
                     gradient: 'linear-gradient(135deg,#8b5cf6 0%,#7c3aed 100%)'
                 }
@@ -2549,7 +2781,7 @@
                 'nama' => 'Semua Jenis',
                 'inventaris_count' => $jenisInventaris->sum('inventaris_count'),
                 'icon' => 'layers',
-                'color_gradient' => ['#064635', '#2d3a52']
+                'color_gradient' => ['#1f3a2a', '#2d3a52']
             ])->merge(collect($virtualJenis)->map(function($vJenis) {
                 // Handle array format dari virtual jenis
                 if (is_array($vJenis)) {
@@ -2570,7 +2802,7 @@
             const ruanganOptions = {!! json_encode(
                 $ruanganList->map(function($ruangan, $idx) {
                     $palette = [
-                        ['gradient' => 'linear-gradient(135deg,#064635 0%,#2d3a52 100%)', 'icon' => 'layers'],
+                        ['gradient' => 'linear-gradient(135deg,#1f3a2a 0%,#2d3a52 100%)', 'icon' => 'layers'],
                         ['gradient' => 'linear-gradient(135deg,#3b82f6 0%,#2563eb 100%)', 'icon' => 'home'],
                         ['gradient' => 'linear-gradient(135deg,#8b5cf6 0%,#7c3aed 100%)', 'icon' => 'briefcase'],
                         ['gradient' => 'linear-gradient(135deg,#f59e0b 0%,#d97706 100%)', 'icon' => 'book'],
@@ -2593,13 +2825,13 @@
                     'nama' => 'Semua Ruangan',
                     'deskripsi' => $ruanganList->count() . ' ruangan, ' . $ruanganList->sum('inventaris_count') . ' total aset',
                     'icon' => 'layers',
-                    'gradient' => 'linear-gradient(135deg,#064635 0%,#2d3a52 100%)',
+                    'gradient' => 'linear-gradient(135deg,#1f3a2a 0%,#2d3a52 100%)',
                 ])->values()
             ) !!};
 
             const kibOptions = {!! json_encode(
                 collect([
-                    ['id' => 'all', 'nama' => 'Semua KIB', 'deskripsi' => 'KIB A - E', 'icon' => 'layers', 'gradient' => 'linear-gradient(135deg,#064635,#1c5240)', 'disabled' => false],
+                    ['id' => 'all', 'nama' => 'Semua KIB', 'deskripsi' => 'KIB A - E', 'icon' => 'layers', 'gradient' => 'linear-gradient(135deg,#1f3a2a,#1c5240)', 'disabled' => false],
                 ])->merge(
                     $kibTypes->map(function($kib) {
                         $colors = [
@@ -2628,8 +2860,8 @@
             window.onKirFormatChange = function(radio) {
                 const stdLabel = document.getElementById('kir-format-standard-label');
                 const cstLabel = document.getElementById('kir-format-custom-label');
-                if (stdLabel) stdLabel.style.borderColor = radio.value === 'standard' ? '#064635' : '#e5e7eb';
-                if (cstLabel) cstLabel.style.borderColor = radio.value === 'custom'   ? '#064635' : '#e5e7eb';
+                if (stdLabel) stdLabel.style.borderColor = radio.value === 'standard' ? '#1f3a2a' : '#e5e7eb';
+                if (cstLabel) cstLabel.style.borderColor = radio.value === 'custom'   ? '#1f3a2a' : '#e5e7eb';
                 // Reset pilihan penandatangan karena format berubah (2 format punya penandatangan berbeda)
                 customPejabat = [];
                 customPejabatOrder = [];
@@ -2646,6 +2878,20 @@
             let selectedKib = null;
             let selectedExportType = null;
             let selectedJenisId = null;
+
+            window.selectExportTypeCard = function(id) {
+                document.querySelectorAll('#export-type-cards-container .export-type-card').forEach(card => {
+                    if (card.dataset.id === id) {
+                        card.classList.add('active');
+                    } else {
+                        card.classList.remove('active');
+                    }
+                });
+                const hiddenInput = document.getElementById('export_type_hidden');
+                if (hiddenInput) hiddenInput.value = id;
+                selectedExportType = id;
+                switchExportTab(id);
+            };
 
             // ===== RENDER DROPDOWN FUNCTIONS =====
             function renderExportTypeDropdown() {
@@ -2689,14 +2935,8 @@
                         const selectedData = exportTypeOptions.find(o => o.id === id);
                         if (selectedData) {
                             document.getElementById('export-type-selected-label').innerHTML = `
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <div style="width:24px;height:24px;border-radius:6px;background:${selectedData.gradient};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                        <i data-feather="${selectedData.icon}" style="width:12px;height:12px;color:#fff;stroke:#fff;"></i>
-                                    </div>
-                                    <span style="font-size:13px;font-weight:600;color:#1f2937;">${selectedData.nama}</span>
-                                </div>
+                                <span style="font-size:13px;font-weight:600;color:var(--color-text);">${selectedData.nama}</span>
                             `;
-                            if (typeof feather !== 'undefined') try { feather.replace(); } catch (e) {}
                         }
 
                         // Switch tab
@@ -2789,19 +3029,9 @@
                         // Update trigger label
                         const selectedData = jenisInventarisOptions.find(j => String(j.id) === String(id));
                         if (selectedData) {
-                            const colors = selectedData.color_gradient || ['#6b7280', '#4b5563'];
-                            const gradient = `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)`;
-                            const icon = selectedData.icon || 'box';
-
                             document.getElementById('jenis-selected-label').innerHTML = `
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <div style="width:24px;height:24px;border-radius:6px;background:${gradient};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                        <i data-feather="${icon}" style="width:12px;height:12px;color:#fff;stroke:#fff;"></i>
-                                    </div>
-                                    <span style="font-size:13px;font-weight:600;color:#1f2937;">${selectedData.nama}</span>
-                                </div>
+                                <span style="font-size:13px;font-weight:600;color:var(--color-text);">${selectedData.nama}</span>
                             `;
-                            if (typeof feather !== 'undefined') try { feather.replace(); } catch (e) {}
                         }
 
                         // Trigger existing logic (sama seperti klik radio button lama)
@@ -2923,13 +3153,7 @@
                         const sel = ruanganOptions.find(r => String(r.id) === String(id));
                         if (sel) {
                             document.getElementById('ruangan-selected-label').innerHTML = `
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <div style="width:24px;height:24px;border-radius:6px;background:${sel.gradient};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                        <i data-feather="${sel.icon}" style="width:12px;height:12px;color:#fff;stroke:#fff;"></i>
-                                    </div>
-                                    <span style="font-size:13px;font-weight:600;color:#1f2937;">${sel.nama}</span>
-                                </div>`;
-                            if (typeof feather !== 'undefined') try { feather.replace(); } catch(e) {}
+                                <span style="font-size:13px;font-weight:600;color:var(--color-text);">${sel.nama}</span>`;
                         }
 
                         updateUI(); updateUIForActiveTab(); loadDefaultPejabat(); updateDataCount();
@@ -3028,13 +3252,7 @@
                         const sel = kibOptions.find(k => String(k.id) === String(id));
                         if (sel) {
                             document.getElementById('kib-selected-label').innerHTML = `
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <div style="width:24px;height:24px;border-radius:6px;background:${sel.gradient};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                        <i data-feather="${sel.icon}" style="width:12px;height:12px;color:#fff;stroke:#fff;"></i>
-                                    </div>
-                                    <span style="font-size:13px;font-weight:600;color:#1f2937;">${sel.nama}</span>
-                                </div>`;
-                            if (typeof feather !== 'undefined') try { feather.replace(); } catch(e) {}
+                                <span style="font-size:13px;font-weight:600;color:var(--color-text);">${sel.nama}</span>`;
                         }
 
                         updateUI(); updateUIForActiveTab(); loadDefaultPejabat(); updateDataCount();
@@ -3154,13 +3372,7 @@
                         if (o.dataset.id === defaultOption.id) o.classList.add('selected');
                     });
                     document.getElementById('laporan-selected-label').innerHTML = `
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <div style="width:24px;height:24px;border-radius:6px;background:${defaultOption.gradient};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <i data-feather="${defaultOption.icon}" style="width:12px;height:12px;color:#fff;stroke:#fff;"></i>
-                            </div>
-                            <span style="font-size:13px;font-weight:600;color:#1f2937;">${defaultOption.nama}</span>
-                        </div>`;
-                    if (typeof feather !== 'undefined') try { feather.replace(); } catch(e) {}
+                        <span style="font-size:13px;font-weight:600;color:var(--color-text);">${defaultOption.nama}</span>`;
                 }
 
                 optionsList.querySelectorAll('.dropdown-option-item').forEach(item => {
@@ -3175,13 +3387,7 @@
                         const sel = laporanPeriodeOptions.find(l => String(l.id) === String(id));
                         if (sel) {
                             document.getElementById('laporan-selected-label').innerHTML = `
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <div style="width:24px;height:24px;border-radius:6px;background:${sel.gradient};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                        <i data-feather="${sel.icon}" style="width:12px;height:12px;color:#fff;stroke:#fff;"></i>
-                                    </div>
-                                    <span style="font-size:13px;font-weight:600;color:#1f2937;">${sel.nama}</span>
-                                </div>`;
-                            if (typeof feather !== 'undefined') try { feather.replace(); } catch(e) {}
+                                <span style="font-size:13px;font-weight:600;color:var(--color-text);">${sel.nama}</span>`;
                         }
 
                         updateUI(); updateUIForActiveTab(); loadDefaultPejabat(); updateDataCount();
@@ -3247,13 +3453,7 @@
                     const labelEl = document.getElementById('laporan-selected-label');
                     if (labelEl) {
                         labelEl.innerHTML = `
-                            <div style="display:flex;align-items:center;gap:10px;">
-                                <div style="width:24px;height:24px;border-radius:6px;background:${sel.gradient};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                    <i data-feather="${sel.icon}" style="width:12px;height:12px;color:#fff;stroke:#fff;"></i>
-                                </div>
-                                <span style="font-size:13px;font-weight:600;color:#1f2937;">${sel.nama}</span>
-                            </div>`;
-                        if (typeof feather !== 'undefined') try { feather.replace(); } catch(e) {}
+                            <span style="font-size:13px;font-weight:600;color:var(--color-text);">${sel.nama}</span>`;
                     }
                 }
                 const optionsList = document.getElementById('laporan-dropdown-options-list');
@@ -3270,6 +3470,116 @@
                 updateUI();
             }
 
+            function renderBukuInventarisDropdown() {
+                const optionsList = document.getElementById('buku-inventaris-dropdown-options-list');
+                const trigger     = document.getElementById('buku-inventaris-dropdown-trigger');
+                const menu        = document.getElementById('buku-inventaris-dropdown-menu');
+                const searchInput = document.getElementById('buku-inventaris-dropdown-search');
+                const container   = document.getElementById('buku-inventaris-dropdown-container');
+                const hiddenInput = document.getElementById('buku_inventaris_periode_hidden');
+
+                if (!optionsList || !laporanPeriodeOptions || laporanPeriodeOptions.length === 0) return;
+
+                optionsList.innerHTML = laporanPeriodeOptions.map(l => `
+                    <li class="dropdown-option-item" data-id="${l.id}" data-search="${l.nama.toLowerCase()}">
+                        <div class="dropdown-option-icon" style="background: ${l.gradient};">
+                            <i data-feather="${l.icon}"></i>
+                        </div>
+                        <div class="dropdown-option-text">
+                            <div class="dropdown-option-name">${l.nama}</div>
+                            <div class="dropdown-option-desc">${l.deskripsi}</div>
+                        </div>
+                    </li>
+                `).join('');
+
+                if (typeof feather !== 'undefined') try { feather.replace(); } catch(e) {}
+
+                // Default selection
+                const defaultOption = laporanPeriodeOptions.find(o => o.id === (hiddenInput?.value || 'tahunan'));
+                if (defaultOption) {
+                    optionsList.querySelectorAll('.dropdown-option-item').forEach(o => {
+                        if (o.dataset.id === defaultOption.id) o.classList.add('selected');
+                    });
+                    const labelEl = document.getElementById('buku-inventaris-selected-label');
+                    if (labelEl) {
+                        labelEl.innerHTML = `
+                            <span style="font-size:13px;font-weight:600;color:var(--color-text);">${defaultOption.nama}</span>`;
+                    }
+                }
+
+                optionsList.querySelectorAll('.dropdown-option-item').forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        optionsList.querySelectorAll('.dropdown-option-item').forEach(o => o.classList.remove('selected'));
+                        this.classList.add('selected');
+
+                        const id = this.dataset.id;
+                        if (hiddenInput) hiddenInput.value = id;
+
+                        const sel = laporanPeriodeOptions.find(l => String(l.id) === String(id));
+                        if (sel) {
+                            const labelEl = document.getElementById('buku-inventaris-selected-label');
+                            if (labelEl) {
+                                labelEl.innerHTML = `
+                                    <span style="font-size:13px;font-weight:600;color:var(--color-text);">${sel.nama}</span>`;
+                            }
+                        }
+
+                        updateUI(); updateUIForActiveTab(); loadDefaultPejabat(); updateDataCount();
+                        menu.classList.remove('show');
+                        container.classList.remove('open');
+                    });
+                });
+
+                if (trigger) {
+                    trigger.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const isOpen = menu.classList.contains('show');
+                        document.querySelectorAll('.dropdown-menu-panel').forEach(m => { if (m !== menu) m.classList.remove('show'); });
+                        document.querySelectorAll('.searchable-dropdown').forEach(c => { if (c !== container) c.classList.remove('open'); });
+                        if (!isOpen) {
+                            menu.classList.add('show');
+                            container.classList.add('open');
+                            if (searchInput) { searchInput.value = ''; searchInput.dispatchEvent(new Event('input')); setTimeout(() => searchInput.focus(), 50); }
+                        } else {
+                            menu.classList.remove('show');
+                            container.classList.remove('open');
+                        }
+                    });
+                }
+
+                if (searchInput) {
+                    searchInput.addEventListener('input', function() {
+                        const q = this.value.toLowerCase().trim();
+                        let hasVisible = false;
+                        optionsList.querySelectorAll('.dropdown-option-item').forEach(item => {
+                            const match = (item.dataset.search || '').includes(q);
+                            item.style.display = match ? 'flex' : 'none';
+                            if (match) hasVisible = true;
+                        });
+                        let emptyMsg = optionsList.querySelector('.dropdown-empty-search');
+                        if (!hasVisible) {
+                            if (!emptyMsg) {
+                                emptyMsg = document.createElement('div');
+                                emptyMsg.className = 'dropdown-empty-search';
+                                emptyMsg.style.cssText = 'padding:16px;text-align:center;color:#9ca3af;font-size:12px;';
+                                emptyMsg.textContent = 'Tidak ada periode yang cocok.';
+                                optionsList.appendChild(emptyMsg);
+                            }
+                        } else if (emptyMsg) { emptyMsg.remove(); }
+                    });
+                }
+
+                const closeBukuInvDropdown = function(e) {
+                    if (!container.contains(e.target)) {
+                        menu.classList.remove('show');
+                        container.classList.remove('open');
+                    }
+                };
+                document.removeEventListener('click', closeBukuInvDropdown);
+                document.addEventListener('click', closeBukuInvDropdown);
+            }
+
             function switchExportTab(tab) {
                 activeExportTab = tab;
 
@@ -3279,24 +3589,22 @@
                 const filterTahunInput = document.getElementById('filter-tahun');
                 if (filterTahunInput) {
                     filterTahunInput.value = defaultTahun;
+                    filterTahunInput.placeholder = (tab === 'laporan' || tab === 'buku_inventaris_aset') ? 'Pilih tahun laporan' : 'Pilih tahun atau semua tahun';
                     if (filterTahunInput._flatpickr) {
                         filterTahunInput._flatpickr.setDate(defaultTahun + '-01-01', false);
                     }
                 }
 
-                // Tampilkan section pilih jenis/ruangan dan TTD
-                const sectionPilih = document.getElementById('section-pilih-jenis');
-                const sectionTtd   = document.getElementById('section-ttd-setup');
-                const sectionDokumen = document.getElementById('section-dokumen-info');
-                if (sectionPilih) sectionPilih.style.display = '';
-                // Selalu tampilkan section TTD untuk semua tab
-                if (sectionTtd)   sectionTtd.style.display   = '';
-                // Section Dokumen Info hanya untuk tab 'jenis'
-                if (sectionDokumen) {
-                    sectionDokumen.style.display = (tab === 'jenis') ? '' : 'none';
+                const filterTahunTitle = document.getElementById('filter-tahun-title-text');
+                if (filterTahunTitle) {
+                    filterTahunTitle.textContent = (tab === 'laporan' || tab === 'buku_inventaris_aset') ? 'Tahun Laporan' : 'Filter Tahun Perolehan';
                 }
 
-                // Untuk laporan aset: sembunyikan subsection pejabat, tampilkan hanya filter tahun
+                // Tampilkan section pilih jenis/ruangan
+                const sectionPilih = document.getElementById('section-pilih-jenis');
+                if (sectionPilih) sectionPilih.style.display = '';
+
+                // Untuk laporan aset & buku inventaris: sembunyikan subsection pejabat custom jika tidak diperlukan
                 const subsecPejabatDefault = document.getElementById('ttd-subsec-pejabat-default');
                 const subsecPejabatCustom  = document.getElementById('ttd-subsec-pejabat-custom');
                 const subsecTtdOptions     = document.getElementById('ttd-subsec-ttd-options');
@@ -3306,6 +3614,11 @@
                     if (subsecPejabatCustom)  subsecPejabatCustom.style.display  = 'none';
                     if (subsecTtdOptions)     subsecTtdOptions.style.display     = 'none';
                     if (subsecDocDate)        subsecDocDate.style.display        = 'none';
+                } else if (tab === 'buku_inventaris_aset') {
+                    if (subsecPejabatDefault) subsecPejabatDefault.style.display = 'none';
+                    if (subsecPejabatCustom)  subsecPejabatCustom.style.display  = 'none';
+                    if (subsecTtdOptions)     subsecTtdOptions.style.display     = '';
+                    if (subsecDocDate)        subsecDocDate.style.display        = '';
                 } else {
                     if (subsecPejabatDefault) subsecPejabatDefault.style.display = '';
                     if (subsecPejabatCustom)  subsecPejabatCustom.style.display  = '';
@@ -3314,24 +3627,38 @@
                 }
 
                 // Show/hide konten di dalam section yang sama
-                const contentJenis   = document.getElementById('content-jenis');
-                const contentRuangan = document.getElementById('content-ruangan');
-                const contentKib     = document.getElementById('content-kib');
-                const contentLaporan = document.getElementById('content-laporan');
-                if (contentJenis)   contentJenis.style.display   = tab === 'jenis'   ? '' : 'none';
-                if (contentRuangan) contentRuangan.style.display = tab === 'ruangan' ? '' : 'none';
-                if (contentKib)     contentKib.style.display     = tab === 'kib'     ? '' : 'none';
-                if (contentLaporan) contentLaporan.style.display = tab === 'laporan' ? '' : 'none';
+                const contentJenis          = document.getElementById('content-jenis');
+                const contentRuangan        = document.getElementById('content-ruangan');
+                const contentKib            = document.getElementById('content-kib');
+                const contentLaporan        = document.getElementById('content-laporan');
+                const contentBukuInventaris = document.getElementById('content-buku-inventaris-aset');
+                if (contentJenis)          contentJenis.style.display          = tab === 'jenis'                ? '' : 'none';
+                if (contentRuangan)        contentRuangan.style.display        = tab === 'ruangan'              ? '' : 'none';
+                if (contentKib)            contentKib.style.display            = tab === 'kib'                  ? '' : 'none';
+                if (contentLaporan)        contentLaporan.style.display        = tab === 'laporan'              ? '' : 'none';
+                if (contentBukuInventaris) contentBukuInventaris.style.display = tab === 'buku_inventaris_aset' ? '' : 'none';
 
                 // Update header section title
                 const sectionTitle = document.querySelector('#section-pilih-jenis .section-header-title h5');
                 const sectionSub   = document.querySelector('#section-pilih-jenis .section-header-title span');
-                const titles = { jenis: 'Pilih Jenis Inventaris', ruangan: 'Pilih Ruangan', kib: 'Pilih KIB', laporan: 'Pilih Periode Laporan' };
-                const subs   = { jenis: 'Pilih jenis inventaris yang akan diekspor', ruangan: 'Pilih ruangan yang akan diekspor', kib: 'Pilih Buku Inventaris Aset Desa yang akan diekspor', laporan: 'Pilih tahun dan periode untuk laporan aset' };
+                const titles = {
+                    jenis: 'Pilih Jenis Inventaris',
+                    ruangan: 'Pilih Ruangan',
+                    kib: 'Pilih KIB',
+                    buku_inventaris_aset: 'Buku Inventaris Aset Desa',
+                    laporan: 'Pilih Periode Laporan'
+                };
+                const subs = {
+                    jenis: 'Pilih jenis inventaris yang akan diekspor',
+                    ruangan: 'Pilih ruangan yang akan diekspor',
+                    kib: 'Pilih Kartu Inventaris Barang (KIB) yang akan diekspor',
+                    buku_inventaris_aset: 'Export rekapitulasi seluruh aset desa (KIB A-F)',
+                    laporan: 'Pilih tahun dan periode untuk laporan aset'
+                };
                 if (sectionTitle) sectionTitle.textContent = titles[tab] || titles.jenis;
                 if (sectionSub)   sectionSub.textContent   = subs[tab]   || subs.jenis;
 
-                // Update icon & warna section header - selalu netral (list + gelap), tidak sama dengan option card
+                // Update icon & warna section header - selalu netral (list + gelap)
                 const sectionIcon = document.getElementById('section-pilih-icon');
                 const sectionIconEl = document.getElementById('section-pilih-icon-el');
                 if (sectionIcon) {
@@ -3347,20 +3674,18 @@
                     selectedKib = null;
                     selectedJenisId = null;
                     document.getElementById('jenis_inventaris_id_hidden').value = '';
-                    document.getElementById('jenis-selected-label').innerHTML = '<span style="color:#9ca3af;font-size:13px;font-weight:500;">-- Pilih Jenis Inventaris --</span>';
-                    // ruangan-selected radio removed (now using dropdown)
+                    document.getElementById('jenis-selected-label').innerHTML = '<span style="color:#9ca3af;font-size:13px;font-weight:500;">Pilih Jenis Inventaris</span>';
                 } else if (tab === 'ruangan') {
                     selectedJenisId = null;
                     selectedKib = null;
                     selectedRuangan = null;
                     document.getElementById('jenis_inventaris_id_hidden').value = '';
-                    document.getElementById('jenis-selected-label').innerHTML = '<span style="color:#9ca3af;font-size:13px;font-weight:500;">-- Pilih Jenis Inventaris --</span>';
+                    document.getElementById('jenis-selected-label').innerHTML = '<span style="color:#9ca3af;font-size:13px;font-weight:500;">Pilih Jenis Inventaris</span>';
                     const rHidden = document.getElementById('ruangan_id_hidden');
                     const rLabel  = document.getElementById('ruangan-selected-label');
                     if (rHidden) rHidden.value = '';
-                    if (rLabel)  rLabel.innerHTML = '<span style="color:#9ca3af;font-size:13px;font-weight:500;">-- Pilih Ruangan --</span>';
+                    if (rLabel)  rLabel.innerHTML = '<span style="color:#9ca3af;font-size:13px;font-weight:500;">Pilih Ruangan</span>';
                     document.querySelectorAll('#ruangan-dropdown-options-list .dropdown-option-item').forEach(o => o.classList.remove('selected'));
-                    // Sembunyikan format KIR saat ruangan di-reset
                     const kfs = document.getElementById('kir-format-section');
                     if (kfs) kfs.style.display = 'none';
                 } else if (tab === 'kib') {
@@ -3368,33 +3693,23 @@
                     selectedRuangan = null;
                     selectedKib = null;
                     document.getElementById('jenis_inventaris_id_hidden').value = '';
-                    document.getElementById('jenis-selected-label').innerHTML = '<span style="color:#9ca3af;font-size:13px;font-weight:500;">-- Pilih Jenis Inventaris --</span>';
+                    document.getElementById('jenis-selected-label').innerHTML = '<span style="color:#9ca3af;font-size:13px;font-weight:500;">Pilih Jenis Inventaris</span>';
                     const kHidden = document.getElementById('kib_type_hidden');
                     const kLabel  = document.getElementById('kib-selected-label');
                     if (kHidden) kHidden.value = '';
-                    if (kLabel)  kLabel.innerHTML = '<span style="color:#9ca3af;font-size:13px;font-weight:500;">-- Pilih KIB --</span>';
+                    if (kLabel)  kLabel.innerHTML = '<span style="color:#9ca3af;font-size:13px;font-weight:500;">Pilih KIB</span>';
                     document.querySelectorAll('#kib-dropdown-options-list .dropdown-option-item').forEach(o => o.classList.remove('selected'));
-                } else if (tab === 'laporan') {
+                } else if (tab === 'laporan' || tab === 'buku_inventaris_aset') {
                     selectedJenisId = null;
                     selectedRuangan = null;
                     selectedKib = null;
                     document.getElementById('jenis_inventaris_id_hidden').value = '';
-                    document.getElementById('jenis-selected-label').innerHTML = '<span style="color:#9ca3af;font-size:13px;font-weight:500;">-- Pilih Jenis Inventaris --</span>';
-                    // ruangan-selected radio removed (now using dropdown)
-                }
-
-                // Scroll ke section pilih data (bukan ke TTD)
-                if (sectionPilih) {
-                    setTimeout(() => {
-                        sectionPilih.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 350);
+                    document.getElementById('jenis-selected-label').innerHTML = '<span style="color:#9ca3af;font-size:13px;font-weight:500;">Pilih Jenis Inventaris</span>';
                 }
 
                 updateUI();
                 loadDefaultPejabat();
-                // Update label Pejabat Custom sesuai tab
                 updateCustomPejabatLabels();
-                // Reset pilihan penandatangan saat pindah tab (konteks berbeda)
                 customPejabat = [];
                 customPejabatOrder = [];
                 renderCustomPejabatList();
@@ -3416,6 +3731,15 @@
                     previewBtn.innerHTML = '<i data-feather="eye" style="width:16px;height:16px;"></i> Preview Export KIB';
                     const kibLabel = selectedKib === 'all' ? 'Semua KIB' : (selectedKib ? 'KIB ' + selectedKib : 'Pilih KIB');
                     document.getElementById('info-jenis').textContent = kibLabel;
+                    if (typeof feather !== 'undefined') feather.replace();
+                } else if (activeExportTab === 'buku_inventaris_aset') {
+                    previewBtn.disabled = false;
+                    previewBtn.innerHTML = '<i data-feather="eye" style="width:16px;height:16px;"></i> Preview Buku Inventaris';
+                    const tahunVal = selectedTahun;
+                    const periode = document.getElementById('buku_inventaris_periode_hidden')?.value || 'tahunan';
+                    const selP = laporanPeriodeOptions.find(o => o.id === periode);
+                    const periodeLabel = selP ? selP.nama : 'Per Tahun';
+                    document.getElementById('info-jenis').textContent = 'Buku Inventaris Aset ' + periodeLabel + ' ' + tahunVal;
                     if (typeof feather !== 'undefined') feather.replace();
                 } else if (activeExportTab === 'laporan') {
                     previewBtn.disabled = false;
@@ -3883,6 +4207,11 @@
                     const panel = document.createElement('div');
                     panel.className = 'year-picker-panel';
                     panel.innerHTML = `
+                        <div style="margin-bottom: 8px; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">
+                            <button type="button" class="year-picker-all-btn" id="btn-year-picker-all" style="width:100%;padding:8px 12px;border:1.5px solid #1f3a2a;border-radius: var(--radius-full);background:#ecfdf5;color:#1f3a2a;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;transition:all 0.15s;">
+                                <span>Semua Tahun (Seluruh Data)</span>
+                            </button>
+                        </div>
                         <div class="year-picker-header">
                             <button type="button" class="year-picker-nav" data-nav="prev">&lsaquo;</button>
                             <span class="year-picker-range"></span>
@@ -3898,10 +4227,22 @@
                         grid:  panel.querySelector('.year-picker-grid'),
                         prev:  panel.querySelector('[data-nav="prev"]'),
                         next:  panel.querySelector('[data-nav="next"]'),
+                        allBtn: panel.querySelector('#btn-year-picker-all'),
                         pageStart: Math.max(minYear, maxYear - 11),
-                        selectedYear: parseInt(input.value) || new Date().getFullYear(),
+                        selectedYear: selectedTahun === 'all' ? 'all' : (parseInt(input.value) || new Date().getFullYear()),
                     };
                     cal._exportYearState = state;
+
+                    state.allBtn.addEventListener('click', function(ev) {
+                        ev.stopPropagation();
+                        state.selectedYear = 'all';
+                        input.value = 'Semua Tahun';
+                        selectedTahun = 'all';
+                        instance.close();
+                        updateUI();
+                        updateDataCount();
+                        renderExportYearGrid(instance, state, minYear, maxYear);
+                    });
 
                     state.prev.addEventListener('click', function(ev) {
                         ev.stopPropagation();
@@ -3932,6 +4273,22 @@
                 }
 
                 function renderExportYearGrid(instance, state, minYear, maxYear) {
+                    if (state.allBtn) {
+                        if (activeExportTab === 'laporan' || activeExportTab === 'buku_inventaris_aset') {
+                            state.allBtn.style.display = 'none';
+                        } else {
+                            state.allBtn.style.display = '';
+                            if (selectedTahun === 'all' || input.value === 'Semua Tahun') {
+                                state.allBtn.style.background = '#1f3a2a';
+                                state.allBtn.style.color = '#ffffff';
+                                state.allBtn.style.borderColor = '#1f3a2a';
+                            } else {
+                                state.allBtn.style.background = '#ecfdf5';
+                                state.allBtn.style.color = '#1f3a2a';
+                                state.allBtn.style.borderColor = '#1f3a2a';
+                            }
+                        }
+                    }
                     const start = state.pageStart;
                     const end   = Math.min(start + 11, maxYear);
                     state.range.textContent = start + ' - ' + end;
@@ -3939,7 +4296,7 @@
                     state.next.disabled = end >= maxYear;
                     let html = '';
                     for (let y = start; y <= end; y++) {
-                        const active = y === state.selectedYear ? ' active' : '';
+                        const active = (selectedTahun !== 'all' && y === state.selectedYear) ? ' active' : '';
                         html += `<button type="button" class="year-picker-option${active}" data-year="${y}">${y}</button>`;
                     }
                     state.grid.innerHTML = html;
@@ -3947,7 +4304,7 @@
 
                 flatpickr(input, {
                     dateFormat: 'Y',
-                    defaultDate: input.value ? input.value + '-01-01' : null,
+                    defaultDate: input.value && input.value !== 'Semua Tahun' ? input.value + '-01-01' : null,
                     disableMobile: true,
                     allowInput: false,
                     onReady: function(_, __, instance) { ensureYearPanel(instance); },
@@ -3956,6 +4313,12 @@
 
                 // Sync manual input
                 input.addEventListener('change', function() {
+                    if (this.value === 'Semua Tahun' || this.value === 'all') {
+                        selectedTahun = 'all';
+                        updateUI();
+                        updateDataCount();
+                        return;
+                    }
                     const y = parseInt(this.value);
                     if (y >= minYear && y <= maxYear) {
                         selectedTahun = y;
@@ -3968,6 +4331,9 @@
             function canAccessDocumentOptions() {
                 // Tab KIB: tanggal dokumen aktif jika KIB sudah dipilih
                 if (activeExportTab === 'kib') return !!selectedKib;
+
+                // Tab buku_inventaris_aset: tanggal dokumen selalu aktif
+                if (activeExportTab === 'buku_inventaris_aset') return true;
 
                 // Tab ruangan: tanggal dokumen aktif, default hari ini, bisa diubah
                 if (activeExportTab === 'ruangan') return !!selectedRuangan;
@@ -4019,7 +4385,7 @@
 
             // Trigger kalender juga saat klik field (bukan hanya icon)
             dateInput.addEventListener('click', function() {
-                const hasSelection = activeExportTab === 'ruangan' ? !!selectedRuangan : (activeExportTab === 'kib' ? !!selectedKib : !!selectedJenisId);
+                const hasSelection = activeExportTab === 'ruangan' ? !!selectedRuangan : (activeExportTab === 'kib' ? !!selectedKib : (activeExportTab === 'buku_inventaris_aset' || activeExportTab === 'laporan' ? true : !!selectedJenisId));
                 if (!hasSelection || this.disabled) return;
                 this.focus();
                 if (docDatePicker && typeof docDatePicker.open === 'function') {
@@ -4053,11 +4419,11 @@
 
                 if (btnEl) {
                     if (isKirFormat2) {
-                        btnEl.textContent = '+ Ganti Penanggung Jawab / Pengurus Barang';
+                        btnEl.textContent = 'Ganti Penanggung Jawab / Pengurus Barang';
                     } else if (isRuangan) {
-                        btnEl.textContent = '+ Ganti Pengurus Barang';
+                        btnEl.textContent = 'Ganti Pengurus Barang';
                     } else {
-                        btnEl.textContent = '+ Ganti Penandatangan';
+                        btnEl.textContent = 'Ganti Penandatangan';
                     }
                 }
 
@@ -4084,15 +4450,17 @@
                         : 'Belum diubah — menggunakan penandatangan default dari sistem.');
 
                 const finalEmpty = emptyText || defaultEmptyText;
-                const resetBtn = document.getElementById('btn-reset-custom-pejabat');
                 if (customPejabat.length > 0) {
-                    if (resetBtn) resetBtn.style.display = 'inline-flex';
                     customList.innerHTML = customPejabat.map((p, idx) => {
-                        // Untuk Format 2: tampilkan label posisi di card
+                        // Untuk Format 2 & KIB: tampilkan label posisi di card
                         let posLabel = '';
                         if (isKirFormat2) {
-                            posLabel = idx === 0 ? '<span style="font-size:10px;font-weight:700;color:#064635;background:#e8ecf4;padding:1px 7px;border-radius:6px;margin-left:6px;">Penanggung Jawab</span>'
-                                     : idx === 1 ? '<span style="font-size:10px;font-weight:700;color:#064635;background:#e8ecf4;padding:1px 7px;border-radius:6px;margin-left:6px;">Pengurus Barang</span>'
+                            posLabel = idx === 0 ? '<span style="font-size:10px;font-weight:700;color:#1f3a2a;background:#e8ecf4;padding:1px 7px;border-radius:6px;margin-left:6px;">Penanggung Jawab</span>'
+                                     : idx === 1 ? '<span style="font-size:10px;font-weight:700;color:#1f3a2a;background:#e8ecf4;padding:1px 7px;border-radius:6px;margin-left:6px;">Pengurus Barang</span>'
+                                     : '';
+                        } else if (activeExportTab === 'kib') {
+                            posLabel = idx === 0 ? '<span style="font-size:10px;font-weight:700;color:#1f3a2a;background:#e8ecf4;padding:1px 7px;border-radius:6px;margin-left:6px;">Mengetahui (Kiri)</span>'
+                                     : idx === 1 ? '<span style="font-size:10px;font-weight:700;color:#1f3a2a;background:#e8ecf4;padding:1px 7px;border-radius:6px;margin-left:6px;">Petugas Barang (Kanan)</span>'
                                      : '';
                         }
                         return `
@@ -4109,7 +4477,6 @@
                         `;
                     }).join('');
                 } else {
-                    if (resetBtn) resetBtn.style.display = 'none';
                     customList.innerHTML = `<div class="pejabat-empty">${finalEmpty}</div>`;
                 }
             }
@@ -4350,43 +4717,74 @@
             // Update data count for selected year and jenis (AJAX)
             function updateDataCount() {
                 const el = document.getElementById('tahun-data-count');
+                const badge = document.getElementById('tahun-data-count-text');
                 if (activeExportTab === 'ruangan') {
-                    if (!selectedRuangan) { el.textContent = '-'; currentDataCount = 0; return; }
-                    el.textContent = '...';
+                    if (!selectedRuangan) { 
+                        if (el) el.textContent = '-'; 
+                        if (badge) badge.innerHTML = `<span id="tahun-data-count">-</span> aset akan diexport`;
+                        currentDataCount = 0; 
+                        return; 
+                    }
+                    if (el) el.textContent = '...';
                     const param = selectedRuangan === 'all' ? 'all' : selectedRuangan;
                     fetch(`{{ route('export-data.ruangan-count') }}?ruangan_id=${param}&tahun=${selectedTahun}`)
                         .then(r => r.json())
-                        .then(data => { currentDataCount = data.count || 0; el.textContent = currentDataCount; })
-                        .catch(() => { el.textContent = '-'; currentDataCount = 0; });
+                        .then(data => { 
+                            currentDataCount = data.count || 0; 
+                            if (el) el.textContent = currentDataCount; 
+                            if (badge) badge.innerHTML = `<span id="tahun-data-count">${currentDataCount}</span> aset akan diexport`;
+                        })
+                        .catch(() => { 
+                            if (el) el.textContent = '-'; 
+                            if (badge) badge.innerHTML = `<span id="tahun-data-count">-</span> aset akan diexport`;
+                            currentDataCount = 0; 
+                        });
                     return;
                 }
                 if (activeExportTab === 'kib') {
-                    if (!selectedKib) { el.textContent = '-'; currentDataCount = 0; return; }
-                    // Ambil count dari array kibOptions
-                    const kibItem = kibOptions.find(k => String(k.id) === String(selectedKib));
-                    if (kibItem) {
-                        if (selectedKib === 'all') {
-                            let total = 0;
-                            kibOptions.forEach(k => {
-                                if (k.id !== 'all' && !k.disabled) {
-                                    const match = k.deskripsi.match(/\d+/);
-                                    if (match) total += parseInt(match[0]);
-                                }
-                            });
-                            currentDataCount = total;
-                        } else {
-                            const match = kibItem.deskripsi.match(/\d+/);
-                            currentDataCount = match ? parseInt(match[0]) : 0;
-                        }
-                        el.textContent = currentDataCount;
-                    } else {
-                        el.textContent = '-';
-                        currentDataCount = 0;
+                    if (!selectedKib) { 
+                        if (el) el.textContent = '-'; 
+                        if (badge) badge.innerHTML = `<span id="tahun-data-count">-</span> aset akan diexport`;
+                        currentDataCount = 0; 
+                        return; 
                     }
+                    if (el) el.textContent = '...';
+                    const kibParam = selectedKib === 'all' ? 'all' : selectedKib;
+                    fetch(`{{ route('export-data.kib-count') }}?kib_type=${kibParam}&tahun=${selectedTahun}`)
+                        .then(r => r.json())
+                        .then(data => { 
+                            currentDataCount = data.count || 0; 
+                            if (el) el.textContent = currentDataCount; 
+                            if (badge) badge.innerHTML = `<span id="tahun-data-count">${currentDataCount}</span> aset akan diexport`;
+                        })
+                        .catch(() => { 
+                            if (el) el.textContent = '-'; 
+                            if (badge) badge.innerHTML = `<span id="tahun-data-count">-</span> aset akan diexport`;
+                            currentDataCount = 0; 
+                        });
+                    return;
+                }
+                if (activeExportTab === 'buku_inventaris_aset') {
+                    if (el) el.textContent = '...';
+                    const periode = document.getElementById('buku_inventaris_periode_hidden')?.value || 'tahunan';
+                    fetch(`{{ route('export-data.buku-inventaris-count') }}?tahun=${selectedTahun}&periode=${periode}`, {
+                        credentials: 'same-origin',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        currentDataCount = data.count || 0;
+                        if (el) el.textContent = currentDataCount;
+                        if (badge) badge.innerHTML = `<span id="tahun-data-count">${currentDataCount}</span> aset akan diexport`;
+                    })
+                    .catch(() => { 
+                        if (el) el.textContent = '0'; 
+                        if (badge) badge.innerHTML = `<span id="tahun-data-count">0</span> aset akan diexport`;
+                    });
                     return;
                 }
                 if (activeExportTab === 'laporan') {
-                    el.textContent = '...';
+                    if (el) el.textContent = '...';
                     // Fetch count data laporan secara async
                     const periode = document.getElementById('laporan_periode_hidden')?.value || 'tahunan';
                     fetch(`{{ route('export-data.laporan-count') }}?tahun=${selectedTahun}&periode=${periode}`, {
@@ -4396,32 +4794,52 @@
                     .then(r => r.json())
                     .then(data => {
                         currentDataCount = data.count || 0;
-                        el.textContent = currentDataCount;
+                        if (el) el.textContent = currentDataCount;
+                        if (badge) badge.innerHTML = `<span id="tahun-data-count">${currentDataCount}</span> baris data laporan akan diexport`;
                     })
-                    .catch(() => { el.textContent = '0'; });
+                    .catch(() => { 
+                        if (el) el.textContent = '0'; 
+                        if (badge) badge.innerHTML = `<span id="tahun-data-count">0</span> baris data laporan akan diexport`;
+                    });
                     return;
                 }
-                if (!selectedJenisId) { el.textContent = '-'; currentDataCount = 0; return; }
-                el.textContent = '...';
+                if (!selectedJenisId) { 
+                    if (el) el.textContent = '-'; 
+                    if (badge) badge.innerHTML = `<span id="tahun-data-count">-</span> aset akan diexport`;
+                    currentDataCount = 0; 
+                    return; 
+                }
+                if (el) el.textContent = '...';
                 fetch(`{{ route('export-data.data-count') }}?jenis_inventaris_id=${selectedJenisId}&tahun=${selectedTahun}`)
                     .then(r => r.json())
-                    .then(data => { currentDataCount = data.count || 0; el.textContent = currentDataCount; })
-                    .catch(() => { el.textContent = '-'; currentDataCount = 0; });
+                    .then(data => { 
+                        currentDataCount = data.count || 0; 
+                        if (el) el.textContent = currentDataCount; 
+                        if (badge) badge.innerHTML = `<span id="tahun-data-count">${currentDataCount}</span> aset akan diexport`;
+                    })
+                    .catch(() => { 
+                        if (el) el.textContent = '-'; 
+                        if (badge) badge.innerHTML = `<span id="tahun-data-count">-</span> aset akan diexport`;
+                        currentDataCount = 0; 
+                    });
             }
 
             // Date preview
             function updateDatePreview() {
-                const tanggal = document.getElementById('doc-tanggal').value;
+                const dateEl = document.getElementById('date-preview');
+                if (!dateEl) return;
+                const tanggal = document.getElementById('doc-tanggal')?.value;
                 const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
                 
                 if (tanggal) {
                     const date = new Date(tanggal);
-                    document.getElementById('date-preview').textContent = `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+                    dateEl.textContent = `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
                 } else {
-                    document.getElementById('date-preview').textContent = '-';
+                    dateEl.textContent = '-';
                 }
             }
-            document.getElementById('doc-tanggal').addEventListener('change', updateDatePreview);
+            const docTanggalEl = document.getElementById('doc-tanggal');
+            if (docTanggalEl) docTanggalEl.addEventListener('change', updateDatePreview);
 
             // Helper: ambil paper size yang dipilih (hanya relevan saat PDF)
             function getSelectedPaperSize() {
@@ -4455,7 +4873,7 @@
                 // isLocked tergantung tab aktif
                 const isLocked = activeExportTab === 'ruangan' ? !selectedRuangan
                     : (activeExportTab === 'kib' ? !selectedKib
-                    : (activeExportTab === 'laporan' ? false
+                    : (activeExportTab === 'laporan' || activeExportTab === 'buku_inventaris_aset' ? false
                     : !selectedJenisId));
 
                 setFlowLockedState(isLocked);
@@ -4467,8 +4885,16 @@
                     sectionDokumen.style.display = shouldShowDokumen ? '' : 'none';
                 }
 
-                const tahunLaporan = selectedTahun;
-                const periode = document.getElementById('laporan_periode_hidden')?.value || 'tahunan';
+                // Show/hide section ttd setup (muncul ketika item/jenis sudah dipilih)
+                const sectionTtd = document.getElementById('section-ttd-setup');
+                if (sectionTtd) {
+                    sectionTtd.style.display = isLocked ? 'none' : '';
+                }
+
+                const tahunLaporan = selectedTahun === 'all' ? 'Semua Tahun' : selectedTahun;
+                const periode = activeExportTab === 'buku_inventaris_aset'
+                    ? (document.getElementById('buku_inventaris_periode_hidden')?.value || 'tahunan')
+                    : (document.getElementById('laporan_periode_hidden')?.value || 'tahunan');
                 const selP = laporanPeriodeOptions.find(o => o.id === periode);
                 const periodeLabel = selP ? selP.nama : 'Per Tahun';
 
@@ -4476,14 +4902,16 @@
                     ? (selectedRuangan === 'all' ? 'Semua Ruangan' : (selectedRuangan ? (ruanganOptions.find(r => String(r.id) === String(selectedRuangan))?.nama || 'Ruangan') : 'Pilih ruangan'))
                     : (activeExportTab === 'kib'
                         ? (selectedKib === 'all' ? 'Semua KIB' : (selectedKib ? 'KIB ' + selectedKib : 'Pilih KIB'))
-                        : (activeExportTab === 'laporan'
-                            ? ('Laporan Aset ' + periodeLabel + ' ' + tahunLaporan)
-                            : (selectedJenisId === 'all'
-                                ? 'Semua Jenis (' + {{ $jenisInventaris->count() }} + ' jenis)'
-                                : (selectedJenisId && jenisData[selectedJenisId] ? jenisData[selectedJenisId].nama : 'Pilih jenis'))));
+                        : (activeExportTab === 'buku_inventaris_aset'
+                            ? ('Buku Inventaris Aset ' + periodeLabel + ' ' + tahunLaporan)
+                            : (activeExportTab === 'laporan'
+                                ? ('Laporan Aset ' + periodeLabel + ' ' + tahunLaporan)
+                                : (selectedJenisId === 'all'
+                                    ? 'Semua Jenis (' + {{ $jenisInventaris->count() }} + ' jenis)'
+                                    : (selectedJenisId && jenisData[selectedJenisId] ? jenisData[selectedJenisId].nama : 'Pilih jenis')))));
 
                 document.getElementById('info-jenis').textContent = jenisLabel;
-                document.getElementById('info-tahun').textContent = activeExportTab === 'laporan' ? tahunLaporan : selectedTahun;
+                document.getElementById('info-tahun').textContent = selectedTahun === 'all' ? 'Semua Tahun' : (activeExportTab === 'laporan' || activeExportTab === 'buku_inventaris_aset' ? tahunLaporan : selectedTahun);
                 document.getElementById('info-format').textContent = formatLabel(format);
                 document.getElementById('info-signature').textContent = sig === 'with' ? 'Dengan Tanda Tangan' : 'Tanpa Tanda Tangan';
 
@@ -4494,6 +4922,9 @@
                 } else if (activeExportTab === 'kib') {
                     previewBtn.disabled = !selectedKib;
                     previewBtn.innerHTML = '<i data-feather="eye" style="width:16px;height:16px;"></i> Preview Export KIB';
+                } else if (activeExportTab === 'buku_inventaris_aset') {
+                    previewBtn.disabled = false;
+                    previewBtn.innerHTML = '<i data-feather="eye" style="width:16px;height:16px;"></i> Preview Buku Inventaris';
                 } else if (activeExportTab === 'laporan') {
                     previewBtn.disabled = false;
                     previewBtn.innerHTML = '<i data-feather="eye" style="width:16px;height:16px;"></i> Preview Laporan Aset';
@@ -4502,6 +4933,38 @@
                     previewBtn.innerHTML = '<i data-feather="eye" style="width:16px;height:16px;"></i> Preview Export';
                 }
                 if (typeof feather !== 'undefined') feather.replace();
+
+                // Show/hide Ringkasan Export dengan animasi smooth
+                const summaryCard = document.getElementById('export-summary-card');
+                const hasSelectedTarget = (function() {
+                    if (!activeExportTab) return false;
+                    if (activeExportTab === 'ruangan') return !!selectedRuangan;
+                    if (activeExportTab === 'kib') return !!selectedKib;
+                    if (activeExportTab === 'jenis') return !!selectedJenisId;
+                    if (activeExportTab === 'buku_inventaris_aset' || activeExportTab === 'laporan') return true;
+                    return false;
+                })();
+
+                if (summaryCard) {
+                    if (hasSelectedTarget) {
+                        if (summaryCard.style.display === 'none' || summaryCard.classList.contains('fade-out')) {
+                            summaryCard.style.display = 'block';
+                            summaryCard.classList.remove('fade-out');
+                            summaryCard.classList.add('fade-in');
+                        }
+                    } else {
+                        if (summaryCard.style.display !== 'none' && !summaryCard.classList.contains('fade-out')) {
+                            summaryCard.classList.remove('fade-in');
+                            summaryCard.classList.add('fade-out');
+                            setTimeout(() => {
+                                if (summaryCard.classList.contains('fade-out')) {
+                                    summaryCard.style.display = 'none';
+                                    summaryCard.classList.remove('fade-out');
+                                }
+                            }, 240);
+                        }
+                    }
+                }
 
                 // Update data count
                 updateDataCount();
@@ -4555,9 +5018,16 @@
 
             // Custom Pejabat Modal
             function openCustomPejabatModal() {
-                // Tab ruangan: tidak perlu cek selectedJenisId
-                if (activeExportTab !== 'ruangan' && !selectedJenisId) {
+                if (activeExportTab === 'jenis' && !selectedJenisId) {
                     showToast('Pilih jenis inventaris terlebih dahulu', 'warning');
+                    return;
+                }
+                if (activeExportTab === 'kib' && !selectedKib) {
+                    showToast('Pilih jenis KIB terlebih dahulu', 'warning');
+                    return;
+                }
+                if (activeExportTab === 'ruangan' && !selectedRuangan) {
+                    showToast('Pilih ruangan terlebih dahulu', 'warning');
                     return;
                 }
 
@@ -4580,7 +5050,7 @@
                 const modalTitle = document.getElementById('custom-pejabat-modal-title');
                 if (modalTitle) {
                     modalTitle.textContent = isKirFormat2
-                        ? 'Pilih Penandatangan (Format Desa Demo)'
+                        ? 'Pilih Penandatangan (Format Khusus 3 TTD)'
                         : (activeExportTab === 'ruangan'
                             ? 'Pilih Pengurus Barang'
                             : 'Pilih Pejabat Penandatangan');
@@ -4602,18 +5072,20 @@
                 const list = document.getElementById('modal-pejabat-list');
                 list.innerHTML = filteredPejabat.map((p) => {
                     const isChecked = selectedIds.includes(Number(p.id));
-                    // Untuk Format 2: tampilkan label urutan (Penanggung Jawab / Pengurus Barang)
+                    // Untuk Format 2 & KIB: tampilkan label urutan
                     let orderBadge = '';
-                    if (isKirFormat2 && isChecked) {
+                    if ((isKirFormat2 || isKib) && isChecked) {
                         const posIdx = customPejabatOrder.indexOf(Number(p.id));
-                        const posLabel = posIdx === 0 ? 'Penanggung Jawab' : (posIdx === 1 ? 'Pengurus Barang' : '');
+                        const posLabel = isKirFormat2
+                            ? (posIdx === 0 ? 'Penanggung Jawab' : (posIdx === 1 ? 'Pengurus Barang' : ''))
+                            : (posIdx === 0 ? 'Mengetahui (Kiri)' : (posIdx === 1 ? 'Petugas Barang (Kanan)' : ''));
                         if (posLabel) {
-                            orderBadge = `<span style="font-size:10px;font-weight:700;color:#fff;background:#064635;padding:2px 7px;border-radius:8px;margin-left:6px;">${posLabel}</span>`;
+                            orderBadge = `<span class="format2-badge" style="font-size:10px;font-weight:700;color:#fff;background:#1f3a2a;padding:2px 7px;border-radius:8px;margin-left:6px;">${posLabel}</span>`;
                         }
                     }
                     return `
                         <div class="pejabat-row-selectable" data-id="${p.id}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer;">
-                            <input type="checkbox" class="pejabat-cb" data-id="${p.id}" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: #064635; flex-shrink:0;">
+                            <input type="checkbox" class="pejabat-cb" data-id="${p.id}" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: #1f3a2a; flex-shrink:0;">
                             <div style="flex: 1; display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
                                 <div>
                                     <div style="font-weight: 600; font-size: 12px; color: #1f2937;">${p.nama}</div>
@@ -4632,7 +5104,7 @@
                 // Update counter hint setelah render
                 updateFormat2HintCount();
 
-                bindCustomPejabatModalEvents(isKirFormat2);
+                bindCustomPejabatModalEvents(isKirFormat2 || isKib);
                 document.getElementById('custom-pejabat-modal').classList.add('show');
                 if(typeof feather !== 'undefined') feather.replace();
             }
@@ -4642,13 +5114,14 @@
                 if (!hintCount) return;
                 const kirFormatElModal = document.querySelector('input[name="kir-format"]:checked');
                 const isKirFormat2 = activeExportTab === 'ruangan' && kirFormatElModal?.value === 'custom';
-                if (!isKirFormat2) { hintCount.textContent = ''; return; }
+                const isKib = activeExportTab === 'kib';
+                if (!isKirFormat2 && !isKib) { hintCount.textContent = ''; return; }
                 const checked = document.querySelectorAll('#modal-pejabat-list .pejabat-cb:checked').length;
                 if (checked === 0) {
                     hintCount.textContent = 'Belum ada yang dipilih.';
                     hintCount.style.color = '#64748b';
                 } else if (checked === 1) {
-                    hintCount.textContent = '1 dipilih → posisi Penanggung Jawab. Pilih 1 lagi untuk Pengurus Barang.';
+                    hintCount.textContent = isKib ? '1 dipilih → Mengetahui (Kiri). Pilih 1 lagi untuk Petugas Barang (Kanan).' : '1 dipilih → posisi Penanggung Jawab. Pilih 1 lagi untuk Pengurus Barang.';
                     hintCount.style.color = '#d97706';
                 } else if (checked === 2) {
                     hintCount.textContent = '✓ 2 orang dipilih — sudah lengkap.';
@@ -4675,14 +5148,14 @@
                 }
             }
 
-            function bindCustomPejabatModalEvents(isKirFormat2) {
+            function bindCustomPejabatModalEvents(isOrderContext) {
                 const rows = document.querySelectorAll('#modal-pejabat-list .pejabat-row-selectable');
                 rows.forEach(row => {
                     row.addEventListener('click', function() {
                         togglePejabatByRow(this);
                         updateFormat2HintCount();
                         // Update label badge di baris yang sudah dicek
-                        if (isKirFormat2) refreshFormat2Badges();
+                        if (isOrderContext) refreshFormat2Badges();
                     });
                 });
 
@@ -4695,12 +5168,16 @@
                     checkbox.addEventListener('change', function() {
                         trackPejabatSelection(this);
                         updateFormat2HintCount();
-                        if (isKirFormat2) refreshFormat2Badges();
+                        if (isOrderContext) refreshFormat2Badges();
                     });
                 });
             }
 
             function refreshFormat2Badges() {
+                const kirFormatEl = document.querySelector('input[name="kir-format"]:checked');
+                const isKirFormat2 = activeExportTab === 'ruangan' && kirFormatEl?.value === 'custom';
+                const isKib = activeExportTab === 'kib';
+
                 // Re-render badge label di tiap baris sesuai urutan centang
                 const rows = document.querySelectorAll('#modal-pejabat-list .pejabat-row-selectable');
                 rows.forEach(row => {
@@ -4711,13 +5188,15 @@
                     const oldBadge = row.querySelector('.format2-badge');
                     if (oldBadge) oldBadge.remove();
                     // Tambah badge baru jika dicek
-                    if (cb.checked) {
+                    if (cb.checked && (isKirFormat2 || isKib)) {
                         const posIdx = customPejabatOrder.indexOf(id);
-                        const posLabel = posIdx === 0 ? 'Penanggung Jawab' : (posIdx === 1 ? 'Pengurus Barang' : '');
+                        const posLabel = isKirFormat2
+                            ? (posIdx === 0 ? 'Penanggung Jawab' : (posIdx === 1 ? 'Pengurus Barang' : ''))
+                            : (posIdx === 0 ? 'Mengetahui (Kiri)' : (posIdx === 1 ? 'Petugas Barang (Kanan)' : ''));
                         if (posLabel) {
                             const badge = document.createElement('span');
                             badge.className = 'format2-badge';
-                            badge.style.cssText = 'font-size:10px;font-weight:700;color:#fff;background:#064635;padding:2px 7px;border-radius:8px;margin-left:6px;';
+                            badge.style.cssText = 'font-size:10px;font-weight:700;color:#fff;background:#1f3a2a;padding:2px 7px;border-radius:8px;margin-left:6px;';
                             badge.textContent = posLabel;
                             const infoDiv = row.querySelector('div > div');
                             if (infoDiv) infoDiv.after(badge);
@@ -4742,12 +5221,13 @@
 
                 const kirFormatEl = document.querySelector('input[name="kir-format"]:checked');
                 const isKirFormat2 = activeExportTab === 'ruangan' && kirFormatEl?.value === 'custom';
+                const isKib = activeExportTab === 'kib';
 
-                // Untuk Format 2: batasi hanya 2 orang pertama
-                if (isKirFormat2) {
+                // Untuk Format 2 & KIB: batasi hanya 2 orang pertama
+                if (isKirFormat2 || isKib) {
                     if (customPejabatOrder.length > 2) {
                         customPejabatOrder = customPejabatOrder.slice(0, 2);
-                        showToast('Hanya 2 penandatangan yang digunakan (Penanggung Jawab & Pengurus Barang)', 'warning');
+                        showToast(isKib ? 'Hanya 2 penandatangan yang digunakan (Mengetahui & Petugas Barang)' : 'Hanya 2 penandatangan yang digunakan (Penanggung Jawab & Pengurus Barang)', 'warning');
                     }
                 }
 
@@ -4816,23 +5296,104 @@
                         document.getElementById('pdf-filename').textContent = baseName + '.pdf';
                         const pdfContent = document.getElementById('pdf-preview-content');
                         const placeholders = Math.min(currentDataCount > 0 ? currentDataCount : 3, 3);
-                        let pdfHtml = `<div style="font-family:Arial,sans-serif;font-size:9px;">`;
-                        pdfHtml += `<div style="text-align:center;font-weight:bold;font-size:11px;margin-bottom:6px;">KARTU INVENTARIS RUANGAN</div>`;
-                        pdfHtml += `<table style="width:100%;border-collapse:collapse;font-size:8px;">`;
-                        pdfHtml += `<thead><tr style="background:#f9fafb;">`;
-                        ['NO','JENIS BARANG / NAMA BARANG','KODE BARANG','REG','TAHUN','IDENTITAS','NO.POL','ASAL-USUL','HARGA (Ribuan) Rp','KET.'].forEach(h => {
-                            pdfHtml += `<th style="border:1px solid #aaa;padding:3px 4px;text-align:center;font-weight:bold;">${h}</th>`;
-                        });
-                        pdfHtml += `</tr></thead><tbody>`;
-                        pdfHtml += `<tr><td colspan="10" style="border:1px solid #aaa;padding:3px 6px;background:#e8e8e8;font-weight:bold;font-style:italic;">Nama Ruangan : ${ruanganLabel}</td></tr>`;
+                        const docDateStr = document.getElementById('date-preview')?.textContent || (desaConfig.nama_lokasi + ', ' + new Date().toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'}));
+
+                        const thStyle = 'border:1px solid #000000 !important;background:#ffffff !important;color:#000000 !important;padding:3.5px 2px;font-weight:bold;font-size:7.5px;text-align:center;vertical-align:middle;';
+                        const tdStyle = (align = 'left') => `border:1px solid #000000 !important;background:#ffffff !important;color:#000000 !important;padding:3px 4px;font-size:7.5px;text-align:${align};vertical-align:middle;`;
+
+                        let pdfHtml = `
+                            <div style="font-family:Arial,sans-serif;color:#000;background:#ffffff;">
+                                <div style="text-align:center;font-weight:bold;font-size:12px;margin-bottom:12px;letter-spacing:0.5px;">KARTU INVENTARIS RUANGAN</div>
+                                <div style="font-family:'Courier New',Courier,monospace;font-size:8.5px;line-height:1.45;margin-bottom:12px;">
+                                    <div style="display:flex;"><span style="width:130px;flex-shrink:0;">Provinsi</span><span>: ${desaConfig.provinsi_kode}. ${desaConfig.provinsi_nama}</span></div>
+                                    <div style="display:flex;"><span style="width:130px;flex-shrink:0;">Kab./Kota</span><span>: ${desaConfig.kabupaten_kode}. ${desaConfig.kabupaten_nama}</span></div>
+                                    <div style="display:flex;"><span style="width:130px;flex-shrink:0;">Kecamatan</span><span>: ${desaConfig.kecamatan_kode}. ${desaConfig.kecamatan_nama}</span></div>
+                                    <div style="display:flex;"><span style="width:130px;flex-shrink:0;">Desa</span><span>: ${desaConfig.kode_lokasi}. ${desaConfig.desa_nama}</span></div>
+                                    <div style="display:flex;"><span style="width:130px;flex-shrink:0;">UPB</span><span>: ${desaConfig.upb}</span></div>
+                                    <div style="display:flex;"><span style="width:130px;flex-shrink:0;">No. Kode Lokasi</span><span>: ${desaConfig.kode_lokasi}.</span></div>
+                                </div>
+                                <div style="overflow-x:auto;margin-bottom:4px;">
+                                    <table style="width:100%;border-collapse:collapse;font-size:7.5px;background:#ffffff;">
+                                        <thead>
+                                            <tr>
+                                                <th rowspan="2" style="${thStyle};width:24px;">NO</th>
+                                                <th rowspan="2" style="${thStyle};width:140px;">JENIS BARANG / NAMA BARANG</th>
+                                                <th colspan="2" style="${thStyle}">N O M O R</th>
+                                                <th rowspan="2" style="${thStyle};width:50px;">TAHUN PEROLEHAN</th>
+                                                <th colspan="2" style="${thStyle}">I D E N T I T A S</th>
+                                                <th rowspan="2" style="${thStyle};width:70px;">ASAL-USUL BARANG</th>
+                                                <th rowspan="2" style="${thStyle};width:85px;">HARGA (Ribuan) Rp</th>
+                                                <th rowspan="2" style="${thStyle};width:70px;">KETERANGAN</th>
+                                            </tr>
+                                            <tr>
+                                                <th style="${thStyle};width:65px;">KODE BARANG</th>
+                                                <th style="${thStyle};width:35px;">REG</th>
+                                                <th style="${thStyle};width:110px;">KONSTRUKSI/LUAS/MERK/TYPE/WARNA/JUDUL/PENCIPTA</th>
+                                                <th style="${thStyle};width:45px;">NO. POL</th>
+                                            </tr>
+                                            <tr>
+                                                <th style="${thStyle}">1</th>
+                                                <th style="${thStyle}">2</th>
+                                                <th style="${thStyle}">3</th>
+                                                <th style="${thStyle}">4</th>
+                                                <th style="${thStyle}">5</th>
+                                                <th colspan="2" style="${thStyle}">6</th>
+                                                <th style="${thStyle}">7</th>
+                                                <th style="${thStyle}">8</th>
+                                                <th style="${thStyle}">9</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="pdf-gray-subheader">
+                                                <td colspan="10" class="pdf-gray-bg" style="border:1px solid #000 !important;padding:3.5px 6px;background:#d9d9d9 !important;font-weight:bold;font-style:italic;font-size:8px;text-align:left;">Nama Ruangan : ${ruanganLabel}</td>
+                                            </tr>`;
                         for (let r = 0; r < placeholders; r++) {
-                            pdfHtml += `<tr>${Array(10).fill(`<td style="border:1px solid #aaa;padding:2px 4px;color:#9ca3af;">...</td>`).join('')}</tr>`;
+                            pdfHtml += `
+                                            <tr>
+                                                <td style="${tdStyle('center')}">${r+1}</td>
+                                                <td style="${tdStyle()}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('right')}">...</td>
+                                                <td style="${tdStyle()}">...</td>
+                                            </tr>`;
                         }
                         if (currentDataCount > 3) {
-                            pdfHtml += `<tr><td colspan="10" style="border:1px solid #aaa;padding:3px;text-align:center;color:#9ca3af;font-size:8px;">... +${currentDataCount - 3} data lainnya</td></tr>`;
+                            pdfHtml += `
+                                            <tr>
+                                                <td colspan="10" style="${tdStyle('center')};color:#6b7280;font-style:italic;">... +${currentDataCount - 3} data lainnya</td>
+                                            </tr>`;
                         }
-                        pdfHtml += `<tr><td colspan="8" style="border:1px solid #aaa;padding:3px;font-weight:bold;text-align:center;">JUMLAH HARGA</td><td style="border:1px solid #aaa;padding:3px;font-weight:bold;text-align:right;">S</td><td style="border:1px solid #aaa;"></td></tr>`;
-                        pdfHtml += `</tbody></table></div>`;
+                        pdfHtml += `
+                                            <tr style="font-weight:bold;background:#ffffff;">
+                                                <td colspan="8" style="border:1px solid #000 !important;padding:4px;text-align:center;font-weight:bold;">JUMLAH HARGA</td>
+                                                <td style="border:1px solid #000 !important;padding:4px;text-align:right;font-weight:bold;">SUM</td>
+                                                <td style="border:1px solid #000 !important;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <table style="width:100%;border-collapse:collapse;border:none;margin-top:20px;font-size:8.5px;">
+                                    <tr>
+                                        <td style="width:50%;text-align:center;border:none;vertical-align:top;">
+                                            <div style="margin-bottom:3px;">Mengetahui,</div>
+                                            <div style="font-weight:bold;margin-bottom:38px;">Sekretaris Desa</div>
+                                            <div style="font-weight:bold;text-decoration:underline;">( .................................................. )</div>
+                                            <div style="font-size:8px;margin-top:2px;">NIP. .........................................</div>
+                                        </td>
+                                        <td style="width:50%;text-align:center;border:none;vertical-align:top;">
+                                            <div style="margin-bottom:3px;">${desaConfig.nama_lokasi}, ${docDateStr}</div>
+                                            <div style="font-weight:bold;margin-bottom:38px;">Pengurus Barang / Petugas Ruangan</div>
+                                            <div style="font-weight:bold;text-decoration:underline;">( .................................................. )</div>
+                                            <div style="font-size:8px;margin-top:2px;">NIP. .........................................</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>`;
                         pdfContent.innerHTML = pdfHtml;
                     }
 
@@ -4844,6 +5405,145 @@
                     const btnText    = document.getElementById('btn-confirm-export-text');
                     if (btnConfirm) { btnConfirm.disabled = false; btnConfirm.style.opacity = ''; btnConfirm.style.cursor = ''; }
                     if (btnText)    { btnText.textContent = 'Export Ruangan'; }
+
+                    document.getElementById('preview-export-modal').classList.add('show');
+                    if (typeof feather !== 'undefined') feather.replace();
+                    return;
+                }
+
+                // Handle tab Buku Inventaris Aset Desa
+                if (activeExportTab === 'buku_inventaris_aset') {
+                    const tahunVal = selectedTahun;
+                    const periode  = document.getElementById('buku_inventaris_periode_hidden')?.value || 'tahunan';
+                    let periodeLabel;
+                    if (periode === 'semester_1') {
+                        periodeLabel = 'Semester I (1 Januari – 30 Juni)';
+                    } else if (periode === 'semester_2') {
+                        periodeLabel = 'Semester II (1 Juli – 31 Desember)';
+                    } else {
+                        periodeLabel = 'Per Tahun (1 Januari – 31 Desember)';
+                    }
+                    const format = document.querySelector('input[name="export-format"]:checked').value;
+                    const sig    = document.querySelector('input[name="signature-option"]:checked').value;
+
+                    document.getElementById('preview-format').textContent = formatLabel(format);
+                    document.getElementById('preview-count').textContent = 'Buku Inventaris ' + periodeLabel;
+                    document.getElementById('preview-sig').textContent = sig === 'with' ? 'Dengan Tanda Tangan' : 'Tanpa Tanda Tangan';
+                    document.getElementById('preview-date').textContent = document.getElementById('date-preview').textContent || tahunVal;
+
+                    const wrapExcel = document.getElementById('preview-wrapper-excel');
+                    const wrapPdf   = document.getElementById('preview-wrapper-pdf');
+                    wrapExcel.style.display = format === 'excel' ? '' : 'none';
+                    wrapPdf.style.display   = format === 'pdf'   ? '' : 'none';
+
+                    const periodeSuffix = periode === 'semester_1' ? 'semester_1' : (periode === 'semester_2' ? 'semester_2' : 'tahunan');
+                    const baseName = 'buku_inventaris_aset_' + periodeSuffix + '_' + tahunVal;
+
+                    const cols = ['NO','KODE','NAMA BARANG','NUP','MERK/TYPE','BUKTI KEPEMILIKAN','TAHUN','UKURAN M2','NILAI (Rp.)','KET.'];
+
+                    if (format === 'excel') {
+                        const tbody  = document.getElementById('excel-preview-table');
+                        const colBar = document.getElementById('excel-col-bar');
+                        document.getElementById('excel-filename').textContent = baseName + '.xlsx';
+                        const letters = 'ABCDEFGHIJ';
+                        colBar.innerHTML = cols.map((_, i) => `<div class="excel-col-cell">${letters[i]||'?'}</div>`).join('');
+                        const hS = `class="excel-cell excel-cell-header" style="text-align:center;font-size:9px;"`;
+                        const rows = [];
+                        rows.push(`<tr><td class="excel-row-num">1</td><td class="excel-cell excel-cell-title" colspan="10" style="padding:4px 5px;font-weight:bold;">BUKU INVENTARIS ASET DESA ${desaConfig.desa_nama || 'DEMO'}</td></tr>`);
+                        rows.push(`<tr><td class="excel-row-num">2</td><td class="excel-cell excel-cell-subtitle" colspan="10" style="text-align:center;">PERIODE ${periodeLabel.toUpperCase()} TAHUN ${tahunVal}</td></tr>`);
+                        rows.push(`<tr><td class="excel-row-num">3</td>${cols.map(h => `<td ${hS}>${h}</td>`).join('')}</tr>`);
+                        for (let r = 0; r < 3; r++) {
+                            const cls = r % 2 === 0 ? 'excel-cell-data' : 'excel-cell-data alt';
+                            rows.push(`<tr><td class="excel-row-num">${r+4}</td>${Array(10).fill(`<td class="excel-cell ${cls}">...</td>`).join('')}</tr>`);
+                        }
+                        rows.push(`<tr><td class="excel-row-num"></td><td class="excel-cell excel-cell-header" colspan="8" style="text-align:center;">JUMLAH</td><td class="excel-cell excel-cell-header" style="text-align:right;">SUM</td><td class="excel-cell"></td></tr>`);
+                        tbody.innerHTML = rows.join('');
+                    } else {
+                        document.getElementById('pdf-filename').textContent = baseName + '.pdf';
+                        const pdfContent = document.getElementById('pdf-preview-content');
+                        const docDateStr = document.getElementById('date-preview')?.textContent || (desaConfig.nama_lokasi + ', ' + new Date().toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'}));
+                        const periodeTitle = periode === 'semester_1' ? 'SEMESTER I' : (periode === 'semester_2' ? 'SEMESTER II' : 'TAHUNAN');
+
+                        const thStyle = 'border:1px solid #000000 !important;background:#9bc2e6 !important;color:#000000 !important;padding:5px 3px;font-weight:bold;font-size:7.5px;text-align:center;vertical-align:middle;';
+                        const tdStyle = (align = 'left') => `border:1px solid #000000 !important;background:#ffffff !important;color:#000000 !important;padding:3.5px 4px;font-size:7.5px;text-align:${align};vertical-align:middle;`;
+
+                        let pdfHtml = `
+                            <div style="font-family:Arial,sans-serif;color:#000;background:#ffffff;">
+                                <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+                                    <table style="font-size:8.5px;font-weight:bold;border-collapse:collapse;border:none;">
+                                        <tr><td style="padding:1px 6px 1px 0;border:none !important;">PROVINSI</td><td style="padding:1px 0;border:none !important;">: ${desaConfig.provinsi_nama}</td></tr>
+                                        <tr><td style="padding:1px 6px 1px 0;border:none !important;">KABUPATEN</td><td style="padding:1px 0;border:none !important;">: ${desaConfig.kabupaten_nama}</td></tr>
+                                        <tr><td style="padding:1px 6px 1px 0;border:none !important;">KECAMATAN</td><td style="padding:1px 0;border:none !important;">: ${desaConfig.kecamatan_nama}</td></tr>
+                                        <tr><td style="padding:1px 6px 1px 0;border:none !important;">DESA</td><td style="padding:1px 0;border:none !important;">: ${desaConfig.desa_nama}</td></tr>
+                                    </table>
+                                </div>
+                                <div style="text-align:center;font-weight:bold;font-size:12px;margin-bottom:2px;">BUKU INVENTARIS ASET DESA ${desaConfig.nama_lokasi}</div>
+                                <div style="text-align:center;font-weight:bold;font-size:10.5px;margin-bottom:12px;">TAHUN ${tahunVal} (${periodeTitle})</div>
+                                <div style="overflow-x:auto;margin-bottom:4px;">
+                                    <table class="pdf-blue-table" style="width:100%;border-collapse:collapse;font-size:7.5px;">
+                                        <thead>
+                                            <tr>
+                                                <th style="${thStyle};width:24px;">NO</th>
+                                                <th style="${thStyle};width:70px;">KODE BARANG</th>
+                                                <th style="${thStyle};width:140px;">NAMA BARANG</th>
+                                                <th style="${thStyle};width:35px;">NUP</th>
+                                                <th style="${thStyle};width:85px;">MERK / TYPE</th>
+                                                <th style="${thStyle};width:85px;">BUKTI KEPEMILIKAN</th>
+                                                <th style="${thStyle};width:65px;">TAHUN PEROLEHAN</th>
+                                                <th style="${thStyle};width:60px;">UKURAN M²</th>
+                                                <th style="${thStyle};width:85px;">NILAI (Rp.)</th>
+                                                <th style="${thStyle};width:80px;">KET</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+                        for (let r = 0; r < 3; r++) {
+                            pdfHtml += `
+                                            <tr>
+                                                <td style="${tdStyle('center')}">${r+1}</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle()}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle()}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('right')}">...</td>
+                                                <td style="${tdStyle()}">...</td>
+                                            </tr>`;
+                        }
+                        if (currentDataCount > 3) {
+                            pdfHtml += `
+                                            <tr>
+                                                <td colspan="10" style="${tdStyle('center')};color:#6b7280;font-style:italic;">... +${currentDataCount - 3} data lainnya</td>
+                                            </tr>`;
+                        }
+                        pdfHtml += `
+                                            <tr class="pdf-blue-total" style="background:#9bc2e6 !important;font-weight:bold;">
+                                                <td colspan="8" class="pdf-blue-bg" style="border:1px solid #000 !important;padding:4px;text-align:center;background:#9bc2e6 !important;font-weight:bold;">NILAI ASET</td>
+                                                <td class="pdf-blue-bg" style="border:1px solid #000 !important;padding:4px;text-align:right;background:#9bc2e6 !important;font-weight:bold;">SUM</td>
+                                                <td class="pdf-blue-bg" style="border:1px solid #000 !important;background:#9bc2e6 !important;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="display:flex;justify-content:flex-end;margin-top:20px;font-size:8.5px;">
+                                    <div style="width:240px;text-align:center;">
+                                        <div style="margin-bottom:3px;">${desaConfig.nama_lokasi}, ${docDateStr}</div>
+                                        <div style="font-weight:bold;margin-bottom:38px;">Perbekel ${desaConfig.nama_lokasi || 'Desa'}</div>
+                                        <div style="font-weight:bold;text-decoration:underline;">( .................................................. )</div>
+                                    </div>
+                                </div>
+                            </div>`;
+                        pdfContent.innerHTML = pdfHtml;
+                    }
+
+                    const signerPanel = document.getElementById('preview-signer-panel');
+                    if (signerPanel) signerPanel.style.display = 'none';
+
+                    const btnConfirm = document.getElementById('btn-confirm-export');
+                    const btnText    = document.getElementById('btn-confirm-export-text');
+                    if (btnConfirm) { btnConfirm.disabled = false; btnConfirm.style.opacity = ''; btnConfirm.style.cursor = ''; }
+                    if (btnText)    { btnText.textContent = 'Export Buku Inventaris'; }
 
                     document.getElementById('preview-export-modal').classList.add('show');
                     if (typeof feather !== 'undefined') feather.replace();
@@ -4898,19 +5598,115 @@
                     } else {
                         document.getElementById('pdf-filename').textContent = baseName + '.pdf';
                         const pdfContent = document.getElementById('pdf-preview-content');
-                        let pdfHtml = `<div style="font-family:Arial,sans-serif;font-size:9px;">`;
-                        pdfHtml += `<div style="text-align:center;font-weight:bold;font-size:11px;margin-bottom:2px;">LAPORAN ASET ${periodeLabel.toUpperCase()} ${tahunLaporan}</div>`;
-                        pdfHtml += `<div style="text-align:center;font-size:10px;margin-bottom:6px;">RINCIAN PENGELOMPOKAN BARANG</div>`;
-                        pdfHtml += `<table style="width:100%;border-collapse:collapse;font-size:8px;"><thead><tr style="background:#f9fafb;">`;
-                        ['KODE','NAMA BARANG','SATUAN','SALDO AWAL KWANT.','SALDO AWAL NILAI','BERTAMBAH KWANT.','BERTAMBAH NILAI','BERKURANG KWANT.','BERKURANG NILAI','SALDO AKHIR KWANT.','SALDO AKHIR NILAI'].forEach(h => {
-                            pdfHtml += `<th style="border:1px solid #aaa;padding:2px 3px;text-align:center;font-weight:bold;font-size:7px;">${h}</th>`;
-                        });
-                        pdfHtml += `</tr></thead><tbody>`;
-                        for (let r = 0; r < 3; r++) {
-                            pdfHtml += `<tr>${Array(11).fill(`<td style="border:1px solid #aaa;padding:2px 3px;color:#9ca3af;">...</td>`).join('')}</tr>`;
+                        const docDateStr = document.getElementById('date-preview')?.textContent || (desaConfig.nama_lokasi + ', ' + new Date().toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'}));
+
+                        let judulPeriodeLaporan = 'PERTAHUN';
+                        let tglSaldoAwal = '1 JANUARI ';
+                        let labelAkhir = '31 DESEMBER ' + tahunLaporan;
+                        if (periode === 'semester_1') {
+                            judulPeriodeLaporan = 'SEMESTER I';
+                            tglSaldoAwal = '1 JANUARI ';
+                            labelAkhir = '30 JUNI ' + tahunLaporan;
+                        } else if (periode === 'semester_2') {
+                            judulPeriodeLaporan = 'SEMESTER II';
+                            tglSaldoAwal = '1 JULI ';
+                            labelAkhir = '31 DESEMBER ' + tahunLaporan;
                         }
-                        pdfHtml += `<tr><td colspan="3" style="border:1px solid #aaa;padding:3px;font-weight:bold;text-align:center;">JUMLAH</td>${Array(8).fill('<td style="border:1px solid #aaa;padding:3px;font-weight:bold;text-align:right;">S</td>').join('')}</tr>`;
-                        pdfHtml += `</tbody></table></div>`;
+
+                        const thStyle = 'border:1px solid #000000 !important;background:#ffffff !important;color:#000000 !important;padding:3.5px 2px;font-weight:bold;font-size:7px;text-align:center;vertical-align:middle;';
+                        const tdStyle = (align = 'left') => `border:1px solid #000000 !important;background:#ffffff !important;color:#000000 !important;padding:3px 4px;font-size:7px;text-align:${align};vertical-align:middle;`;
+
+                        let pdfHtml = `
+                            <div style="font-family:Arial,sans-serif;color:#000;background:#ffffff;">
+                                <div style="text-align:center;font-weight:bold;font-size:12px;margin-bottom:2px;">LAPORAN ASET DESA ${desaConfig.nama_lokasi} ${judulPeriodeLaporan}</div>
+                                <div style="text-align:center;font-weight:bold;font-size:11px;margin-bottom:2px;">RINCIAN PENGELOMPOKAN BARANG</div>
+                                <div style="text-align:center;font-weight:bold;font-size:11px;margin-bottom:12px;">TAHUN ANGGARAN ${tahunLaporan}</div>
+                                <div style="overflow-x:auto;margin-bottom:4px;">
+                                    <table style="width:100%;border-collapse:collapse;font-size:7px;background:#ffffff;">
+                                        <thead>
+                                            <tr>
+                                                <th rowspan="3" style="${thStyle};width:55px;">KODE</th>
+                                                <th rowspan="3" style="${thStyle};width:130px;">NAMA BARANG</th>
+                                                <th rowspan="3" style="${thStyle};width:38px;">SATUAN</th>
+                                                <th colspan="2" rowspan="2" style="${thStyle}">SALDO PER ${tglSaldoAwal}${tahunLaporan}</th>
+                                                <th colspan="4" style="${thStyle}">MUTASI</th>
+                                                <th colspan="2" rowspan="2" style="${thStyle}">SALDO PER ${labelAkhir}</th>
+                                            </tr>
+                                            <tr>
+                                                <th colspan="2" style="${thStyle}">BERTAMBAH</th>
+                                                <th colspan="2" style="${thStyle}">BERKURANG</th>
+                                            </tr>
+                                            <tr>
+                                                <th style="${thStyle};width:38px;">KWANTITAS</th>
+                                                <th style="${thStyle};width:65px;">NILAI (RP)</th>
+                                                <th style="${thStyle};width:38px;">KWANTITAS</th>
+                                                <th style="${thStyle};width:65px;">NILAI (RP)</th>
+                                                <th style="${thStyle};width:38px;">KWANTITAS</th>
+                                                <th style="${thStyle};width:65px;">NILAI (RP)</th>
+                                                <th style="${thStyle};width:38px;">KWANTITAS</th>
+                                                <th style="${thStyle};width:65px;">NILAI (RP)</th>
+                                            </tr>
+                                            <tr>
+                                                <th style="${thStyle}">1</th>
+                                                <th style="${thStyle}">2</th>
+                                                <th style="${thStyle}">3</th>
+                                                <th style="${thStyle}">4</th>
+                                                <th style="${thStyle}">5</th>
+                                                <th style="${thStyle}">6</th>
+                                                <th style="${thStyle}">7</th>
+                                                <th style="${thStyle}">8</th>
+                                                <th style="${thStyle}">9</th>
+                                                <th style="${thStyle}">10</th>
+                                                <th style="${thStyle}">11</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+                        for (let r = 0; r < 3; r++) {
+                            pdfHtml += `
+                                            <tr>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle()}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('right')}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('right')}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('right')}">...</td>
+                                                <td style="${tdStyle('center')}">...</td>
+                                                <td style="${tdStyle('right')}">...</td>
+                                            </tr>`;
+                        }
+                        pdfHtml += `
+                                            <tr style="font-weight:bold;background:#ffffff;">
+                                                <td colspan="3" style="border:1px solid #000 !important;padding:4px;text-align:center;font-weight:bold;">JUMLAH</td>
+                                                <td style="border:1px solid #000 !important;"></td>
+                                                <td style="border:1px solid #000 !important;padding:4px;text-align:right;font-weight:bold;">SUM</td>
+                                                <td style="border:1px solid #000 !important;"></td>
+                                                <td style="border:1px solid #000 !important;padding:4px;text-align:right;font-weight:bold;">SUM</td>
+                                                <td style="border:1px solid #000 !important;"></td>
+                                                <td style="border:1px solid #000 !important;padding:4px;text-align:right;font-weight:bold;">SUM</td>
+                                                <td style="border:1px solid #000 !important;"></td>
+                                                <td style="border:1px solid #000 !important;padding:4px;text-align:right;font-weight:bold;">SUM</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <table style="width:100%;border-collapse:collapse;border:none;margin-top:20px;font-size:8.5px;">
+                                    <tr>
+                                        <td style="width:50%;text-align:center;border:none;vertical-align:top;">
+                                            <div style="margin-bottom:3px;">Mengetahui,</div>
+                                            <div style="font-weight:bold;margin-bottom:38px;">Kepala Urusan Tata Usaha &amp; Umum</div>
+                                            <div style="font-weight:bold;text-decoration:underline;">( .................................................. )</div>
+                                        </td>
+                                        <td style="width:50%;text-align:center;border:none;vertical-align:top;">
+                                            <div style="margin-bottom:3px;">${desaConfig.nama_lokasi}, ${docDateStr}</div>
+                                            <div style="font-weight:bold;margin-bottom:38px;">Perbekel ${desaConfig.nama_lokasi || 'Desa'}</div>
+                                            <div style="font-weight:bold;text-decoration:underline;">( .................................................. )</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>`;
                         pdfContent.innerHTML = pdfHtml;
                     }
 
@@ -4954,7 +5750,7 @@
                         colBar.innerHTML = kibCols.map((_, i) => `<div class="excel-col-cell">${letters[i]||'?'}</div>`).join('');
                         const hS = `class="excel-cell excel-cell-header" style="text-align:center;font-size:9px;"`;
                         const rows = [];
-                        rows.push(`<tr><td class="excel-row-num">1</td><td class="excel-cell excel-cell-title" colspan="8" style="padding:4px 5px;font-weight:bold;">BUKU INVENTARIS ASET DESA - ${kibLabel}</td></tr>`);
+                        rows.push(`<tr><td class="excel-row-num">1</td><td class="excel-cell excel-cell-title" colspan="8" style="padding:4px 5px;font-weight:bold;">KARTU INVENTARIS BARANG - ${kibLabel}</td></tr>`);
                         rows.push(`<tr><td class="excel-row-num">2</td>${kibCols.map(h => `<td ${hS}>${h}</td>`).join('')}</tr>`);
                         const placeholders = Math.min(currentDataCount > 0 ? currentDataCount : 3, 3);
                         for (let r = 0; r < placeholders; r++) {
@@ -4969,24 +5765,324 @@
                     } else {
                         document.getElementById('pdf-filename').textContent = baseName + '.pdf';
                         const pdfContent = document.getElementById('pdf-preview-content');
-                        const placeholders = Math.min(currentDataCount > 0 ? currentDataCount : 3, 3);
-                        let pdfHtml = `<div style="font-family:Arial,sans-serif;font-size:9px;">`;
-                        pdfHtml += `<div style="text-align:center;font-weight:bold;font-size:11px;margin-bottom:2px;">BUKU INVENTARIS ASET DESA</div>`;
-                        pdfHtml += `<div style="text-align:center;font-weight:bold;font-size:10px;margin-bottom:6px;">${kibLabel}</div>`;
-                        pdfHtml += `<table style="width:100%;border-collapse:collapse;font-size:8px;"><thead><tr style="background:#f9fafb;">`;
-                        ['NO','JENIS BARANG / NAMA BARANG','KODE BARANG','REG','... (field KIB)','ASAL-USUL','HARGA Rp'].forEach(h => {
-                            pdfHtml += `<th style="border:1px solid #aaa;padding:3px 4px;text-align:center;font-weight:bold;">${h}</th>`;
-                        });
-                        pdfHtml += `</tr></thead><tbody>`;
-                        for (let r = 0; r < placeholders; r++) {
-                            pdfHtml += `<tr>${Array(7).fill(`<td style="border:1px solid #aaa;padding:2px 4px;color:#9ca3af;">...</td>`).join('')}</tr>`;
+                        const docDateStr = document.getElementById('date-preview')?.textContent || (desaConfig.nama_lokasi + ', ' + new Date().toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'}));
+                        const tahunKibStr = selectedTahun === 'all' ? '(Semua Tahun)' : selectedTahun;
+
+                        const thStyle = 'border:1px solid #000000 !important;background:#ffffff !important;color:#000000 !important;padding:3.5px 2px;font-weight:bold;font-size:7px;text-align:center;vertical-align:middle;';
+                        const tdStyle = (align = 'left') => `border:1px solid #000000 !important;background:#ffffff !important;color:#000000 !important;padding:3px 4px;font-size:7px;text-align:${align};vertical-align:middle;`;
+
+                        const renderKibPage = (kType, pageIdx, totalPages) => {
+                            let kTitle = 'KARTU INVENTARIS BARANG (KIB) ' + kType;
+                            let kSub = 'TANAH';
+                            let theadRows = '';
+                            let totalCols = 13;
+                            let beforeHarga = 11;
+                            let afterHarga = 1;
+
+                            if (kType === 'A') {
+                                kSub = 'TANAH';
+                                totalCols = 13; beforeHarga = 11; afterHarga = 1;
+                                theadRows = `
+                                    <tr>
+                                        <th rowspan="2" style="${thStyle};width:24px;">NO</th>
+                                        <th rowspan="2" style="${thStyle};width:140px;">JENIS BARANG / NAMA BARANG</th>
+                                        <th colspan="2" style="${thStyle}">NOMOR</th>
+                                        <th colspan="4" style="${thStyle}">IDENTITAS</th>
+                                        <th colspan="3" style="${thStyle}">STATUS TANAH</th>
+                                        <th rowspan="2" style="${thStyle};width:70px;">ASAL-USUL BARANG</th>
+                                        <th rowspan="2" style="${thStyle};width:80px;">HARGA<br>Rp</th>
+                                        <th rowspan="2" style="${thStyle};width:75px;">KETERANGAN</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="${thStyle};width:65px;">KODE BARANG</th>
+                                        <th style="${thStyle};width:35px;">REG.</th>
+                                        <th style="${thStyle};width:60px;">LUAS (M2)</th>
+                                        <th style="${thStyle};width:55px;">TAHUN PEROLEHAN</th>
+                                        <th style="${thStyle};width:85px;">ALAMAT</th>
+                                        <th style="${thStyle};width:70px;">PENGGUNAAN</th>
+                                        <th style="${thStyle};width:55px;">HAK</th>
+                                        <th style="${thStyle};width:65px;">TGL SERTIFIKAT</th>
+                                        <th style="${thStyle};width:65px;">NOMOR SERTIFIKAT</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="${thStyle}">1</th>
+                                        <th style="${thStyle}">2</th>
+                                        <th colspan="2" style="${thStyle}">3</th>
+                                        <th colspan="4" style="${thStyle}">4</th>
+                                        <th colspan="3" style="${thStyle}">5</th>
+                                        <th style="${thStyle}">6</th>
+                                        <th style="${thStyle}">7</th>
+                                        <th style="${thStyle}">8</th>
+                                    </tr>`;
+                            } else if (kType === 'B') {
+                                kSub = 'PERALATAN DAN MESIN';
+                                totalCols = 16; beforeHarga = 14; afterHarga = 1;
+                                theadRows = `
+                                    <tr>
+                                        <th rowspan="2" style="${thStyle};width:24px;">NO</th>
+                                        <th rowspan="2" style="${thStyle};width:140px;">JENIS BARANG / NAMA BARANG</th>
+                                        <th colspan="2" style="${thStyle}">NOMOR</th>
+                                        <th colspan="7" style="${thStyle}">IDENTITAS</th>
+                                        <th colspan="2" style="${thStyle}">NOMOR DOKUMEN</th>
+                                        <th rowspan="2" style="${thStyle};width:70px;">ASAL-USUL BARANG</th>
+                                        <th rowspan="2" style="${thStyle};width:80px;">HARGA<br>Rp</th>
+                                        <th rowspan="2" style="${thStyle};width:75px;">KETERANGAN</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="${thStyle};width:65px;">KODE BARANG</th>
+                                        <th style="${thStyle};width:35px;">REG.</th>
+                                        <th style="${thStyle};width:70px;">MERK / TYPE</th>
+                                        <th style="${thStyle};width:55px;">UKURAN / CC</th>
+                                        <th style="${thStyle};width:55px;">BAHAN</th>
+                                        <th style="${thStyle};width:55px;">TAHUN PEROLEHAN</th>
+                                        <th style="${thStyle};width:60px;">NO. PABRIK</th>
+                                        <th style="${thStyle};width:60px;">NO. RANGKA</th>
+                                        <th style="${thStyle};width:60px;">NO. MESIN</th>
+                                        <th style="${thStyle};width:55px;">NO. POLISI</th>
+                                        <th style="${thStyle};width:55px;">NO. BPKB</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="${thStyle}">1</th>
+                                        <th style="${thStyle}">2</th>
+                                        <th colspan="2" style="${thStyle}">3</th>
+                                        <th colspan="7" style="${thStyle}">4</th>
+                                        <th colspan="2" style="${thStyle}">5</th>
+                                        <th style="${thStyle}">6</th>
+                                        <th style="${thStyle}">7</th>
+                                        <th style="${thStyle}">8</th>
+                                    </tr>`;
+                            } else if (kType === 'C') {
+                                kSub = 'GEDUNG DAN BANGUNAN';
+                                totalCols = 15; beforeHarga = 13; afterHarga = 1;
+                                theadRows = `
+                                    <tr>
+                                        <th rowspan="2" style="${thStyle};width:24px;">NO</th>
+                                        <th rowspan="2" style="${thStyle};width:140px;">JENIS BARANG / NAMA BARANG</th>
+                                        <th colspan="2" style="${thStyle}">NOMOR</th>
+                                        <th colspan="6" style="${thStyle}">IDENTITAS</th>
+                                        <th rowspan="2" style="${thStyle};width:60px;">STATUS<br>TANAH</th>
+                                        <th rowspan="2" style="${thStyle};width:70px;">NOMOR KODE<br>TANAH</th>
+                                        <th rowspan="2" style="${thStyle};width:70px;">ASAL-USUL BARANG</th>
+                                        <th rowspan="2" style="${thStyle};width:80px;">HARGA<br>Rp</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="${thStyle};width:65px;">KODE BARANG</th>
+                                        <th style="${thStyle};width:35px;">REG.</th>
+                                        <th style="${thStyle};width:65px;">BERTINGKAT</th>
+                                        <th style="${thStyle};width:65px;">BETON</th>
+                                        <th style="${thStyle};width:55px;">LUAS (M2)</th>
+                                        <th style="${thStyle};width:55px;">TAHUN PEROLEHAN</th>
+                                        <th style="${thStyle};width:45px;">BUKU</th>
+                                        <th style="${thStyle};width:55px;">TANGGAL</th>
+                                        <th style="${thStyle};width:55px;">NOMOR</th>
+                                        <th style="${thStyle};width:85px;">ALAMAT</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="${thStyle}">1</th>
+                                        <th style="${thStyle}">2</th>
+                                        <th colspan="2" style="${thStyle}">3</th>
+                                        <th style="${thStyle}">4</th>
+                                        <th colspan="2" style="${thStyle}">5</th>
+                                        <th colspan="6" style="${thStyle}">6</th>
+                                        <th style="${thStyle}">7</th>
+                                        <th style="${thStyle}">8</th>
+                                        <th style="${thStyle}">9</th>
+                                        <th style="${thStyle}">10</th>
+                                    </tr>`;
+                            } else if (kType === 'D') {
+                                kSub = 'JALAN, IRIGASI DAN JARINGAN';
+                                totalCols = 18; beforeHarga = 15; afterHarga = 2;
+                                theadRows = `
+                                    <tr>
+                                        <th rowspan="2" style="${thStyle};width:24px;">NO</th>
+                                        <th rowspan="2" style="${thStyle};width:140px;">JENIS BARANG / NAMA BARANG</th>
+                                        <th colspan="2" style="${thStyle}">NOMOR</th>
+                                        <th rowspan="2" style="${thStyle};width:60px;">KONS-<br>TRUKSI</th>
+                                        <th colspan="8" style="${thStyle}">IDENTITAS</th>
+                                        <th colspan="2" style="${thStyle}">TANAH</th>
+                                        <th rowspan="2" style="${thStyle};width:70px;">ASAL-USUL BARANG</th>
+                                        <th rowspan="2" style="${thStyle};width:80px;">HARGA<br>Rp</th>
+                                        <th rowspan="2" style="${thStyle};width:55px;">KONDISI</th>
+                                        <th rowspan="2" style="${thStyle};width:75px;">KETERANGAN</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="${thStyle};width:65px;">KODE BARANG</th>
+                                        <th style="${thStyle};width:35px;">REG.</th>
+                                        <th style="${thStyle};width:55px;">PANJANG (KM)</th>
+                                        <th style="${thStyle};width:55px;">LEBAR (M)</th>
+                                        <th style="${thStyle};width:55px;">LUAS (M2)</th>
+                                        <th style="${thStyle};width:55px;">TAHUN PEROLEHAN</th>
+                                        <th style="${thStyle};width:45px;">BUKU</th>
+                                        <th style="${thStyle};width:55px;">TGL</th>
+                                        <th style="${thStyle};width:55px;">NOMOR</th>
+                                        <th style="${thStyle};width:85px;">ALAMAT</th>
+                                        <th style="${thStyle};width:55px;">STATUS</th>
+                                        <th style="${thStyle};width:55px;">KODE</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="${thStyle}">1</th>
+                                        <th style="${thStyle}">2</th>
+                                        <th colspan="2" style="${thStyle}">3</th>
+                                        <th style="${thStyle}">4</th>
+                                        <th colspan="8" style="${thStyle}">5</th>
+                                        <th colspan="2" style="${thStyle}">6</th>
+                                        <th style="${thStyle}">7</th>
+                                        <th style="${thStyle}">8</th>
+                                        <th style="${thStyle}">9</th>
+                                        <th style="${thStyle}">10</th>
+                                    </tr>`;
+                            } else if (kType === 'E') {
+                                kSub = 'ASET TETAP LAINNYA';
+                                totalCols = 16; beforeHarga = 14; afterHarga = 1;
+                                theadRows = `
+                                    <tr>
+                                        <th rowspan="2" style="${thStyle};width:24px;">NO</th>
+                                        <th rowspan="2" style="${thStyle};width:140px;">JENIS BARANG / NAMA BARANG</th>
+                                        <th colspan="2" style="${thStyle}">NOMOR</th>
+                                        <th colspan="2" style="${thStyle}">BUKU / PERPUSTAKAAN</th>
+                                        <th colspan="3" style="${thStyle}">BARANG BERCORAK KESENIAN/KEBUDAYAAN</th>
+                                        <th colspan="2" style="${thStyle}">HEWAN/TERNAK DAN TUMBUHAN</th>
+                                        <th rowspan="2" style="${thStyle};width:55px;">KONDISI</th>
+                                        <th colspan="2" style="${thStyle}">TAHUN PEROLEHAN/BUKU</th>
+                                        <th rowspan="2" style="${thStyle};width:70px;">ASAL-USUL BARANG</th>
+                                        <th rowspan="2" style="${thStyle};width:80px;">HARGA<br>Rp</th>
+                                        <th rowspan="2" style="${thStyle};width:75px;">KETERANGAN</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="${thStyle};width:65px;">KODE BARANG</th>
+                                        <th style="${thStyle};width:35px;">REG.</th>
+                                        <th style="${thStyle};width:75px;">JUDUL/PENCIPTA</th>
+                                        <th style="${thStyle};width:65px;">SPESIFIKASI</th>
+                                        <th style="${thStyle};width:65px;">ASAL DAERAH</th>
+                                        <th style="${thStyle};width:65px;">PENCIPTA</th>
+                                        <th style="${thStyle};width:55px;">BAHAN</th>
+                                        <th style="${thStyle};width:55px;">JENIS</th>
+                                        <th style="${thStyle};width:55px;">UKURAN</th>
+                                        <th style="${thStyle};width:55px;">PEROLEHAN</th>
+                                        <th style="${thStyle};width:45px;">BUKU</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="${thStyle}">1</th>
+                                        <th style="${thStyle}">2</th>
+                                        <th colspan="2" style="${thStyle}">3</th>
+                                        <th colspan="2" style="${thStyle}">4</th>
+                                        <th colspan="3" style="${thStyle}">5</th>
+                                        <th colspan="2" style="${thStyle}">6</th>
+                                        <th style="${thStyle}">7</th>
+                                        <th colspan="2" style="${thStyle}">8</th>
+                                        <th style="${thStyle}">9</th>
+                                        <th style="${thStyle}">10</th>
+                                        <th style="${thStyle}">11</th>
+                                    </tr>`;
+                            } else {
+                                kSub = 'KONSTRUKSI DALAM PENGERJAAN';
+                                totalCols = 12; beforeHarga = 10; afterHarga = 1;
+                                theadRows = `
+                                    <tr>
+                                        <th rowspan="2" style="${thStyle};width:24px;">NO</th>
+                                        <th rowspan="2" style="${thStyle};width:140px;">JENIS BARANG / NAMA BARANG</th>
+                                        <th colspan="2" style="${thStyle}">NOMOR</th>
+                                        <th rowspan="2" style="${thStyle};width:60px;">KONDISI<br>BANGUNAN<br>(B,RR,RB)</th>
+                                        <th colspan="3" style="${thStyle}">IDENTITAS</th>
+                                        <th rowspan="2" style="${thStyle};width:70px;">BIDANG</th>
+                                        <th rowspan="2" style="${thStyle};width:70px;">SUMBER<br>DANA</th>
+                                        <th rowspan="2" style="${thStyle};width:70px;">ASAL-USUL BARANG</th>
+                                        <th rowspan="2" style="${thStyle};width:80px;">HARGA<br>Rp</th>
+                                        <th rowspan="2" style="${thStyle};width:75px;">KETERANGAN</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="${thStyle};width:65px;">KODE BARANG</th>
+                                        <th style="${thStyle};width:35px;">REG.</th>
+                                        <th style="${thStyle};width:55px;">TAHUN BUKU</th>
+                                        <th style="${thStyle};width:65px;">TGL DOKUMEN</th>
+                                        <th style="${thStyle};width:75px;">NO DOKUMEN</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="${thStyle}">1</th>
+                                        <th style="${thStyle}">2</th>
+                                        <th colspan="2" style="${thStyle}">3</th>
+                                        <th style="${thStyle}">4</th>
+                                        <th colspan="3" style="${thStyle}">5</th>
+                                        <th style="${thStyle}">6</th>
+                                        <th style="${thStyle}">7</th>
+                                        <th style="${thStyle}">8</th>
+                                        <th style="${thStyle}">9</th>
+                                        <th style="${thStyle}">10</th>
+                                    </tr>`;
+                            }
+
+                            let pageRows = '';
+                            for (let r = 0; r < 3; r++) {
+                                pageRows += `
+                                    <tr>
+                                        <td style="${tdStyle('center')}">${r+1}</td>
+                                        <td style="${tdStyle()}">...</td>
+                                        <td style="${tdStyle('center')}">...</td>
+                                        <td style="${tdStyle('center')}">...</td>
+                                        ${Array(totalCols - 5).fill(`<td style="${tdStyle('center')}">...</td>`).join('')}
+                                        <td style="${tdStyle('right')}">...</td>
+                                        ${afterHarga > 0 ? Array(afterHarga).fill(`<td style="${tdStyle()}">...</td>`).join('') : ''}
+                                    </tr>`;
+                            }
+
+                            return `
+                                <div style="font-family:Arial,sans-serif;color:#000;background:#ffffff;padding-bottom:${pageIdx < totalPages - 1 ? '24px' : '0'};margin-bottom:${pageIdx < totalPages - 1 ? '24px' : '0'};border-bottom:${pageIdx < totalPages - 1 ? '2px dashed #d1d5db' : 'none'};">
+                                    <div style="text-align:center;font-weight:bold;font-size:12px;margin-bottom:2px;">${kTitle}</div>
+                                    <div style="text-align:center;font-weight:bold;font-size:11px;margin-bottom:2px;">${kSub}</div>
+                                    <div style="text-align:center;font-size:9.5px;margin-bottom:12px;">Periode Tanggal, 31 Desember ${tahunKibStr}</div>
+                                    <div style="font-family:'Courier New',Courier,monospace;font-size:8.5px;line-height:1.45;margin-bottom:12px;">
+                                        <div style="display:flex;"><span style="width:130px;flex-shrink:0;">Provinsi</span><span>: ${desaConfig.provinsi_kode}. ${desaConfig.provinsi_nama}</span></div>
+                                        <div style="display:flex;"><span style="width:130px;flex-shrink:0;">Kab./Kota</span><span>: ${desaConfig.kabupaten_kode}. ${desaConfig.kabupaten_nama}</span></div>
+                                        <div style="display:flex;"><span style="width:130px;flex-shrink:0;">Kecamatan</span><span>: ${desaConfig.kecamatan_kode}. ${desaConfig.kecamatan_nama}</span></div>
+                                        <div style="display:flex;"><span style="width:130px;flex-shrink:0;">Desa</span><span>: ${desaConfig.kode_lokasi}. ${desaConfig.desa_nama}</span></div>
+                                        <div style="display:flex;"><span style="width:130px;flex-shrink:0;">UPB</span><span>: ${desaConfig.upb}</span></div>
+                                        <div style="display:flex;"><span style="width:130px;flex-shrink:0;">No. Kode Lokasi</span><span>: ${desaConfig.kode_lokasi}.</span></div>
+                                    </div>
+                                    <div style="overflow-x:auto;margin-bottom:4px;">
+                                        <table style="width:100%;border-collapse:collapse;font-size:7px;background:#ffffff;">
+                                            <thead>${theadRows}</thead>
+                                            <tbody>
+                                                ${pageRows}
+                                                <tr style="font-weight:bold;background:#ffffff;">
+                                                    <td colspan="${beforeHarga}" style="border:1px solid #000 !important;padding:4px;text-align:center;font-weight:bold;">JUMLAH HARGA</td>
+                                                    <td style="border:1px solid #000 !important;padding:4px;text-align:right;font-weight:bold;">SUM</td>
+                                                    ${afterHarga > 0 ? Array(afterHarga).fill('<td style="border:1px solid #000 !important;"></td>').join('') : ''}
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <table style="width:100%;border-collapse:collapse;border:none;margin-top:20px;font-size:8.5px;">
+                                        <tr>
+                                            <td style="width:50%;text-align:center;border:none;vertical-align:top;">
+                                                <div style="margin-bottom:3px;">MENGETAHUI</div>
+                                                <div style="font-weight:bold;margin-bottom:38px;">${customPejabat.length >= 1 ? (customPejabat[0].jabatan || 'SEKRETARIS DESA').toUpperCase() : 'SEKRETARIS DESA'}</div>
+                                                <div style="font-weight:bold;text-decoration:underline;">( ${customPejabat.length >= 1 ? customPejabat[0].nama : '..................................................'} )</div>
+                                            </td>
+                                            <td style="width:50%;text-align:center;border:none;vertical-align:top;">
+                                                <div style="margin-bottom:3px;">${desaConfig.nama_lokasi}, ${docDateStr}</div>
+                                                <div style="font-weight:bold;margin-bottom:38px;">${customPejabat.length >= 2 ? (customPejabat[1].jabatan || 'PETUGAS / PENGURUS BARANG').toUpperCase() : 'PETUGAS / PENGURUS BARANG MILIK DESA'}</div>
+                                                <div style="font-weight:bold;text-decoration:underline;">( ${customPejabat.length >= 2 ? customPejabat[1].nama : '..................................................'} )</div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    ${totalPages > 1 ? `
+                                    <div style="margin-top:12px;padding-top:6px;border-top:1px solid #111;font-size:8.5px;display:flex;justify-content:space-between;">
+                                        <span>Kartu Inventaris Barang (KIB) - Semua Jenis</span>
+                                        <span>Halaman : ${pageIdx + 1} dari ${totalPages}</span>
+                                    </div>` : ''}
+                                </div>`;
+                        };
+
+                        if (selectedKib === 'all') {
+                            const kibTypes = ['A', 'B', 'C', 'D', 'E', 'F'];
+                            let allHtml = '';
+                            kibTypes.forEach((kt, i) => {
+                                allHtml += renderKibPage(kt, i, kibTypes.length);
+                            });
+                            pdfContent.innerHTML = allHtml;
+                        } else {
+                            pdfContent.innerHTML = renderKibPage(selectedKib.toUpperCase(), 0, 1);
                         }
-                        if (currentDataCount > 3) {
-                            pdfHtml += `<tr><td colspan="7" style="border:1px solid #aaa;padding:3px;text-align:center;color:#9ca3af;font-size:8px;">... +${currentDataCount - 3} data lainnya</td></tr>`;
-                        }
-                        pdfHtml += `<tr><td colspan="6" style="border:1px solid #aaa;padding:3px;font-weight:bold;text-align:center;">JUMLAH HARGA</td><td style="border:1px solid #aaa;padding:3px;font-weight:bold;text-align:right;">S</td></tr>`;
-                        pdfHtml += `</tbody></table></div>`;
-                        pdfContent.innerHTML = pdfHtml;
                     }
 
                     const signerPanel = document.getElementById('preview-signer-panel');
@@ -5031,8 +6127,186 @@
                     }
                 }
 
+                const buildJenisPdfPage = (targetJenis, pageIdx = 0, totalPages = 1) => {
+                    const docDateStr = document.getElementById('date-preview')?.textContent || (desaConfig.nama_lokasi + ', ' + new Date().toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'}));
+                    const tahunPeriodeStr = selectedTahun === 'all' ? 'Periode Tanggal, 31 Desember (Semua Tahun)' : ('Periode Tanggal, 31 Desember ' + selectedTahun);
+
+                    const thStyle = 'border:1px solid #000000 !important;background:#ffffff !important;color:#000000 !important;padding:3.5px 2px;font-weight:bold;font-size:7px;text-align:center;vertical-align:middle;';
+                    const tdStyle = (align = 'left') => `border:1px solid #000000 !important;background:#ffffff !important;color:#000000 !important;padding:3px 4px;font-size:7px;text-align:${align};vertical-align:middle;`;
+
+                    let theadHtml = '';
+                    let totalCols = 1;
+                    let dataRowCells = '';
+
+                    if (targetJenis.is_virtual) {
+                        totalCols = 11;
+                        theadHtml = `
+                            <tr>
+                                <th rowspan="2" style="${thStyle};width:24px;">NO</th>
+                                <th rowspan="2" style="${thStyle};width:90px;">JENIS BARANG</th>
+                                <th rowspan="2" style="${thStyle};width:65px;">KODE BARANG</th>
+                                <th rowspan="2" style="${thStyle};width:130px;">NAMA / IDENTITAS BARANG</th>
+                                <th colspan="3" style="${thStyle}">ASAL USUL BARANG</th>
+                                <th rowspan="2" style="${thStyle};width:55px;">TAHUN PEROLEHAN</th>
+                                <th rowspan="2" style="${thStyle};width:80px;">NILAI ASET (Rp)</th>
+                                <th rowspan="2" style="${thStyle};width:70px;">PENGGUNA</th>
+                                <th rowspan="2" style="${thStyle};width:65px;">KET.</th>
+                            </tr>
+                            <tr>
+                                <th style="${thStyle};width:60px;">APBDES</th>
+                                <th style="${thStyle};width:75px;">PEROLEHAN LAIN</th>
+                                <th style="${thStyle};width:75px;">KEKAYAAN ASLI</th>
+                            </tr>
+                            <tr>
+                                <th style="${thStyle}">1</th>
+                                <th style="${thStyle}">2</th>
+                                <th style="${thStyle}">3</th>
+                                <th style="${thStyle}">4</th>
+                                <th colspan="3" style="${thStyle}">5</th>
+                                <th style="${thStyle}">6</th>
+                                <th style="${thStyle}">7</th>
+                                <th style="${thStyle}">8</th>
+                                <th style="${thStyle}">9</th>
+                            </tr>`;
+                        dataRowCells = `
+                            <td style="${tdStyle('center')}">{NUM}</td>
+                            <td style="${tdStyle()}">...</td>
+                            <td style="${tdStyle('center')}">...</td>
+                            <td style="${tdStyle()}">...</td>
+                            <td style="${tdStyle('center')}">...</td>
+                            <td style="${tdStyle('center')}">...</td>
+                            <td style="${tdStyle('center')}">...</td>
+                            <td style="${tdStyle('center')}">...</td>
+                            <td style="${tdStyle('right')}">...</td>
+                            <td style="${tdStyle()}">...</td>
+                            <td style="${tdStyle()}">...</td>`;
+                    } else {
+                        const fields = (targetJenis.fields || []).filter(f => f.fixed !== 'jenis_barang');
+                        const hasKondisi = fields.some(f => f.type === 'fixed' && f.fixed === 'kondisi');
+
+                        let row1 = `<tr><th rowspan="${hasKondisi ? '2' : '1'}" style="${thStyle};width:24px;">NO</th>`;
+                        let row2 = '<tr>';
+                        let row3 = `<tr><th style="${thStyle}">1</th>`;
+                        let cNum = 2;
+                        let colCount = 1;
+
+                        fields.forEach((f) => {
+                            let label = f.label;
+                            if (f.fixed === 'nama_barang') label = 'JENIS BARANG / NAMA BARANG';
+
+                            if (f.type === 'fixed' && f.fixed === 'kondisi') {
+                                row1 += `<th colspan="3" style="${thStyle}">KONDISI BARANG</th>`;
+                                row2 += `<th style="${thStyle};width:40px;">BAIK</th><th style="${thStyle};width:45px;">RUSAK RINGAN</th><th style="${thStyle};width:45px;">RUSAK BERAT</th>`;
+                                row3 += `<th colspan="3" style="${thStyle}">${cNum++}</th>`;
+                                colCount += 3;
+                            } else {
+                                row1 += `<th rowspan="${hasKondisi ? '2' : '1'}" style="${thStyle}">${label.toUpperCase()}</th>`;
+                                row3 += `<th style="${thStyle}">${cNum++}</th>`;
+                                colCount += 1;
+                            }
+                        });
+
+                        row1 += '</tr>';
+                        row2 += '</tr>';
+                        row3 += '</tr>';
+
+                        theadHtml = hasKondisi ? (row1 + row2 + row3) : (row1 + row3);
+                        totalCols = colCount;
+
+                        dataRowCells = `<td style="${tdStyle('center')}">{NUM}</td>`;
+                        fields.forEach(f => {
+                            if (f.type === 'fixed' && f.fixed === 'kondisi') {
+                                dataRowCells += `<td style="${tdStyle('center')}">X</td><td style="${tdStyle('center')}"></td><td style="${tdStyle('center')}"></td>`;
+                            } else if ((f.label || '').toLowerCase().includes('nilai') || (f.label || '').toLowerCase().includes('harga')) {
+                                dataRowCells += `<td style="${tdStyle('right')}">...</td>`;
+                            } else if (['kode_barang', 'nup', 'tahun_perolehan'].includes(f.fixed) || (f.label || '').toLowerCase().includes('tahun') || (f.label || '').toLowerCase().includes('kode')) {
+                                dataRowCells += `<td style="${tdStyle('center')}">...</td>`;
+                            } else {
+                                dataRowCells += `<td style="${tdStyle()}">...</td>`;
+                            }
+                        });
+                    }
+
+                    let dataRowsHtml = '';
+                    const numPlaceholders = (totalPages === 1 && currentDataCount > 0) ? Math.min(currentDataCount, 3) : 3;
+                    for (let r = 0; r < numPlaceholders; r++) {
+                        dataRowsHtml += `<tr>${dataRowCells.replace('{NUM}', r + 1)}</tr>`;
+                    }
+                    if (totalPages === 1 && currentDataCount > 3) {
+                        dataRowsHtml += `<tr><td colspan="${totalCols}" style="${tdStyle('center')};color:#6b7280;font-style:italic;">... +${currentDataCount - 3} data lainnya</td></tr>`;
+                    } else if (totalPages === 1 && currentDataCount === 0) {
+                        dataRowsHtml += `<tr><td colspan="${totalCols}" style="${tdStyle('center')};color:#9ca3af;font-style:italic;">Tidak ada data ${selectedTahun === 'all' ? 'dalam sistem' : 'untuk tahun ' + selectedTahun}</td></tr>`;
+                    }
+
+                    const signers = getActiveSignerList();
+                    const signerHtml = signers.length > 0 ? `
+                        <table style="width:100%;border-collapse:collapse;border:none;margin-top:14px;font-size:8.5px;">
+                            <tr>
+                                <td style="width:55%;border:none;vertical-align:top;"></td>
+                                <td style="width:45%;border:none;vertical-align:top;padding-left:12px;">
+                                    <div style="font-size:10.5px;font-weight:bold;text-align:center;margin-bottom:10px;">TIM INVENTARISASI</div>
+                                    ${signers.map((p, i) => `
+                                        <div style="display:flex;align-items:flex-end;gap:4px;margin-bottom:14px;">
+                                            <span style="font-size:9.5px;white-space:nowrap;flex-shrink:0;">${i+1}. ${p.nama || p.nama_pejabat || ''}</span>
+                                            <span style="font-size:10.5px;flex-shrink:0;margin-left:4px;">&nbsp;(</span>
+                                            <span style="flex:1;border-bottom:1px solid #111;min-height:16px;display:inline-block;"></span>
+                                            <span style="font-size:10.5px;flex-shrink:0;">)</span>
+                                        </div>
+                                    `).join('')}
+                                </td>
+                            </tr>
+                        </table>` : '';
+
+                    return `
+                        <div style="font-family:Arial,sans-serif;color:#000;background:#ffffff;padding-bottom:${pageIdx < totalPages - 1 ? '24px' : '0'};margin-bottom:${pageIdx < totalPages - 1 ? '24px' : '0'};border-bottom:${pageIdx < totalPages - 1 ? '2px dashed #d1d5db' : 'none'};">
+                            <div style="text-align:center;font-weight:bold;font-size:12px;margin-bottom:2px;">LAPORAN HASIL INVENTARIS ASET DESA</div>
+                            <div style="text-align:center;font-weight:bold;font-size:11px;margin-bottom:2px;">BERUPA ${targetJenis.nama.toUpperCase()}</div>
+                            <div style="text-align:center;font-size:9.5px;margin-bottom:12px;">${tahunPeriodeStr}</div>
+                            
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;font-size:8.5px;">
+                                <div style="font-family:'Courier New',Courier,monospace;line-height:1.45;">
+                                    <div style="display:flex;"><span style="width:130px;flex-shrink:0;">Provinsi</span><span>: ${desaConfig.provinsi_kode}. ${desaConfig.provinsi_nama}</span></div>
+                                    <div style="display:flex;"><span style="width:130px;flex-shrink:0;">Kab./Kota</span><span>: ${desaConfig.kabupaten_kode}. ${desaConfig.kabupaten_nama}</span></div>
+                                    <div style="display:flex;"><span style="width:130px;flex-shrink:0;">Kecamatan</span><span>: ${desaConfig.kecamatan_kode}. ${desaConfig.kecamatan_nama}</span></div>
+                                    <div style="display:flex;"><span style="width:130px;flex-shrink:0;">Desa</span><span>: ${desaConfig.kode_lokasi}. ${desaConfig.desa_nama}</span></div>
+                                    <div style="display:flex;"><span style="width:130px;flex-shrink:0;">UPB</span><span>: ${desaConfig.upb}</span></div>
+                                    <div style="display:flex;"><span style="width:130px;flex-shrink:0;">No. Kode Lokasi</span><span>: ${desaConfig.kode_lokasi}.</span></div>
+                                </div>
+                                <div style="font-weight:bold;line-height:1.45;">
+                                    <table style="border:none;border-collapse:collapse;font-size:8.5px;">
+                                        <tr><td style="border:none;padding:1px 4px 1px 0;">Lampiran</td><td style="border:none;padding:1px 0;">: -</td></tr>
+                                        <tr><td colspan="2" style="border:none;padding:2px 0 1px;">Berita Acara Inventarisasi Aset Desa</td></tr>
+                                        <tr><td style="border:none;padding:1px 4px 1px 0;">Nomor</td><td style="border:none;padding:1px 0;">: -</td></tr>
+                                        <tr><td style="border:none;padding:1px 4px 1px 0;">Tanggal</td><td style="border:none;padding:1px 0;">: ${docDateStr}</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div style="overflow-x:auto;margin-bottom:4px;">
+                                <table style="width:100%;border-collapse:collapse;font-size:7px;background:#ffffff;">
+                                    <thead>${theadHtml}</thead>
+                                    <tbody>
+                                        ${dataRowsHtml}
+                                        <tr style="font-weight:bold;background:#ffffff;">
+                                            <td colspan="${totalCols - 1}" style="border:1px solid #000 !important;padding:4px;text-align:center;font-weight:bold;">JUMLAH HARGA</td>
+                                            <td style="border:1px solid #000 !important;padding:4px;text-align:right;font-weight:bold;">SUM</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            ${signerHtml}
+
+                            ${totalPages > 1 ? `
+                            <div style="margin-top:12px;padding-top:6px;border-top:1px solid #111;font-size:8.5px;display:flex;justify-content:space-between;">
+                                <span>Laporan Hasil Inventaris Aset Desa - Semua Jenis</span>
+                                <span>Halaman : ${pageIdx + 1} dari ${totalPages}</span>
+                            </div>` : ''}
+                        </div>`;
+                };
+
                 if (selectedJenisId === 'all') {
-                    const baseName = 'inventaris_semua_jenis_' + selectedTahun;
+                    const baseName = 'inventaris_semua_jenis_' + (selectedTahun === 'all' ? 'semua_tahun' : selectedTahun);
                     const jenisList = Object.values(jenisData || {}).filter(j => !j.is_virtual && !j.is_orphan);
 
                     document.getElementById('preview-wrapper-excel').style.display = format === 'excel' ? '' : 'none';
@@ -5072,19 +6346,29 @@
                         // Row 4: Header
                         rows.push(`<tr><td class="excel-row-num">4</td>${cols.map(c => `<td class="excel-cell excel-cell-header">${c}</td>`).join('')}</tr>`);
 
-                        // Data rows (3 placeholder)
-                        const placeholders = 3;
-                        for (let r = 0; r < placeholders; r++) {
+                        // 3 placeholder data rows
+                        for (let r = 0; r < 3; r++) {
                             const cls = r % 2 === 0 ? 'excel-cell-data' : 'excel-cell-data alt';
                             rows.push(`<tr><td class="excel-row-num">${r+5}</td><td class="excel-cell ${cls}" style="text-align:center;">${r+1}</td>${cols.slice(1).map(() => `<td class="excel-cell ${cls}">...</td>`).join('')}</tr>`);
                         }
+                        rows.push(`<tr><td class="excel-row-num" style="color:#9ca3af;">...</td><td class="excel-cell" colspan="${span}" style="text-align:center;color:#9ca3af;font-style:italic;padding:4px;">(Setiap jenis inventaris akan berada di Sheet terpisah)</td></tr>`);
 
                         // Jumlah row
-                        const jumlahRowNum = 8;
-                        rows.push(`<tr><td class="excel-row-num">${jumlahRowNum}</td><td class="excel-cell" colspan="${span-1}" style="font-weight:700;font-size:10px;">Jumlah ${'-'.repeat(12)}</td><td class="excel-cell" style="font-weight:700;text-align:right;font-size:10px;color:#217346;">SUM</td></tr>`);
+                        const nilaiIdxFirst = cols.findIndex((c, i) => i > 0 && c.toLowerCase().includes('nilai'));
+                        let jumlahCells = '';
+                        if (nilaiIdxFirst > 0) {
+                            const beforeCount = nilaiIdxFirst;
+                            const afterCount  = cols.length - nilaiIdxFirst - 1;
+                            jumlahCells = `<td class="excel-cell" colspan="${beforeCount}" style="font-weight:700;font-size:10px;">Jumlah ${'-'.repeat(12)}</td>
+                                <td class="excel-cell" style="font-weight:700;text-align:right;font-size:10px;color:#217346;">SUM</td>
+                                ${afterCount > 0 ? `<td class="excel-cell" colspan="${afterCount}"></td>` : ''}`;
+                        } else {
+                            jumlahCells = `<td class="excel-cell" colspan="${span}" style="font-weight:700;font-size:10px;">Jumlah ${'-'.repeat(20)}</td>`;
+                        }
+                        rows.push(`<tr><td class="excel-row-num">9</td>${jumlahCells}</tr>`);
                         rows.push(`<tr><td style="width:32px;min-width:32px;background:#f2f2f2;border-right:1px solid #d0d5dd;"></td><td colspan="${span}" style="border:none;height:6px;"></td></tr>`);
 
-                        // Footer TIM INVENTARISASI
+                        // Signers preview
                         const signers = getActiveSignerList();
                         if (signers.length > 0) {
                             const leftSpan = Math.max(1, Math.floor(span * 0.65));
@@ -5097,17 +6381,6 @@
                             });
                         }
 
-                        // Sheet tabs bar di bawah (tampilkan semua jenis)
-                        const displaySheets = jenisList.slice(0, 5);
-                        const moreCount = jenisList.length > 5 ? jenisList.length - 5 : 0;
-                        const sheetTabsHtml = `
-                            <div style="display:flex;align-items:center;gap:0;border-top:2px solid #d0d5dd;margin-top:4px;background:#f2f2f2;overflow-x:auto;flex-wrap:nowrap;">
-                                <div style="padding:5px 12px;font-size:10px;font-weight:700;background:#fff;border-right:1px solid #d0d5dd;border-top:2px solid #217346;color:#217346;white-space:nowrap;flex-shrink:0;">${firstJenis.nama}</div>
-                                ${displaySheets.slice(1).map(j => `<div style="padding:5px 10px;font-size:10px;color:#6b7280;border-right:1px solid #d0d5dd;white-space:nowrap;flex-shrink:0;">${j.nama}</div>`).join('')}
-                                ${moreCount > 0 ? `<div style="padding:5px 8px;font-size:10px;color:#9ca3af;font-style:italic;flex-shrink:0;">+${moreCount} sheets</div>` : ''}
-                            </div>`;
-
-                        rows.push(`<tr><td colspan="${span + 1}" style="padding:0;border:none;">${sheetTabsHtml}</td></tr>`);
                         tbody.innerHTML = rows.join('');
                     } else {
                         document.getElementById('pdf-filename').textContent = baseName + '.pdf';
@@ -5115,68 +6388,9 @@
 
                         // PDF preview "Semua Jenis": render semua page secara vertikal tanpa navigation tabs
                         let allPagesHtml = '';
-                        
-                        jenisList.forEach((jenis, pageIdx) => {
-                            // Build columns dari fields jenis ini
-                            const cols = ['No'];
-                            (jenis.fields || []).forEach(f => {
-                                if (f.fixed === 'jenis_barang') return;
-                                if (f.type === 'fixed' && f.fixed === 'kondisi') {
-                                    cols.push('Baik', 'Rusak Ringan', 'Rusak Berat');
-                                } else if (f.fixed === 'nama_barang') {
-                                    cols.push('Jenis Barang / Nama Barang');
-                                } else {
-                                    cols.push(f.label);
-                                }
-                            });
-
-                            const span = cols.length;
-                            const thStyle = 'padding:5px 4px;background:#ffffff;color:#111111;font-size:10px;font-weight:bold;text-align:center;border:1px solid #000000;white-space:nowrap;vertical-align:middle;';
-                            const tdStyle = () => 'padding:3px 5px;font-size:10px;border:1px solid #000000;color:#111111;background:#ffffff;vertical-align:middle;';
-
-                            // Header table
-                            const headerRow = `<tr>${cols.map(c => `<th style="${thStyle}">${c}</th>`).join('')}</tr>`;
-                            
-                            // Data rows (3 placeholder per page)
-                            const dataRows = [];
-                            for (let r = 0; r < 3; r++) {
-                                dataRows.push(`<tr><td style="${tdStyle()}text-align:center;">${r+1}</td>${cols.slice(1).map(() => `<td style="${tdStyle()}">...</td>`).join('')}</tr>`);
-                            }
-                            const jumlahRow = `<tr><td colspan="${span-1}" style="${tdStyle()}font-weight:bold;">Jumlah ${'-'.repeat(20)}</td><td style="${tdStyle()}font-weight:bold;">SUM</td></tr>`;
-
-                            // Footer: TIM INVENTARISASI (sama untuk semua page)
-                            const signers = getActiveSignerList();
-                            const signerHtml = signers.length > 0
-                                ? `<table style="width:100%;border-collapse:collapse;margin-top:12px;"><tr>
-                                     <td style="width:55%;border:none;vertical-align:top;"></td>
-                                     <td style="width:45%;border:none;vertical-align:top;padding-left:12px;">
-                                       <div style="font-size:11px;font-weight:bold;text-align:center;margin-bottom:10px;">TIM INVENTARISASI</div>
-                                       ${signers.map((p,i) => `<div style="display:flex;align-items:flex-end;gap:4px;margin-bottom:18px;"><span style="font-size:10px;white-space:nowrap;flex-shrink:0;">${i+1}. ${p.nama}</span><span style="font-size:11px;flex-shrink:0;margin-left:4px;">&nbsp;(</span><span style="flex:1;border-bottom:1px solid #111;min-height:20px;display:inline-block;"></span><span style="font-size:11px;flex-shrink:0;">)</span></div>`).join('')}
-                                     </td>
-                                   </tr></table>`
-                                : '';
-
-                            // Render satu page
-                            allPagesHtml += `
-                                <div style="background:#fff;padding:14px 18px;box-shadow:0 1px 4px rgba(0,0,0,0.10);border-radius:4px;margin-bottom:${pageIdx < jenisList.length - 1 ? '24px' : '0'};">
-                                    <div style="text-align:center;font-size:13px;font-weight:bold;color:#111;margin-bottom:2px;">LAPORAN HASIL INVENTARIS ASET DESA</div>
-                                    <div style="text-align:center;font-size:11px;font-weight:bold;color:#111;margin-bottom:10px;">BERUPA ${jenis.nama.toUpperCase()}</div>
-                                    <div style="text-align:center;font-size:10px;color:#111;margin-bottom:30px;">Periode Tanggal, 31 Desember ${selectedTahun}</div>
-                                    <div style="overflow-x:auto;margin-bottom:4px;">
-                                        <table style="width:100%;border-collapse:collapse;">
-                                            <thead>${headerRow}</thead>
-                                            <tbody>${dataRows.join('')}</tbody>
-                                            <tfoot>${jumlahRow}</tfoot>
-                                        </table>
-                                    </div>
-                                    ${signerHtml}
-                                    <div style="margin-top:12px;padding-top:8px;border-top:1.2px solid #1a1a1a;font-size:9.5px;color:#1a1a1a;display:flex;justify-content:space-between;">
-                                        <span>Laporan Hasil Inventaris Aset Desa - Semua Jenis</span>
-                                        <span>Halaman : ${pageIdx + 1} dari ${jenisList.length}</span>
-                                    </div>
-                                </div>`;
+                        jenisList.forEach((jItem, pageIdx) => {
+                            allPagesHtml += buildJenisPdfPage(jItem, pageIdx, jenisList.length);
                         });
-
                         pdfContent.innerHTML = allPagesHtml;
                     }
 
@@ -5208,7 +6422,7 @@
                 }
 
                 const span = cols.length;
-                const baseName = jenis.nama.toLowerCase().replace(/\s+/g, '_') + '_' + selectedTahun;
+                const baseName = jenis.nama.toLowerCase().replace(/\s+/g, '_') + '_' + (selectedTahun === 'all' ? 'semua_tahun' : selectedTahun);
                 const nilaiIdx = cols.findIndex((c, i) => i > 0 && c.toLowerCase().includes('nilai'));
 
                 // Show/hide format-specific wrappers
@@ -5263,7 +6477,7 @@
                     if (currentDataCount > 3) {
                         rows.push(`<tr><td class="excel-row-num" style="color:#9ca3af;">...</td><td class="excel-cell" colspan="${span}" style="text-align:center;color:#9ca3af;font-style:italic;padding:4px;">+ ${currentDataCount - 3} baris data lainnya</td></tr>`);
                     } else if (currentDataCount === 0) {
-                        rows[rows.length - 1] = `<tr><td class="excel-row-num">5</td><td class="excel-cell" colspan="${span}" style="text-align:center;color:#9ca3af;font-style:italic;padding:6px;">Tidak ada data untuk tahun ${selectedTahun}</td></tr>`;
+                        rows[rows.length - 1] = `<tr><td class="excel-row-num">5</td><td class="excel-cell" colspan="${span}" style="text-align:center;color:#9ca3af;font-style:italic;padding:6px;">Tidak ada data ${selectedTahun === 'all' ? 'dalam sistem' : 'untuk tahun ' + selectedTahun}</td></tr>`;
                     }
 
                     const lastDataRow = currentDataCount > 3 ? 8 : (Math.max(currentDataCount, 1) + 4);
@@ -5300,71 +6514,7 @@
                 else if (format === 'pdf') {
                     document.getElementById('pdf-filename').textContent = baseName + '.pdf';
                     const pdfContent = document.getElementById('pdf-preview-content');
-
-                    // Style sesuai PDF asli: header putih, border hitam
-                    const thStyle = 'padding:5px 4px;background:#ffffff;color:#111111;font-size:10px;font-weight:bold;text-align:center;border:1px solid #000000;white-space:nowrap;vertical-align:middle;';
-                    const tdStyle = () => 'padding:3px 5px;font-size:10px;border:1px solid #000000;color:#111111;background:#ffffff;vertical-align:middle;';
-
-                    // Buku Inventaris (virtual): 2-row nested header sama seperti Excel preview
-                    let headerRow;
-                    if (jenis.is_virtual) {
-                        headerRow = `
-                            <tr>
-                                <th style="${thStyle}" rowspan="2">No</th>
-                                <th style="${thStyle}" rowspan="2">Jenis Barang</th>
-                                <th style="${thStyle}" rowspan="2">Kode Barang</th>
-                                <th style="${thStyle}" rowspan="2">Nama / Identitas Barang</th>
-                                <th style="${thStyle}" colspan="3">Asal Usul Barang</th>
-                                <th style="${thStyle}" rowspan="2">Tahun Perolehan</th>
-                                <th style="${thStyle}" rowspan="2">Nilai Aset (Rp)</th>
-                                <th style="${thStyle}" rowspan="2">Pengguna</th>
-                                <th style="${thStyle}" rowspan="2">Ket.</th>
-                            </tr>
-                            <tr>
-                                <th style="${thStyle}">APBDes</th>
-                                <th style="${thStyle}">Perolehan Lain yang Sah</th>
-                                <th style="${thStyle}">Kekayaan Asli Desa</th>
-                            </tr>`;
-                    } else {
-                        headerRow = `<tr>${cols.map(c => `<th style="${thStyle}">${c}</th>`).join('')}</tr>`;
-                    }
-                    const dataRows = [];
-                    const ph = currentDataCount > 0 ? Math.min(currentDataCount, 3) : 3;
-                    for (let r = 0; r < ph; r++) {
-                        dataRows.push(`<tr><td style="${tdStyle()}text-align:center;">${r+1}</td>${cols.slice(1).map(() => `<td style="${tdStyle()}">...</td>`).join('')}</tr>`);
-                    }
-                    const extraRow = currentDataCount > 3
-                        ? `<tr><td colspan="${span}" style="${tdStyle()}text-align:center;font-style:italic;color:#6b7280;">... +${currentDataCount-3} data lainnya</td></tr>`
-                        : (currentDataCount === 0 ? `<tr><td colspan="${span}" style="${tdStyle()}text-align:center;font-style:italic;color:#9ca3af;">Tidak ada data untuk tahun ${selectedTahun}</td></tr>` : '');
-                    const jumlahRow = nilaiIdx > 0
-                        ? `<tr>${cols.map((c,i) => i===0 ? `<td colspan="${nilaiIdx}" style="${tdStyle()}font-weight:bold;">Jumlah ${'-'.repeat(20)}</td>` : (i===nilaiIdx ? `<td style="${tdStyle()}font-weight:bold;">SUM</td>` : (i > nilaiIdx ? `<td style="${tdStyle()}"></td>` : ''))).filter(Boolean).join('')}</tr>`
-                        : `<tr><td colspan="${span}" style="${tdStyle()}font-weight:bold;">Jumlah ${'-'.repeat(20)}</td></tr>`;
-
-                    // Footer: TIM INVENTARISASI di kanan (sesuai export asli PDF)
-                    const signers = getActiveSignerList();
-                    const signerHtml = signers.length > 0
-                        ? `<table style="width:100%;border-collapse:collapse;margin-top:12px;"><tr>
-                             <td style="width:55%;border:none;vertical-align:top;"></td>
-                             <td style="width:45%;border:none;vertical-align:top;padding-left:12px;">
-                               <div style="font-size:11px;font-weight:bold;text-align:center;margin-bottom:10px;">TIM INVENTARISASI</div>
-                               ${signers.map((p,i) => `<div style="display:flex;align-items:flex-end;gap:4px;margin-bottom:18px;"><span style="font-size:10px;white-space:nowrap;flex-shrink:0;">${i+1}. ${p.nama}</span><span style="font-size:11px;flex-shrink:0;margin-left:4px;">&nbsp;(</span><span style="flex:1;border-bottom:1px solid #111;min-height:20px;display:inline-block;"></span><span style="font-size:11px;flex-shrink:0;">)</span></div>`).join('')}
-                             </td>
-                           </tr></table>`
-                        : '';
-
-                    pdfContent.innerHTML = `
-                        <div style="background:#fff;padding:14px 18px;box-shadow:0 1px 4px rgba(0,0,0,0.10);border-radius:4px;">
-                            <div style="text-align:center;font-size:13px;font-weight:bold;color:#111;margin-bottom:2px;">ASET DESA</div>
-                            <div style="text-align:center;font-size:11px;font-weight:bold;color:#111;margin-bottom:10px;">BERUPA ${jenis.nama.toUpperCase()}</div>
-                            <div style="overflow-x:auto;margin-bottom:4px;">
-                                <table style="width:100%;border-collapse:collapse;">
-                                    <thead>${headerRow}</thead>
-                                    <tbody>${dataRows.join('')}${extraRow}</tbody>
-                                    <tfoot>${jumlahRow}</tfoot>
-                                </table>
-                            </div>
-                            ${signerHtml}
-                        </div>`;
+                    pdfContent.innerHTML = buildJenisPdfPage(jenis, 0, 1);
                 }
 
                 document.getElementById('preview-export-modal').classList.add('show');
@@ -5385,7 +6535,8 @@
                 const modalBtnText = document.getElementById('btn-confirm-export-text');
                 const sidebarBtnHtml = sidebarBtn ? sidebarBtn.innerHTML : '';
 
-                if (!skipPrompt && !confirm(`Export semua jenis inventaris (tahun ${tahun}) ke 1 file ${format.toUpperCase()}?
+                const tahunLabelPrompt = tahun === 'all' ? 'Semua Tahun' : 'tahun ' + tahun;
+                if (!skipPrompt && !confirm(`Export semua jenis inventaris (${tahunLabelPrompt}) ke 1 file ${format.toUpperCase()}?
 
 Semua data jenis inventaris akan digabung dalam satu file output.
 
@@ -5432,8 +6583,11 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
                     },
                 })
                 .then(async response => {
-                    const json = await response.json();
-                    if (!response.ok || json.success === false) throw new Error(json.message || 'Export gagal');
+                    let json = null;
+                    try { json = await response.json(); } catch(e) {}
+                    if (!response.ok || !json || json.success === false) {
+                        throw new Error((json && json.message) || ('Export semua jenis gagal (Status ' + response.status + ')'));
+                    }
                     return json;
                 })
                 .then(data => {
@@ -5485,6 +6639,77 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
             }
 
             function confirmExport() {
+                // Handle tab Buku Inventaris Aset Desa
+                if (activeExportTab === 'buku_inventaris_aset') {
+                    const tahunVal = selectedTahun;
+                    const periode  = document.getElementById('buku_inventaris_periode_hidden')?.value || 'tahunan';
+                    const format   = document.querySelector('input[name="export-format"]:checked').value;
+                    const sig      = document.querySelector('input[name="signature-option"]:checked').value;
+
+                    if (!tahunVal) {
+                        showToast('Pilih tahun laporan terlebih dahulu', 'warning');
+                        return;
+                    }
+
+                    const btnConfirm = document.getElementById('btn-confirm-export');
+                    const btnText    = document.getElementById('btn-confirm-export-text');
+                    if (btnConfirm) { btnConfirm.disabled = true; }
+                    if (btnText)    { btnText.textContent = 'Mengexport...'; }
+
+                    const formData = new FormData();
+                    formData.append('tahun', tahunVal);
+                    formData.append('periode', periode);
+                    formData.append('format', format);
+                    formData.append('paper_size', getSelectedPaperSize());
+                    formData.append('signature_option', sig);
+                    formData.append('tanggal_dokumen', document.getElementById('doc-tanggal').value || '');
+
+                    if (typeof AppLoader !== 'undefined') AppLoader.show();
+                    fetch('{{ route("export-data.store-buku-inventaris-aset") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                        }
+                    })
+                    .then(async response => {
+                        let json = null;
+                        try { json = await response.json(); } catch(e) {}
+                        if (!response.ok || !json || json.success === false) {
+                            throw new Error((json && json.message) || ('Export Buku Inventaris Aset gagal (Status ' + response.status + ')'));
+                        }
+                        return json;
+                    })
+                    .then(data => {
+                        closePreviewModal();
+                        showToast('Export Buku Inventaris Aset berhasil! File sedang diunduh...', 'success');
+                        if (data.file_url) {
+                            saveLastExport(data.file_url, format);
+                            setTimeout(() => {
+                                const link = document.createElement('a');
+                                link.href = data.file_url;
+                                link.download = data.filename;
+                                document.body.appendChild(link);
+                                link.click();
+                                setTimeout(() => link.remove(), 200);
+                            }, 500);
+                        }
+                        refreshHistoryTableSafe();
+                    })
+                    .catch(error => {
+                        console.error('Export Buku Inventaris Aset error:', error);
+                        showToast(error.message || 'Terjadi kesalahan saat export buku inventaris aset', 'error');
+                    })
+                    .finally(() => {
+                        if (typeof AppLoader !== 'undefined') AppLoader.hide();
+                        if (btnConfirm) { btnConfirm.disabled = false; }
+                        if (btnText)    { btnText.textContent = 'Export Sekarang'; }
+                    });
+
+                    return;
+                }
+
                 // Handle tab Laporan Aset
                 if (activeExportTab === 'laporan') {
                     const tahunLaporan = selectedTahun;
@@ -5516,9 +6741,10 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
                         }
                     })
                     .then(async response => {
-                        const json = await response.json();
-                        if (!response.ok || json.success === false) {
-                            throw new Error(json.message || 'Export Laporan Aset gagal');
+                        let json = null;
+                        try { json = await response.json(); } catch(e) {}
+                        if (!response.ok || !json || json.success === false) {
+                            throw new Error((json && json.message) || ('Export Laporan Aset gagal (Status ' + response.status + ')'));
                         }
                         return json;
                     })
@@ -5575,10 +6801,12 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
                     formData.append('tanggal_dokumen', document.getElementById('doc-tanggal').value || '');
                     formData.append('keterangan_dokumen', '');
 
-                    // Pejabat override untuk KIB: hanya Petugas Barang (kanan) yang bisa diganti user
-                    // Sekretaris Desa (kiri) adalah tetap — diisi otomatis oleh server
-                    if (customPejabat.length >= 1 && customPejabat[0]) {
-                        formData.append('pejabat_kanan', customPejabat[0].id);
+                    // Pejabat override untuk KIB: bisa 2 penandatangan (kiri = Mengetahui, kanan = Petugas Barang)
+                    if (customPejabat.length >= 2) {
+                        if (customPejabat[0]) formData.append('pejabat_kiri', customPejabat[0].id);
+                        if (customPejabat[1]) formData.append('pejabat_kanan', customPejabat[1].id);
+                    } else if (customPejabat.length === 1 && customPejabat[0]) {
+                        formData.append('pejabat_kiri', customPejabat[0].id);
                     }
 
                     if (typeof AppLoader !== 'undefined') AppLoader.show();
@@ -5591,9 +6819,10 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
                         }
                     })
                     .then(async response => {
-                        const json = await response.json();
-                        if (!response.ok || json.success === false) {
-                            throw new Error(json.message || 'Export KIB gagal');
+                        let json = null;
+                        try { json = await response.json(); } catch(e) {}
+                        if (!response.ok || !json || json.success === false) {
+                            throw new Error((json && json.message) || ('Export KIB gagal (Status ' + response.status + ')'));
                         }
                         return json;
                     })
@@ -5649,7 +6878,7 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
                     formData.append('signature_option', sig);
                     formData.append('tanggal_dokumen', document.getElementById('doc-tanggal').value || '');
                     formData.append('keterangan_dokumen', '');
-                    // Format KIR: standard (Permendagri) atau custom (Desa Demo) — hanya berlaku untuk PDF
+                    // Format KIR: standard (Permendagri) atau custom (Format Khusus 3 TTD) — hanya berlaku untuk PDF
                     const kirFormatEl = document.querySelector('input[name="kir-format"]:checked');
                     formData.append('kir_format', kirFormatEl ? kirFormatEl.value : 'standard');
 
@@ -5669,15 +6898,16 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
                         }
                     })
                     .then(async response => {
-                        const json = await response.json();
-                        if (json.no_sekretaris) {
+                        let json = null;
+                        try { json = await response.json(); } catch(e) {}
+                        if (json && json.no_sekretaris) {
                             // Modal peringatan khusus: belum ada Sekretaris Desa
                             closePreviewModal();
                             showSekretarisWarningModal(json.message);
                             return;
                         }
-                        if (!response.ok || json.success === false) {
-                            throw new Error(json.message || 'Export gagal');
+                        if (!response.ok || !json || json.success === false) {
+                            throw new Error((json && json.message) || ('Export gagal (Status ' + response.status + ')'));
                         }
                         return json;
                     })
@@ -5723,7 +6953,7 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
                 // Validasi: data kosong (skip untuk virtual jenis seperti Buku Inventaris)
                 const isVirtualJenis = selectedJenisId && jenisData[selectedJenisId] && jenisData[selectedJenisId].is_virtual;
                 if (currentDataCount === 0 && !isVirtualJenis) {
-                    showToast('Tidak ada data untuk diexport pada tahun ' + tahun, 'warning');
+                    showToast('Tidak ada data untuk diexport ' + (tahun === 'all' ? 'dalam sistem' : 'pada tahun ' + tahun), 'warning');
                     return;
                 }
 
@@ -5788,9 +7018,10 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
                     }
                 })
                 .then(async response => {
-                    const json = await response.json();
-                    if (!response.ok || json.success === false) {
-                        throw new Error(json.message || 'Export gagal');
+                    let json = null;
+                    try { json = await response.json(); } catch(e) {}
+                    if (!response.ok || !json || json.success === false) {
+                        throw new Error((json && json.message) || ('Export gagal (Status ' + response.status + ')'));
                     }
                     return json;
                 })
@@ -5860,8 +7091,8 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
                             </div>
                             <p style="font-size:13px;color:#6b7280;margin:0 0 20px;">${message || 'Belum ada user dengan role Sekretaris Desa. Silakan assign role Sekretaris Desa terlebih dahulu sebelum export Kartu Inventaris Ruangan.'}</p>
                             <div style="display:flex;gap:10px;justify-content:flex-end;">
-                                <button onclick="document.getElementById('sekretaris-warning-modal').remove()" style="padding:9px 18px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Tutup</button>
-                                <a href="{{ route('users.index') }}" style="padding:9px 18px;background:#064635;color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                                <button onclick="document.getElementById('sekretaris-warning-modal').remove()" style="padding:9px 18px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius: var(--radius-full);font-size:13px;font-weight:600;cursor:pointer;">Tutup</button>
+                                <a href="{{ route('users.index') }}" style="padding:9px 18px;background:#1f3a2a;color:#fff;border-radius: var(--radius-full);font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
                                     <i data-feather="users" style="width:14px;height:14px;"></i> Kelola Users
                                 </a>
                             </div>
@@ -6006,6 +7237,8 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
                 renderRuanganDropdown();
                 renderKibDropdown();
                 renderLaporanDropdown();
+                renderBukuInventarisDropdown();
+                selectExportTypeCard('buku_inventaris_aset');
                 updateUI();
                 updateCustomPejabatLabels();
                 updateFloatingWidget();
@@ -6049,7 +7282,7 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
                 border: none !important;
                 box-shadow: none !important;
                 transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            " onmouseenter="this.parentNode.querySelector('.widget-tooltip').style.opacity = '1'" onmouseleave="this.parentNode.querySelector('.widget-tooltip').style.opacity = '0'" onmouseover="this.style.transform = 'scale(1.12) translateY(-4px)';" onmouseout="this.style.transform = 'scale(1) translateY(0)';">
+            " onmouseenter="this.parentNode.querySelector('.widget-tooltip').style.opacity = '1'" onmouseleave="this.parentNode.querySelector('.widget-tooltip').style.opacity = '0'" onmouseover="this.style.transform = 'scale(1.05)';" onmouseout="this.style.transform = 'scale(1)';">
                 <!-- Custom SVG Icon without Blob Background -->
                 <svg viewBox="-102.4 -102.4 1228.80 1228.80" id="widget-svg" version="1.1" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
                     <g id="SVGRepo_iconCarrier">
@@ -6103,6 +7336,7 @@ Proses ini mungkin membutuhkan waktu beberapa saat.`)) {
                 filter: drop-shadow(0 12px 24px rgba(239, 68, 68, 0.6));
             }
         </style>
+        @include('layouts.modals')
     </body>
 </html>
 

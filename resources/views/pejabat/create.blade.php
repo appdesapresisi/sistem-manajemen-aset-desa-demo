@@ -4,25 +4,32 @@
     @include('layouts.head-page-meta', ['title' => 'Tambah Pejabat'])
     @include('layouts.head-css')
     <style>
-      /* Form Styling */
+      /* Form Styling - SIMA Standard */
       .form-section {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 16px;
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin-bottom: 24px;
+      }
+      .form-section + .form-section {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--color-border);
       }
       .form-section-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #064635;
+        font-size: 14.5px;
+        font-weight: 700;
+        color: var(--color-primary);
         margin-bottom: 16px;
         display: flex;
         align-items: center;
         gap: 8px;
       }
-      .form-section-title i {
-        width: 18px;
-        height: 18px;
+      .form-section-title i,
+      .form-section-title svg {
+        color: var(--color-primary);
+        width: 16px;
+        height: 16px;
       }
       .form-grid {
         display: grid;
@@ -33,55 +40,53 @@
         margin-bottom: 0;
       }
       .form-label {
-        font-weight: 500;
-        font-size: 13px;
-        color: #374151;
-        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 13.5px;
+        color: var(--color-text);
+        margin-bottom: 8px;
         display: block;
       }
       .form-label .required {
-        color: #ef4444;
+        color: #D9383A;
+        font-weight: 700;
         margin-left: 2px;
       }
       .form-label .optional {
-        color: #9ca3af;
+        color: var(--color-text-muted);
         font-weight: 400;
-        font-size: 11px;
+        font-size: 12px;
         margin-left: 4px;
       }
-      .form-control, .form-select {
+      .form-control, textarea.form-control {
         width: 100%;
-        padding: 10px 14px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
+        height: 46px;
+        padding: 0 16px;
+        border: 1.5px solid var(--color-border);
+        border-radius: 10px;
         font-size: 14px;
-        transition: all 0.2s ease;
-        background: #fff;
+        transition: border-color 0.2s ease;
+        background: var(--color-surface);
+        color: var(--color-text);
+        box-shadow: none !important;
       }
-      .form-control:focus, .form-select:focus {
-        outline: none;
-        border-color: #064635;
-        box-shadow: 0 0 0 3px rgba(6, 70, 53, 0.1);
+      textarea.form-control {
+        height: auto;
+        min-height: 80px;
+        padding: 12px 16px;
       }
-      .form-control::placeholder {
-        color: #9ca3af;
+      .form-control:focus, textarea.form-control:focus {
+        outline: none !important;
+        border-color: var(--color-primary) !important;
+        box-shadow: none !important;
       }
-      .form-control.is-invalid,
-      .form-select.is-invalid {
-        border-color: #ef4444;
-      }
-      .form-control.is-invalid:focus,
-      .form-select.is-invalid:focus {
-        border-color: #ef4444;
-        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-      }
-      .text-danger {
-        color: #ef4444;
+      .form-control::placeholder, textarea.form-control::placeholder {
+        color: var(--color-text-muted);
+        opacity: 0.65;
       }
       .form-hint {
         font-size: 12px;
-        color: #6b7280;
-        margin-top: 4px;
+        color: var(--color-text-muted);
+        margin-top: 6px;
       }
       .form-full {
         grid-column: 1 / -1;
@@ -124,7 +129,7 @@
         background-color: white;
         transition: 0.3s;
         border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: none;
       }
       .toggle-switch input:checked + .toggle-slider {
         background-color: #22c55e;
@@ -170,7 +175,7 @@
         text-align: center;
       }
       .file-upload-area:hover {
-        border-color: #064635;
+        border-color: #1f3a2a;
         background: #f4faf5;
       }
       .file-upload-area.has-file {
@@ -178,20 +183,19 @@
         background: #f0fdf4;
       }
       .file-upload-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #064635 0%, #519259 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
+        background: transparent !important;
+        width: auto !important;
+        height: auto !important;
+        display: block !important;
+        margin: 0 auto 8px auto !important;
       }
       .file-upload-icon i,
       .file-upload-icon svg {
-        width: 24px;
-        height: 24px;
-        color: #fff !important;
+        width: 28px !important;
+        height: 28px !important;
+        stroke-width: 1.5 !important;
+        color: var(--color-text-muted) !important;
+        stroke: var(--color-text-muted) !important;
       }
       .file-upload-text {
         font-size: 14px;
@@ -262,26 +266,32 @@
 
       /* Info box */
       .info-box {
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        border: 1px solid #93c5fd;
-        border-radius: 8px;
-        padding: 12px 16px;
+        background: var(--color-primary-tint);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: 8px 14px;
         display: flex;
+        width: 100%;
+        box-sizing: border-box;
         align-items: center;
-        gap: 10px;
-        margin-top: 16px;
+        gap: 8px;
+        margin-top: 14px;
+        color: var(--color-text);
       }
-      .info-box i {
-        color: #1e40af !important;
-        stroke: #1e40af !important;
+      .info-box i,
+      .info-box svg {
+        color: var(--color-primary);
+        stroke: var(--color-primary);
         flex-shrink: 0;
-        width: 18px;
-        height: 18px;
+        width: 14px;
+        height: 14px;
       }
       .info-box-text {
-        font-size: 13px;
-        color: #1e40af;
-        line-height: 1.5;
+        font-size: 11.5px;
+        color: var(--color-text);
+        line-height: 1.45;
+        font-weight: 500;
+        flex: 1;
       }
 
       /* Buttons */
@@ -289,49 +299,84 @@
         display: flex;
         gap: 12px;
         justify-content: flex-end;
-        padding-top: 20px;
-        border-top: 1px solid #e5e7eb;
+        padding-top: 24px;
+        border-top: none;
         margin-top: 24px;
+        margin-bottom: 32px;
       }
       .btn-cancel {
-        padding: 10px 20px;
-        border: 1px solid #d1d5db;
-        background: #fff;
-        color: #374151;
-        border-radius: 8px;
+        height: 46px;
+        padding: 0 20px;
+        border: 1.5px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text);
+        border-radius: var(--radius-full);
         font-weight: 500;
+        font-size: 14px;
         cursor: pointer;
         transition: all 0.2s;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        box-shadow: none !important;
       }
       .btn-cancel:hover {
-        background: #f3f4f6;
+        background: var(--color-row-hover);
+        border-color: var(--color-border);
+        color: var(--color-text);
       }
       .btn-submit {
-        padding: 10px 24px;
+        height: 46px;
+        padding: 0 24px;
         border: none;
-        background: #064635;
+        background: var(--color-primary);
         color: #fff;
-        border-radius: 8px;
-        font-weight: 500;
+        border-radius: var(--radius-full);
+        font-weight: 600;
+        font-size: 14px;
         cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
+        box-shadow: none !important;
+        transition: background-color 0.2s ease;
+        display: inline-flex;
         align-items: center;
         gap: 8px;
       }
       .btn-submit:hover {
-        background: #1c5240;
+        background: var(--color-primary-hover);
+        color: #fff;
       }
-      .btn-submit i {
+      .btn-cancel i,
+      .btn-cancel svg {
+        width: 16px;
+        height: 16px;
+      }
+      .btn-submit i,
+      .btn-submit svg {
         width: 18px;
         height: 18px;
       }
 
       /* Card Header */
+      .card .card-header,
+      .card-header {
+        background-color: transparent !important;
+        padding: 32px 24px 0 24px !important;
+        border: none !important;
+        border-bottom: none !important;
+      }
+      .card .card-body,
+      .card-body {
+        padding-bottom: 0 !important;
+      }
+      .card .card-header > div,
+      .card-header > div,
+      .card-header-inner,
+      .card-header > .flex {
+        border-bottom: 1px dashed var(--color-border) !important;
+        padding-bottom: 20px !important;
+        width: 100% !important;
+      }
       .card-header-icon {
         display: flex;
         align-items: center;
@@ -339,9 +384,9 @@
         width: 44px;
         height: 44px;
         min-width: 44px;
-        border-radius: 10px;
-        background: #519259;
-        margin-right: 12px;
+        border-radius: 12px;
+        background: var(--color-primary);
+        margin-right: 14px;
         position: relative !important;
         flex-shrink: 0;
       }
@@ -349,16 +394,16 @@
       .card-header-icon i {
         color: #fff !important;
         stroke: #fff !important;
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
         position: relative !important;
-        top: auto !important;
-        left: auto !important;
+        top: unset !important;
+        left: unset !important;
       }
 
       /* Signature preview styling */
       .signature-guide {
-        margin-top: 12px;
+        margin-top: 20px;
         padding: 16px;
         background: #fffbeb;
         border: 1px solid #fbbf24;
@@ -401,45 +446,43 @@
 
     <div class="pc-container">
       <div class="pc-content">
-        @include('layouts.breadcrumb', ['breadcrumbItemHome' => 'Master Data', 'breadcrumbItem' => 'Pejabat', 'breadcrumbItemUrl' => route('pejabat.index'), 'breadcrumbItemActive' => 'Tambah Pejabat'])
+        @include('layouts.breadcrumb', ['breadcrumbItemHome' => 'Master Data', 'breadcrumbItem' => 'Manajemen Pejabat', 'breadcrumbItemUrl' => route('pejabat.index'), 'breadcrumbItemActive' => 'Tambah Pejabat'])
         <div class="grid grid-cols-12 gap-x-6">
-          <div class="col-span-12 lg:col-span-8 lg:col-start-3">
+          <div class="col-span-12 w-full">
             <div class="card">
-              <div class="card-header border-b border-gray-100">
+              <div class="card-header">
                 <div class="flex items-center">
                   <div class="card-header-icon">
                     <i data-feather="user-check"></i>
                   </div>
                   <div>
-                    <h5 class="mb-1">Tambah Pejabat Baru</h5>
-                    <p class="text-muted text-sm mb-0">Isi data untuk menambahkan pejabat yang berwenang menandatangani dokumen</p>
+                    <h5 class="mb-0">Tambah Pejabat Baru</h5>
                   </div>
                 </div>
               </div>
 
-              <div class="card-body pt-4">
-                <form id="pejabat-form" method="POST" action="{{ route('pejabat.store') }}" enctype="multipart/form-data">
+              <div class="card-body" style="padding-top: 14px !important;">
+                <form id="pejabat-form" method="POST" action="{{ route('pejabat.store') }}" enctype="multipart/form-data" novalidate>
                   @csrf
 
-                  <div class="info-box" style="margin-bottom:16px;">
-                    <i data-feather="info" style="color:#1e40af !important;stroke:#1e40af !important;width:18px;height:18px;flex-shrink:0;"></i>
+                  <div class="info-box" style="margin-top: 0 !important; margin-bottom:16px;">
+                    <i data-feather="info"></i>
                     <div class="info-box-text">
                       <strong>Catatan:</strong> Data pejabat ini akan digunakan pada fitur Export Data untuk menandatangani dokumen resmi seperti Buku Inventaris Aset Desa, Laporan Inventaris, dan dokumen lainnya.
                     </div>
                   </div>
                   
                   <!-- Informasi Pejabat -->
-                  <div class="form-section">
+                  <div class="form-section" style="margin-top:0;">
                     <div class="form-section-title">
-                      <i data-feather="user"></i>
                       Informasi Pejabat
                     </div>
                     <div class="form-grid">
-                      <div class="form-group form-full">
+                      <div class="form-group">
                         <label class="form-label" for="nama">
                           Nama Lengkap <span class="required">*</span>
                         </label>
-                        <input type="text" id="nama" name="nama" class="form-control @error('nama') is-invalid @enderror" placeholder="Masukkan nama lengkap dengan gelar" value="{{ old('nama') }}" required />
+                        <input type="text" id="nama" name="nama" class="form-control @error('nama') is-invalid @enderror" placeholder="Masukkan nama lengkap dengan gelar" value="{{ old('nama') }}" pattern="^[a-zA-Z\s\.,'\-]+$" title="Nama pejabat hanya boleh berisi huruf dan tanda baca nama/gelar (tidak boleh mengandung angka)" minlength="3" required />
                         @error('nama')
                         <div class="text-danger text-sm mt-1">{{ $message }}</div>
                         @enderror
@@ -449,28 +492,11 @@
                         <label class="form-label" for="jabatan">
                           Jabatan <span class="required">*</span>
                         </label>
-                        <input type="text" id="jabatan" name="jabatan" class="form-control @error('jabatan') is-invalid @enderror" placeholder="Masukkan jabatan pejabat" value="{{ old('jabatan') }}" required />
+                        <input type="text" id="jabatan" name="jabatan" class="form-control @error('jabatan') is-invalid @enderror" placeholder="Masukkan jabatan pejabat" value="{{ old('jabatan') }}" pattern=".*[a-zA-Z].*" title="Jabatan pejabat harus memuat huruf (tidak boleh hanya angka)" minlength="3" required />
                         @error('jabatan')
                         <div class="text-danger text-sm mt-1">{{ $message }}</div>
                         @enderror
-                        <p class="form-hint">Contoh: Perbekel Mengwi, Sekretaris Desa, Kaur Umum</p>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label" for="tugas">
-                          Tugas / Kewenangan <span class="optional">(opsional)</span>
-                        </label>
-                        <textarea id="tugas" name="tugas" class="form-control @error('tugas') is-invalid @enderror" rows="3" placeholder="Deskripsi tugas dan kewenangan pejabat...">{{ old('tugas') }}</textarea>
-                        @error('tugas')
-                        <div class="text-danger text-sm mt-1">{{ $message }}</div>
-                        @enderror
-                        <p class="form-hint">Contoh: Pemegang Kekuasaan Pengelolaan Aset Desa, Pengelola Barang Milik Desa, dll.</p>
-                      </div>
-                      <div class="form-group form-full">
-                        <label class="form-label" for="alamat">Alamat</label>
-                        <textarea id="alamat" name="alamat" class="form-control @error('alamat') is-invalid @enderror" placeholder="Masukkan alamat lengkap" rows="2">{{ old('alamat') }}</textarea>
-                        @error('alamat')
-                        <div class="text-danger text-sm mt-1">{{ $message }}</div>
-                        @enderror
+                        <p class="form-hint">Contoh: Perbekel Desa, Sekretaris Desa, Kaur Umum</p>
                       </div>
                       <div class="form-group">
                         <label class="form-label">Status Pejabat</label>
@@ -484,13 +510,29 @@
                         </div>
                         <p class="form-hint">Pejabat tidak aktif tidak dapat digunakan untuk tanda tangan dokumen</p>
                       </div>
+                      <div class="form-group form-full">
+                        <label class="form-label" for="tugas">
+                          Tugas / Kewenangan <span class="optional">(opsional)</span>
+                        </label>
+                        <textarea id="tugas" name="tugas" class="form-control @error('tugas') is-invalid @enderror" rows="4" placeholder="Deskripsi tugas dan kewenangan pejabat...">{{ old('tugas') }}</textarea>
+                        @error('tugas')
+                        <div class="text-danger text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                        <p class="form-hint">Contoh: Pemegang Kekuasaan Pengelolaan Aset Desa, Pengelola Barang Milik Desa, dll.</p>
+                      </div>
+                      <div class="form-group form-full">
+                        <label class="form-label" for="alamat">Alamat</label>
+                        <textarea id="alamat" name="alamat" class="form-control @error('alamat') is-invalid @enderror" placeholder="Masukkan alamat lengkap" rows="4">{{ old('alamat') }}</textarea>
+                        @error('alamat')
+                        <div class="text-danger text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                      </div>
                     </div>
                   </div>
 
                   <!-- Tanda Tangan Digital -->
                   <div class="form-section">
                     <div class="form-section-title">
-                      <i data-feather="edit-3"></i>
                       Tanda Tangan Digital
                     </div>
                     <div class="form-grid">
@@ -514,29 +556,24 @@
                   @php $petugasBarang = \App\Models\Pejabat::where('is_petugas_barang', 1)->first(); @endphp
                   <div class="form-section">
                     <div class="form-section-title">
-                      <i data-feather="shield"></i>
                       Petugas / Pengurus Barang Milik Desa
                     </div>
                     @if($petugasBarang)
-                      <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:10px;">
-                        <i data-feather="alert-triangle" style="width:16px;height:16px;color:#d97706;flex-shrink:0;"></i>
-                        <div style="font-size:13px;color:#92400e;line-height:1.5;">
-                          Petugas/Pengurus Barang Milik Desa saat ini adalah <strong>{{ $petugasBarang->nama }}</strong> ({{ $petugasBarang->jabatan }}).
-                          Untuk menggantinya, edit pejabat tersebut dan hapus centang terlebih dahulu.
-                        </div>
+                      <div class="warning-box">
+                        <i data-feather="alert-triangle"></i>
+                        <span>Petugas/Pengurus Barang Milik Desa saat ini adalah <strong>{{ $petugasBarang->nama }}</strong> ({{ $petugasBarang->jabatan }}). Untuk menggantinya, edit pejabat tersebut dan hapus centang terlebih dahulu.</span>
                       </div>
                     @else
                       <div class="form-group">
                         {{-- Hidden input fallback agar is_petugas_barang = 0 terkirim saat un-check --}}
                         <input type="hidden" name="is_petugas_barang" value="0" />
-                        <label style="display:flex;align-items:flex-start;gap:10px;padding:14px 16px;background:#fff;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;transition:all 0.2s;" id="petugas-barang-wrapper">
-                          <input type="checkbox" id="is_petugas_barang" name="is_petugas_barang" value="1"
+                        <label style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--color-surface);border:1.5px solid var(--color-border);border-radius:10px;cursor:pointer;transition:background-color 0.15s ease, border-color 0.15s ease;" id="petugas-barang-wrapper">
+                          <input type="checkbox" id="is_petugas_barang" name="is_petugas_barang" class="sima-checkbox" value="1"
                                  {{ old('is_petugas_barang') ? 'checked' : '' }}
-                                 style="width:18px;height:18px;accent-color:#064635;cursor:pointer;flex-shrink:0;margin-top:2px;"
-                                 onchange="document.getElementById('petugas-barang-wrapper').style.borderColor=this.checked?'#064635':'#e2e8f0';" />
+                                 onchange="document.getElementById('petugas-barang-wrapper').style.borderColor=this.checked?'var(--color-primary)':'var(--color-border)';document.getElementById('petugas-barang-wrapper').style.background=this.checked?'var(--color-primary-tint)':'var(--color-surface)';" />
                           <div>
-                            <div style="font-weight:600;font-size:14px;color:#374151;">Jadikan sebagai Petugas/Pengurus Barang Milik Desa</div>
-                            <div style="font-size:12px;color:#6b7280;margin-top:2px;">Pejabat ini akan otomatis muncul sebagai penandatangan di kolom kanan pada export Kartu Inventaris Ruangan dan export Buku Inventaris (KIB).</div>
+                            <div style="font-weight:600;font-size:14px;color:var(--color-text);">Jadikan sebagai Petugas/Pengurus Barang Milik Desa</div>
+                            <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px;">Pejabat ini akan otomatis muncul sebagai penandatangan di kolom kanan pada export Kartu Inventaris Ruangan dan export Buku Inventaris (KIB).</div>
                           </div>
                         </label>
                       </div>
@@ -545,7 +582,7 @@
 
                   <!-- Form Actions -->
                   <div class="form-actions">
-                    <a href="{{ route('pejabat.index') }}" class="btn-cancel" onclick="return confirm('Apakah Anda yakin ingin membatalkan? Data yang sudah diisi tidak akan tersimpan.');">
+                    <a href="{{ route('pejabat.index') }}" class="btn-cancel" onclick="return confirmCancel(event, { returnKey: 'pejabat_returning', isEdit: false })">
                       <i data-feather="x"></i>
                       Batal
                     </a>
@@ -570,6 +607,7 @@
 
     <script>
       (function(){
+        try { sessionStorage.setItem('pejabat_returning', '1'); } catch(e) {}
         const pejabatForm = document.getElementById('pejabat-form');
         const isAktif = document.getElementById('is_aktif');
         const statusBadge = document.getElementById('status-badge');
@@ -598,8 +636,15 @@
           pejabatForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            if (!pejabatForm.checkValidity()) {
-              pejabatForm.reportValidity();
+            if (typeof window.simaValidateForm === 'function') {
+              if (!window.simaValidateForm(pejabatForm)) {
+                return;
+              }
+            } else if (!pejabatForm.checkValidity()) {
+              const firstInvalid = pejabatForm.querySelector(':invalid');
+              if (firstInvalid && typeof window.simaScrollToField === 'function') {
+                window.simaScrollToField(firstInvalid);
+              }
               return;
             }
 

@@ -12,7 +12,7 @@ class PejabatPolicy
         return $user->isAdmin() || $user->isSuperAdmin();
     }
 
-    public function view(User $user, Pejabat $pejabat)
+    public function view(User $user, ?Pejabat $pejabat = null)
     {
         return $user->isAdmin() || $user->isSuperAdmin();
     }
@@ -22,10 +22,14 @@ class PejabatPolicy
         return $user->isSuperAdmin();
     }
 
-    public function update(User $user, Pejabat $pejabat)
+    public function update(User $user, ?Pejabat $pejabat = null)
     {
         if ($user->isSuperAdmin()) {
             return true;
+        }
+
+        if (!$pejabat) {
+            return false;
         }
 
         return (int) ($user->pejabat_id ?? 0) === (int) ($pejabat->id ?? 0);

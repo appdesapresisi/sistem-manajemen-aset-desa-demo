@@ -30,7 +30,7 @@ return [
     // =========================================================================
     'A' => [
         'nama'          => 'Tanah',
-        'judul_export'  => 'BUKU INVENTARIS ASET DESA TANAH (KIB A)',
+        'judul_export'  => 'KARTU INVENTARIS BARANG TANAH (KIB A)',
         'fields'        => [
             [
                 'key'         => 'luas_m2',
@@ -88,7 +88,7 @@ return [
     // =========================================================================
     'B' => [
         'nama'          => 'Peralatan dan Mesin',
-        'judul_export'  => 'BUKU INVENTARIS ASET DESA PERALATAN DAN MESIN (KIB B)',
+        'judul_export'  => 'KARTU INVENTARIS BARANG PERALATAN DAN MESIN (KIB B)',
         'fields'        => [
             [
                 'key'         => 'merk_type',
@@ -170,7 +170,7 @@ return [
     // =========================================================================
     'C' => [
         'nama'          => 'Gedung dan Bangunan',
-        'judul_export'  => 'BUKU INVENTARIS ASET DESA GEDUNG DAN BANGUNAN (KIB C)',
+        'judul_export'  => 'KARTU INVENTARIS BARANG GEDUNG DAN BANGUNAN (KIB C)',
         'fields'        => [
             [
                 'key'         => 'konstruksi_bertingkat',
@@ -254,7 +254,7 @@ return [
     // =========================================================================
     'D' => [
         'nama'          => 'Jalan, Irigasi dan Jaringan',
-        'judul_export'  => 'BUKU INVENTARIS ASET DESA JALAN, IRIGASI DAN JARINGAN (KIB D)',
+        'judul_export'  => 'KARTU INVENTARIS BARANG JALAN, IRIGASI DAN JARINGAN (KIB D)',
         'fields'        => [
             [
                 'key'         => 'konstruksi',
@@ -344,11 +344,11 @@ return [
     // =========================================================================
     'E' => [
         'nama'          => 'Aset Tetap Lainnya',
-        'judul_export'  => 'BUKU INVENTARIS ASET DESA ASET TETAP LAINNYA (KIB E)',
+        'judul_export'  => 'KARTU INVENTARIS BARANG ASET TETAP LAINNYA (KIB E)',
         'fields'        => [
             [
                 'key'         => 'judul_pencipta',
-                'label'       => 'Judul / Pencipta (Buku)',
+                'label'       => 'Judul / Pencipta',
                 'type'        => 'text',
                 'required'    => false,
                 'export_col'  => 'JUDUL/PENCIPTA',
@@ -364,7 +364,7 @@ return [
             ],
             [
                 'key'         => 'asal_daerah',
-                'label'       => 'Asal Daerah (Kesenian)',
+                'label'       => 'Asal Daerah',
                 'type'        => 'text',
                 'required'    => false,
                 'export_col'  => 'ASAL DAERAH',
@@ -372,7 +372,7 @@ return [
             ],
             [
                 'key'         => 'pencipta_kesenian',
-                'label'       => 'Pencipta (Kesenian)',
+                'label'       => 'Pencipta',
                 'type'        => 'text',
                 'required'    => false,
                 'export_col'  => 'PENCIPTA',
@@ -388,7 +388,7 @@ return [
             ],
             [
                 'key'         => 'jenis_hewan',
-                'label'       => 'Jenis (Hewan/Tumbuhan)',
+                'label'       => 'Jenis',
                 'type'        => 'text',
                 'required'    => false,
                 'export_col'  => 'JENIS',
@@ -396,7 +396,7 @@ return [
             ],
             [
                 'key'         => 'ukuran',
-                'label'       => 'Ukuran (Hewan/Tumbuhan)',
+                'label'       => 'Ukuran',
                 'type'        => 'text',
                 'required'    => false,
                 'export_col'  => 'UKURAN',
@@ -418,7 +418,7 @@ return [
     // =========================================================================
     'F' => [
         'nama'          => 'Konstruksi Dalam Pengerjaan',
-        'judul_export'  => 'BUKU INVENTARIS ASET DESA KONSTRUKSI DALAM PENGERJAAN (KIB F)',
+        'judul_export'  => 'KARTU INVENTARIS BARANG KONSTRUKSI DALAM PENGERJAAN (KIB F)',
         'fields'        => [
             [
                 'key'         => 'tahun_buku',

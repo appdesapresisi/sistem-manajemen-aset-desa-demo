@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Pejabat;
 use App\Models\Inventaris;
 use App\Models\JenisInventaris;
+use App\Models\Ruangan;
 use App\Models\ExportLog;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
@@ -21,13 +22,167 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $kpis = $this->getKpiDataArray();
-        $chartData = $this->getChartDataArray();
+        $kpis = $this->getKpiDataArray(true);
+        $chartData = $this->getChartDataArray(true);
         $activities = $this->getRecentActivitiesArray();
         $exportLogs = $this->getRecentExportsArray();
         $jenisInventarisList = $this->getJenisInventarisListArray();
+        $rentangNilai = $this->getRentangNilaiArray();
+        $tahunPerolehanData = $this->getTahunPerolehanDataArray();
+        
+        $attentionAssets = Inventaris::with(['jenis', 'ruangan'])
+            ->whereIn('kondisi', ['Rusak Ringan', 'Rusak Berat', 'rusak_ringan', 'rusak_berat'])
+            ->orderByDesc('updated_at')
+            ->limit(6)
+            ->get();
+            
+        $recentAssets = Inventaris::with(['jenis', 'ruangan'])
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
 
-        return view('dashboard.index', compact('kpis', 'chartData', 'activities', 'exportLogs', 'jenisInventarisList'));
+        $topRuangan = Ruangan::withCount('inventaris')
+            ->orderByDesc('inventaris_count')
+            ->limit(4)
+            ->get();
+        $ruanganTerisiCount = Ruangan::has('inventaris')->count();
+        $totalRuangan = Ruangan::count();
+
+        return view('dashboard.index', compact(
+            'kpis',
+            'chartData',
+            'activities',
+            'exportLogs',
+            'jenisInventarisList',
+            'rentangNilai',
+            'tahunPerolehanData',
+            'attentionAssets',
+            'recentAssets',
+            'topRuangan',
+            'ruanganTerisiCount',
+            'totalRuangan'
+        ));
+    }
+
+    /**
+     * Data distribusi aset menurut rentang nilai perolehan (dinamis).
+     * Penggolongan menggunakan harga per unit (nilai_perolehan / kuantitas jika ada).
+     * Batas rentang: batas bawah inklusif, batas atas eksklusif.
+     */
+    private function getRentangNilaiArray(): array
+    {
+        $approvedBase = $this->approvedInventarisQuery()
+            ->select('id', 'nama_barang', 'nilai_perolehan')
+            ->get();
+
+        $ranges = [
+            'above_50m' => [
+                'key' => 'above_50m',
+                'label' => 'Di atas Rp 50 juta',
+                'sub' => '≥ Rp 50.000.000 / unit',
+                'unit' => 0,
+                'total_nilai' => 0,
+            ],
+            '10m_to_50m' => [
+                'key' => '10m_to_50m',
+                'label' => 'Rp 10–50 juta',
+                'sub' => 'Rp 10.000.000 s/d < Rp 50.000.000 / unit',
+                'unit' => 0,
+                'total_nilai' => 0,
+            ],
+            '1m_to_10m' => [
+                'key' => '1m_to_10m',
+                'label' => 'Rp 1–10 juta',
+                'sub' => 'Rp 1.000.000 s/d < Rp 10.000.000 / unit',
+                'unit' => 0,
+                'total_nilai' => 0,
+            ],
+            'below_1m' => [
+                'key' => 'below_1m',
+                'label' => 'Di bawah Rp 1 juta',
+                'sub' => '< Rp 1.000.000 / unit',
+                'unit' => 0,
+                'total_nilai' => 0,
+            ],
+        ];
+
+        foreach ($approvedBase as $item) {
+            $qty = 1;
+            if (preg_match('/\((\d+)\s*(unit|buah|set|bh)?\)/i', $item->nama_barang, $m)) {
+                $parsed = (int) $m[1];
+                if ($parsed > 0) {
+                    $qty = $parsed;
+                }
+            }
+            $val = (float) $item->nilai_perolehan;
+            $unitPrice = $qty > 0 ? ($val / $qty) : $val;
+
+            if ($unitPrice >= 50000000) {
+                $ranges['above_50m']['unit']++;
+                $ranges['above_50m']['total_nilai'] += $val;
+            } elseif ($unitPrice >= 10000000) {
+                $ranges['10m_to_50m']['unit']++;
+                $ranges['10m_to_50m']['total_nilai'] += $val;
+            } elseif ($unitPrice >= 1000000) {
+                $ranges['1m_to_10m']['unit']++;
+                $ranges['1m_to_10m']['total_nilai'] += $val;
+            } else {
+                $ranges['below_1m']['unit']++;
+                $ranges['below_1m']['total_nilai'] += $val;
+            }
+        }
+
+        foreach ($ranges as &$r) {
+            $miliar = $r['total_nilai'] / 1000000000;
+            if ($miliar >= 1) {
+                $r['formatted_nilai'] = 'Rp ' . number_format($miliar, 1, ',', '.') . ' miliar';
+            } elseif ($r['total_nilai'] >= 1000000) {
+                $juta = $r['total_nilai'] / 1000000;
+                $r['formatted_nilai'] = 'Rp ' . number_format($juta, 1, ',', '.') . ' juta';
+            } else {
+                $r['formatted_nilai'] = 'Rp ' . number_format($r['total_nilai'], 0, ',', '.');
+            }
+            $r['full_nominal'] = 'Rp ' . number_format($r['total_nilai'], 0, ',', '.');
+        }
+        unset($r);
+
+        return $ranges;
+    }
+
+    /**
+     * Data perolehan aset per tahun (dinamis dari database).
+     */
+    private function getTahunPerolehanDataArray(): array
+    {
+        $approvedBase = $this->approvedInventarisQuery();
+        $years = (clone $approvedBase)
+            ->select('tahun_perolehan', DB::raw('COUNT(*) as count'), DB::raw('SUM(nilai_perolehan) as total_nilai'))
+            ->whereNotNull('tahun_perolehan')
+            ->groupBy('tahun_perolehan')
+            ->orderBy('tahun_perolehan')
+            ->get();
+
+        $pre2016Count = $years->where('tahun_perolehan', '<', 2016)->sum('count');
+        $pre2016Nilai = $years->where('tahun_perolehan', '<', 2016)->sum('total_nilai');
+
+        $labels = ['≤ 2015'];
+        $counts = [(int) $pre2016Count];
+        $values = [(float) $pre2016Nilai];
+
+        $currentYear = (int) date('Y');
+        for ($y = 2016; $y <= $currentYear; $y++) {
+            $row = $years->firstWhere('tahun_perolehan', $y);
+            $labels[] = (string) $y;
+            $counts[] = $row ? (int) $row->count : 0;
+            $values[] = $row ? (float) $row->total_nilai : 0;
+        }
+
+        return [
+            'labels' => $labels,
+            'counts' => $counts,
+            'values' => $values,
+            'total_aset' => array_sum($counts),
+        ];
     }
 
     /**
@@ -35,6 +190,8 @@ class DashboardController extends Controller
      */
     private function getJenisInventarisListArray()
     {
+        /*
+        // Kodingan vs Kemarin (Daily) — disimpan untuk opsi filter di masa depan
         $todayStart = now()->startOfDay();
         $yesterdayStart = now()->subDay()->startOfDay();
 
@@ -58,6 +215,34 @@ class DashboardController extends Controller
                 $jenis->trend_percent = $percent;
                 return $jenis;
             });
+        */
+
+        // Konteks Per Bulan (vs. Bulan Lalu)
+        $thisMonthStart = now()->startOfMonth();
+        $lastMonthStart = now()->subMonth()->startOfMonth();
+
+        return JenisInventaris::withCount('inventaris')
+            ->withSum('inventaris as total_nilai', 'nilai_perolehan')
+            ->where('nama', '!=', 'Buku Inventaris Aset Desa')
+            ->orderBy('id')
+            ->get()
+            ->map(function($jenis) use ($thisMonthStart, $lastMonthStart) {
+                $thisMonthCount = Inventaris::where('jenis_inventaris_id', $jenis->id)
+                    ->where('created_at', '>=', $thisMonthStart)
+                    ->count();
+                $lastMonthCount = Inventaris::where('jenis_inventaris_id', $jenis->id)
+                    ->where('created_at', '>=', $lastMonthStart)
+                    ->where('created_at', '<', $thisMonthStart)
+                    ->count();
+                $diff = $thisMonthCount - $lastMonthCount;
+                $percent = $lastMonthCount > 0
+                    ? round(($diff / $lastMonthCount) * 100, 1)
+                    : ($thisMonthCount > 0 ? 100 : 0);
+
+                $jenis->trend_diff = $diff;
+                $jenis->trend_percent = $percent;
+                return $jenis;
+            });
     }
 
     /**
@@ -69,14 +254,17 @@ class DashboardController extends Controller
         return Inventaris::query();
     }
 
-    /**
-     * Get KPI data as array (for view rendering)
-     */
-    private function getKpiDataArray()
+    private function getKpiDataArray(bool $fresh = false)
     {
-        return Cache::remember('dashboard_kpi', 300, function() {
+        if ($fresh) {
+            Cache::forget('dashboard_kpi');
+        }
+
+        return Cache::remember('dashboard_kpi', 30, function() {
             $approvedBase = $this->approvedInventarisQuery();
 
+            /*
+            // Kodingan vs Kemarin (Daily) — disimpan untuk opsi filter di masa depan
             $todayStart = now()->startOfDay();
             $yesterdayStart = now()->subDay()->startOfDay();
 
@@ -107,18 +295,121 @@ class DashboardController extends Controller
             $usersYesterday = User::whereBetween('created_at', [$yesterdayStart, $todayStart])->count();
             $usersDiff = $usersToday - $usersYesterday;
             $usersPercent = $usersYesterday > 0 ? round(($usersDiff / $usersYesterday) * 100, 1) : ($usersToday > 0 ? 100 : 0);
+            */
 
-            // Kondisi Aset hanya dari inventaris yang sudah disetujui
-            $kondisiBaik        = (clone $approvedBase)->where('kondisi', 'baik')->count();
-            $kondisiRusakRingan = (clone $approvedBase)->where('kondisi', 'rusak_ringan')->count();
-            $kondisiRusakBerat  = (clone $approvedBase)->where('kondisi', 'rusak_berat')->count();
+            // Konteks Per Bulan (vs. Bulan Lalu)
+            $thisMonthStart = now()->startOfMonth();
+            $lastMonthStart = now()->subMonth()->startOfMonth();
+
+            // Total Aset
+            $totalAssets = (clone $approvedBase)->count();
+            $assetsThisMonth = (clone $approvedBase)->where('created_at', '>=', $thisMonthStart)->count();
+            $assetsLastMonth = (clone $approvedBase)->where('created_at', '>=', $lastMonthStart)->where('created_at', '<', $thisMonthStart)->count();
+            $assetsDiff = $assetsThisMonth - $assetsLastMonth;
+            $assetsPercent = $assetsLastMonth > 0 ? round(($assetsDiff / $assetsLastMonth) * 100, 1) : ($assetsThisMonth > 0 ? 100 : 0);
+
+            // Total Nilai Aset
+            $totalValue = (clone $approvedBase)->sum('nilai_perolehan') ?? 0;
+            $valueThisMonth = (clone $approvedBase)->where('created_at', '>=', $thisMonthStart)->sum('nilai_perolehan') ?? 0;
+            $valueLastMonth = (clone $approvedBase)->where('created_at', '>=', $lastMonthStart)->where('created_at', '<', $thisMonthStart)->sum('nilai_perolehan') ?? 0;
+            $valueDiff = $valueThisMonth - $valueLastMonth;
+            $valuePercent = $valueLastMonth > 0 ? round(($valueDiff / $valueLastMonth) * 100, 1) : ($valueThisMonth > 0 ? 100 : 0);
+
+            // Total Pejabat Aktif
+            $totalPejabat = Pejabat::where('is_aktif', 1)->count();
+            $pejabatThisMonth = Pejabat::where('is_aktif', 1)->where('created_at', '>=', $thisMonthStart)->count();
+            $pejabatLastMonth = Pejabat::where('is_aktif', 1)->where('created_at', '>=', $lastMonthStart)->where('created_at', '<', $thisMonthStart)->count();
+            $pejabatDiff = $pejabatThisMonth - $pejabatLastMonth;
+            $pejabatPercent = $pejabatLastMonth > 0 ? round(($pejabatDiff / $pejabatLastMonth) * 100, 1) : ($pejabatThisMonth > 0 ? 100 : 0);
+
+            // Total Users
+            $totalUsers = User::excludeSuperDevelopers()->count();
+            $usersThisMonth = User::excludeSuperDevelopers()->where('created_at', '>=', $thisMonthStart)->count();
+            $usersLastMonth = User::excludeSuperDevelopers()->where('created_at', '>=', $lastMonthStart)->where('created_at', '<', $thisMonthStart)->count();
+            $usersDiff = $usersThisMonth - $usersLastMonth;
+            $usersPercent = $usersLastMonth > 0 ? round(($usersDiff / $usersLastMonth) * 100, 1) : ($usersThisMonth > 0 ? 100 : 0);
+
+            // Total Ruangan & Jenis
+            $totalRuangan = \App\Models\Ruangan::count();
+            $totalJenis = \App\Models\JenisInventaris::count();
+
+            // Real data: Ruangan assignment
+            $assetsWithRoom = (clone $approvedBase)->whereNotNull('ruangan_id')->count();
+            $assetsWithoutRoom = $totalAssets - $assetsWithRoom;
+
+            // Real data: Kelengkapan data aset
+            $assetsWithNup = (clone $approvedBase)->whereNotNull('nup')->count();
+            $assetsWithFoto = \Illuminate\Support\Facades\Schema::hasTable('inventaris_fotos') 
+                ? DB::table('inventaris_fotos')->distinct()->count('inventaris_id')
+                : 0;
+            $assetsWithBarcode = (clone $approvedBase)->whereNotNull('barcode')->count();
+            $incompleteAssetsCount = (clone $approvedBase)->kelengkapan('tidak_lengkap')->count();
+
+            // Pejabat berstatus aktif
+            $pejabatWithSk = Pejabat::where('is_aktif', 1)->count();
+            $totalPejabatAll = Pejabat::count();
+
+            // Real data: Kewajiban Pelaporan
+            $latestAssetUpdate = (clone $approvedBase)->max('updated_at');
+            $deletedAssetsThisYear = \Illuminate\Support\Facades\Schema::hasTable('inventaris_deleted_log')
+                ? DB::table('inventaris_deleted_log')->whereYear('deleted_at', date('Y'))->count()
+                : 0;
+            $baPenghapusanCount = \Illuminate\Support\Facades\Schema::hasTable('inventaris_deleted_log')
+                ? DB::table('inventaris_deleted_log')
+                    ->whereYear('deleted_at', date('Y'))
+                    ->where(function($q) {
+                        $q->whereNotNull('nomor_sk')->orWhereNotNull('dokumen_pdf_path');
+                    })->count()
+                : 0;
+
+            // Sparkline monthly cumulative data for real trend
+            $sparklineAssets = [];
+            $sparklineValues = [];
+            for ($i = 7; $i >= 0; $i--) {
+                $monthObj = now()->subMonths($i);
+                $c = (clone $approvedBase)
+                    ->where('created_at', '<=', $monthObj->endOfMonth())
+                    ->count();
+                $v = (clone $approvedBase)
+                    ->where('created_at', '<=', $monthObj->endOfMonth())
+                    ->sum('nilai_perolehan') ?? 0;
+                $sparklineAssets[] = $c;
+                $sparklineValues[] = round($v / 1000000000, 2);
+            }
+
+            // Kondisi Aset hanya dari inventaris yang sudah disetujui (case-insensitive / multi-format)
+            $kondisiBaik        = (clone $approvedBase)->whereIn('kondisi', ['baik', 'Baik', 'BAIK'])->count();
+            $kondisiRusakRingan = (clone $approvedBase)->whereIn('kondisi', ['rusak_ringan', 'Rusak Ringan', 'RUSAK RINGAN'])->count();
+            $kondisiRusakBerat  = (clone $approvedBase)->whereIn('kondisi', ['rusak_berat', 'Rusak Berat', 'RUSAK BERAT'])->count();
 
             return [
                 'totalAssets' => $totalAssets,
                 'totalValue' => $totalValue,
-                'totalValueFormatted' => 'Rp ' . number_format($totalValue, 0, ',', '.'),
+                'totalValueFormatted' => 'Rp ' . number_format($totalValue, fmod($totalValue, 1) != 0 ? 2 : 0, ',', '.'),
                 'pejabatActive' => $totalPejabat,
                 'usersActive' => $totalUsers,
+                'totalRuangan' => $totalRuangan,
+                'totalJenis' => $totalJenis,
+                'total_inventaris' => $totalAssets,
+                'total_nilai' => $totalValue,
+                'total_nilai_formatted' => 'Rp ' . number_format($totalValue, 0, ',', '.'),
+                'inventaris_diff' => $assetsDiff,
+                'pejabat_active' => $totalPejabat,
+                'users_active' => $totalUsers,
+                'assetsThisMonth' => $assetsThisMonth,
+                'assetsWithRoom' => $assetsWithRoom,
+                'assetsWithoutRoom' => $assetsWithoutRoom,
+                'assetsWithNup' => $assetsWithNup,
+                'assetsWithFoto' => $assetsWithFoto,
+                'assetsWithBarcode' => $assetsWithBarcode,
+                'incompleteAssetsCount' => $incompleteAssetsCount,
+                'pejabatWithSk' => $pejabatWithSk,
+                'totalPejabatAll' => $totalPejabatAll,
+                'latestAssetUpdate' => $latestAssetUpdate,
+                'deletedAssetsThisYear' => $deletedAssetsThisYear,
+                'baPenghapusanCount' => $baPenghapusanCount,
+                'sparklineAssets' => $sparklineAssets,
+                'sparklineValues' => $sparklineValues,
                 'trends' => [
                     'assets'  => ['diff' => $assetsDiff, 'percent' => $assetsPercent],
                     'value'   => ['diff' => $valueDiff, 'percent' => $valuePercent],
@@ -130,41 +421,66 @@ class DashboardController extends Controller
                     'rusakRingan' => $kondisiRusakRingan,
                     'rusakBerat'  => $kondisiRusakBerat,
                 ],
+                'kondisi' => [
+                    'baik'         => $kondisiBaik,
+                    'rusak_ringan' => $kondisiRusakRingan,
+                    'rusak_berat'  => $kondisiRusakBerat,
+                ],
             ];
         });
     }
 
-    /**
-     * Get chart data as array (for view rendering)
-     */
-    private function getChartDataArray()
+    private function getChartDataArray(bool $fresh = false)
     {
-        return Cache::remember('dashboard_charts', 600, function() {
+        if ($fresh) {
+            Cache::forget('dashboard_charts');
+        }
+
+        return Cache::remember('dashboard_charts', 30, function() {
             $approvedBase = $this->approvedInventarisQuery();
 
-            // Distribusi Nilai Aset per Jenis
-            $valueByType = (clone $approvedBase)
-                ->select('jenis_inventaris_id', DB::raw('SUM(nilai_perolehan) as total_nilai'))
-                ->with('jenis:id,nama')
-                ->groupBy('jenis_inventaris_id')
+            // Distribusi Nilai Aset per Jenis (Seluruh Jenis Inventaris master, urut dari nilai terbesar)
+            $valueByType = JenisInventaris::where('nama', '!=', 'Buku Inventaris Aset Desa')
+                ->withSum('inventaris as total_nilai', 'nilai_perolehan')
+                ->withCount('inventaris')
+                ->orderByDesc('total_nilai')
+                ->orderByDesc('inventaris_count')
+                ->orderBy('nama')
                 ->get()
-                ->map(function($item) {
+                ->map(function($jenis) {
+                    $raw = $jenis->nama ?? 'Lainnya';
+                    $clean = preg_replace('/^Inventaris\s+/i', '', $raw);
+                    $clean = str_replace(' dan ', ' & ', $clean);
+                    if (strcasecmp(trim($clean), 'yang tidak ditemukan') === 0) {
+                        $clean = 'Tidak Ditemukan';
+                    }
                     return [
-                        'jenis' => $item->jenis->nama ?? 'Unknown',
-                        'nilai' => (float) $item->total_nilai,
+                        'id' => $jenis->id,
+                        'jenis' => $clean,
+                        'jenis_raw' => $raw,
+                        'nilai' => (float) ($jenis->total_nilai ?? 0),
+                        'count' => (int) ($jenis->inventaris_count ?? 0),
                     ];
                 });
 
-            // Komposisi Jumlah Aset per Jenis
-            $countByType = (clone $approvedBase)
-                ->select('jenis_inventaris_id', DB::raw('COUNT(*) as count'))
-                ->with('jenis:id,nama')
-                ->groupBy('jenis_inventaris_id')
+            // Komposisi Jumlah Aset per Jenis (Seluruh Jenis Inventaris master)
+            $countByType = JenisInventaris::where('nama', '!=', 'Buku Inventaris Aset Desa')
+                ->withCount('inventaris')
+                ->orderByDesc('inventaris_count')
+                ->orderBy('nama')
                 ->get()
-                ->map(function($item) {
+                ->map(function($jenis) {
+                    $raw = $jenis->nama ?? 'Lainnya';
+                    $clean = preg_replace('/^Inventaris\s+/i', '', $raw);
+                    $clean = str_replace(' dan ', ' & ', $clean);
+                    if (strcasecmp(trim($clean), 'yang tidak ditemukan') === 0) {
+                        $clean = 'Tidak Ditemukan';
+                    }
                     return [
-                        'jenis' => $item->jenis->nama ?? 'Unknown',
-                        'count' => $item->count,
+                        'id' => $jenis->id,
+                        'jenis' => $clean,
+                        'jenis_raw' => $raw,
+                        'count' => (int) ($jenis->inventaris_count ?? 0),
                     ];
                 });
 
@@ -183,6 +499,27 @@ class DashboardController extends Controller
                 ];
             }
 
+            // Distribusi Asal Usul (Kapitalisasi APBDes & Urut Terbesar)
+            $asalUsulData = (clone $approvedBase)
+                ->select('asal_usul', DB::raw('COUNT(*) as count'))
+                ->groupBy('asal_usul')
+                ->orderByDesc('count')
+                ->get()
+                ->map(function($item) {
+                    $raw = strtolower($item->asal_usul ?? '');
+                    if ($raw === 'apbdes') {
+                        $nama = 'APBDes';
+                    } elseif ($raw === 'kekayaan_asli' || $raw === 'kekayaan asli') {
+                        $nama = 'Kekayaan Asli Desa';
+                    } else {
+                        $nama = ucwords(str_replace('_', ' ', $item->asal_usul ?? 'Lainnya'));
+                    }
+                    return [
+                        'nama' => $nama,
+                        'count' => (int) $item->count,
+                    ];
+                });
+
             // Inventaris per Jenis (untuk kartu-kartu)
             $inventarisByJenis = (clone $approvedBase)
                 ->select('jenis_inventaris_id', DB::raw('COUNT(*) as count'))
@@ -198,16 +535,25 @@ class DashboardController extends Controller
             $totalInv = $inventarisByJenis->sum();
 
             return [
-                'labels' => $countByType->pluck('jenis')->toArray(),
-                'labelsJson' => json_encode($countByType->pluck('jenis')->toArray()),
+                'labels' => $valueByType->pluck('jenis')->toArray(),
+                'labelsJson' => json_encode($valueByType->pluck('jenis')->toArray()),
                 'valueByType' => $valueByType->pluck('nilai')->toArray(),
                 'valueByTypeJson' => json_encode($valueByType->pluck('nilai')->toArray()),
                 'countByType' => $countByType->pluck('count')->toArray(),
                 'countByTypeJson' => json_encode($countByType->pluck('count')->toArray()),
                 'monthlyTrend' => $monthlyTrend,
                 'monthlyTrendJson' => json_encode($monthlyTrend),
+                'asalUsul' => $asalUsulData->toArray(),
                 'inventarisByJenis' => $inventarisByJenis,
                 'totalInventaris' => $totalInv,
+                'jumlah_per_jenis' => [
+                    'labels' => $countByType->pluck('jenis')->toArray(),
+                    'data' => $countByType->pluck('count')->toArray(),
+                ],
+                'nilai_per_jenis' => [
+                    'labels' => $valueByType->pluck('jenis')->toArray(),
+                    'data' => $valueByType->pluck('nilai')->toArray(),
+                ],
             ];
         });
     }
@@ -220,20 +566,22 @@ class DashboardController extends Controller
         $colors = [
             'tambah'  => '#10b981',
             'ubah'    => '#f59e0b',
+            'update'  => '#f59e0b',
             'hapus'   => '#ef4444',
             'approve' => '#059669',
             'reject'  => '#dc2626',
             'export'  => '#f59e0b',
         ];
 
-        return ActivityLog::with('user:id,nama')
+        return ActivityLog::excludeSuperDevelopers()
+            ->with('user:id,nama')
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get()
             ->map(function ($log) use ($colors) {
                 return [
-                    'text'  => ($log->user->nama ?? 'User') . ' ' . $log->detail,
-                    'time'  => $log->created_at->diffForHumans(),
+                    'text'  => ($log->user->nama ?? 'User') . ' ' . lcfirst($log->detail),
+                    'time'  => $log->created_at ? $log->created_at->diffForHumans() : '-',
                     'color' => $colors[$log->action] ?? '#6b7280',
                 ];
             })
@@ -253,22 +601,15 @@ class DashboardController extends Controller
 
     private function getRecentExportsArray()
     {
-        return ExportLog::with(['user:id,nama', 'jenisInventaris:id,nama'])
+        return ExportLog::excludeSuperDevelopers()
+            ->with(['user:id,nama', 'jenisInventaris:id,nama'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get()
             ->map(function($item) {
-                // Determine jenis: real or virtual
-                if ($item->jenis_inventaris_id) {
-                    $jenis = $item->jenisInventaris->nama ?? 'Unknown';
-                } else {
-                    $filters = is_array($item->filters) ? $item->filters : [];
-                    $jenis = $filters['virtual_export_as'] ?? 'Semua Jenis';
-                }
-                
                 return [
                     'user' => $item->user->nama ?? 'Unknown',
-                    'jenis' => $jenis,
+                    'jenis' => $item->jenis_label,
                     'tanggal' => $item->created_at ? $item->created_at->format('d M Y, H:i') : '-',
                 ];
             });
@@ -276,43 +617,23 @@ class DashboardController extends Controller
 
     /**
      * API endpoint untuk fetch KPI data
-     * GET /api/dashboard/kpi
+     * GET /dashboard-api/kpi
      */
-    public function getKpiData()
+    public function getKpiData(Request $request)
     {
-        $kpis = Cache::remember('dashboard_kpi', 300, function() {
-            $base = $this->approvedInventarisQuery();
-
-            $totalAssets        = (clone $base)->count();
-            $totalValue         = (clone $base)->sum('nilai_perolehan') ?? 0;
-            $totalPejabat       = Pejabat::where('is_aktif', 1)->count();
-            $totalUsers         = User::count();
-            $kondisiBaik        = (clone $base)->where('kondisi', 'baik')->count();
-            $kondisiRusakRingan = (clone $base)->where('kondisi', 'rusak_ringan')->count();
-            $kondisiRusakBerat  = (clone $base)->where('kondisi', 'rusak_berat')->count();
-
-            return [
-                'totalAssets'  => $totalAssets,
-                'totalValue'   => $totalValue,
-                'pejabatActive'=> $totalPejabat,
-                'usersActive'  => $totalUsers,
-                'kondisiAset'  => [
-                    'baik'        => $kondisiBaik,
-                    'rusakRingan' => $kondisiRusakRingan,
-                    'rusakBerat'  => $kondisiRusakBerat,
-                ],
-            ];
-        });
-
-        return response()->json($kpis);
+        $fresh = $request->boolean('fresh', false);
+        return response()->json($this->getKpiDataArray($fresh));
     }
 
     /**
      * API endpoint untuk fetch chart data
-     * GET /api/dashboard/charts
+     * GET /dashboard-api/charts
      */
     public function getChartData(Request $request)
     {
+        if ($request->boolean('fresh', false)) {
+            Cache::forget('dashboard_charts');
+        }
         return response()->json($this->buildDashboardChartsPayload($request));
     }
 
@@ -345,7 +666,7 @@ class DashboardController extends Controller
         Storage::disk('local')->put($relativePath, $pdfBinary);
 
         ExportLog::create([
-            'user_id' => (int) optional($request->user())->id,
+            'user_id' => $request->user()?->id ?? \Illuminate\Support\Facades\Auth::id() ?? \App\Models\User::first()?->id,
             'inventaris_id' => null,
             'jenis_inventaris_id' => null,
             'pejabat_id' => null,
@@ -387,7 +708,8 @@ class DashboardController extends Controller
                           : $defaultSemester;
         $jenisId      = $request->input('jenis_id');
         $kondisiTrend = $request->input('kondisi_trend');
-        $trendTahun   = (int) $request->input('trend_tahun', now()->year);
+        $trendTahunInput = $request->input('trend_tahun');
+        $trendTahun   = ($trendTahunInput && $trendTahunInput !== 'all') ? (int) $trendTahunInput : (int) now()->year;
 
         $barQuery = $this->approvedInventarisQuery()->with('jenis:id,nama,icon_mode,custom_color');
         if ($barTahun) {
@@ -461,10 +783,9 @@ class DashboardController extends Controller
         for ($m = $startMonth; $m <= $endMonth; $m++) {
             $monthLabel = \Carbon\Carbon::createFromDate($trendTahun, $m, 1)->format('M Y');
 
-            // Filter tahun dari tahun_perolehan, bulan dari created_at
-            // (tahun_perolehan hanya menyimpan tahun, bukan tanggal lengkap)
+            // Hitung jumlah inventaris yang ditambahkan pada tahun & bulan tersebut
             $trendQ = $this->approvedInventarisQuery()
-                ->where('tahun_perolehan', $trendTahun)
+                ->whereYear('created_at', $trendTahun)
                 ->whereMonth('created_at', sprintf('%02d', $m));
 
             if ($jenisId) {
@@ -686,20 +1007,22 @@ class DashboardController extends Controller
         $colors = [
             'tambah'  => '#10b981',
             'ubah'    => '#f59e0b',
+            'update'  => '#f59e0b',
             'hapus'   => '#ef4444',
             'approve' => '#059669',
             'reject'  => '#dc2626',
             'export'  => '#f59e0b',
         ];
 
-        $activities = ActivityLog::with('user:id,nama')
+        $activities = ActivityLog::excludeSuperDevelopers()
+            ->with('user:id,nama')
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get()
             ->map(function ($log) use ($colors) {
                 return [
                     'text'  => ($log->user->nama ?? 'User') . ' ' . $log->detail,
-                    'time'  => $log->created_at->diffForHumans(),
+                    'time'  => $log->created_at ? $log->created_at->diffForHumans() : '-',
                     'color' => $colors[$log->action] ?? '#6b7280',
                 ];
             });
@@ -720,16 +1043,18 @@ class DashboardController extends Controller
 
         /** @var \App\Models\User|null $user */
         $user = $request->user();
-        $canDelete = $user && $user->isSuperAdmin();
+        $canDelete = $user && ($user->isSuperAdmin() || $user->isSuperDeveloper());
 
         $colors = [
             'tambah'  => '#10b981',
             'ubah'    => '#f59e0b',
+            'update'  => '#f59e0b',
             'hapus'   => '#ef4444',
             'export'  => '#3b82f6',
         ];
 
-        $query = ActivityLog::with('user:id,nama');
+        $query = ActivityLog::excludeSuperDevelopers()
+            ->with(['user.role', 'user.bidang', 'user.dinas']);
 
         $sortBy = $request->input('sort', 'terbaru');
         if ($sortBy === 'nama_asc') {
@@ -743,10 +1068,35 @@ class DashboardController extends Controller
         }
 
         if ($request->filled('action')) {
-            $query->where('action', $request->action);
+            $actionFilter = strtolower(trim((string) $request->action));
+            if (in_array($actionFilter, ['ubah', 'update'])) {
+                $query->whereIn('action', ['ubah', 'update']);
+            } else {
+                $query->where('action', $request->action);
+            }
         }
         if ($request->filled('module')) {
-            $query->where('module', $request->module);
+            $mod = $request->module;
+            $modMapping = [
+                'Inventaris'      => ['Inventaris', 'inventaris', 'buku-inventaris', 'buku_inventaris', 'ManajemenAset', 'manajemen-aset', 'manajemen_aset'],
+                'PenghapusanAset' => ['PenghapusanAset', 'penghapusan', 'penghapusan-aset', 'penghapusan_aset', 'Penghapusan', 'Penghapusan Aset'],
+                'JenisInventaris' => ['JenisInventaris', 'jenisinventaris', 'jenis_inventaris', 'jenis-inventaris', 'Jenis Inventaris'],
+                'User'            => ['User', 'user', 'users', 'Users', 'manajemen-pengguna'],
+                'Ruangan'         => ['Ruangan', 'ruangan', 'ruangans'],
+                'Bidang'          => ['Bidang', 'bidang', 'bidangs'],
+                'Pejabat'         => ['Pejabat', 'pejabat', 'pejabats', 'manajemen-pejabat'],
+                'Dropdown'        => ['Dropdown', 'dropdown', 'dropdowns', 'dropdown-dinamis'],
+                'Export'          => ['Export', 'export', 'ExportData', 'export-data', 'export_data', 'pusat-ekspor'],
+                'Backup'          => ['Backup', 'backup', 'cadangan', 'Cadangan'],
+                'Profile'         => ['Profile', 'profile', 'profil', 'auth'],
+                'Aktivitas'       => ['Aktivitas', 'aktivitas', 'aktivitas-sistem', 'activity', 'activity_log'],
+            ];
+
+            if (isset($modMapping[$mod])) {
+                $query->whereIn('module', $modMapping[$mod]);
+            } else {
+                $query->where('module', $mod);
+            }
         }
         if ($request->filled('search')) {
             $search = $request->search;
@@ -764,34 +1114,137 @@ class DashboardController extends Controller
         /** @var \Illuminate\Pagination\LengthAwarePaginator $logs */
         $logs = $query->paginate($perPage)->withQueryString();
 
-        $actions  = ActivityLog::distinct()->orderBy('action')->pluck('action');
-        $modules  = ActivityLog::distinct()->orderBy('module')->pluck('module');
+        // Group by date label (Hari ini / Kemarin / tanggal)
+        $grouped = $logs->getCollection()->groupBy(function ($log) {
+            if (!$log->created_at) return 'Lainnya';
+            if ($log->created_at->isToday()) return 'Hari ini';
+            if ($log->created_at->isYesterday()) return 'Kemarin';
+            return $log->created_at->translatedFormat('d F Y');
+        });
 
-        if ($request->ajax()) {
-            return response()->json([
-                'logs' => $logs->getCollection()->map(function($log) use ($colors, $canDelete) {
-                    return [
-                        'id' => $log->id,
-                        'user_name' => $log->user?->nama ?? 'Sistem',
-                        'badge_bg' => $colors[$log->action] ?? '#6b7280',
-                        'action_label' => ucfirst($log->action),
-                        'detail' => $log->detail,
-                        'created_at_formatted' => $log->created_at?->translatedFormat('d M Y, H:i'),
-                        'destroy_url' => route('dashboard.activities.destroy', $log->id),
-                    ];
-                }),
-                'pagination' => [
-                    'firstItem' => $logs->firstItem() ?? 0,
-                    'lastItem' => $logs->lastItem() ?? 0,
-                    'total' => $logs->total(),
-                    'currentPage' => $logs->currentPage(),
-                    'lastPage' => $logs->lastPage(),
-                    'hasPages' => $logs->hasPages(),
-                ]
-            ]);
+        $actions  = ActivityLog::excludeSuperDevelopers()->distinct()->orderBy('action')->pluck('action');
+        $modules  = ActivityLog::excludeSuperDevelopers()->distinct()->orderBy('module')->pluck('module');
+
+        return view('dashboard.activities', compact('logs', 'grouped', 'colors', 'actions', 'modules', 'canDelete'));
+    }
+
+    /**
+     * Ekspor log aktivitas sistem ke Excel atau PDF.
+     */
+    public function exportActivities(Request $request)
+    {
+        $this->abortIfNotSuperAdmin($request);
+        $format = strtolower($request->query('format', 'excel'));
+
+        $query = ActivityLog::excludeSuperDevelopers()
+            ->with(['user.role', 'user.bidang', 'user.dinas']);
+
+        if ($request->filled('action')) {
+            $actionFilter = strtolower(trim((string) $request->action));
+            if (in_array($actionFilter, ['ubah', 'update'])) {
+                $query->whereIn('action', ['ubah', 'update']);
+            } else {
+                $query->where('action', $request->action);
+            }
         }
 
-        return view('dashboard.activities', compact('logs', 'colors', 'actions', 'modules', 'canDelete'));
+        if ($request->filled('module')) {
+            $mod = $request->module;
+            $modMapping = [
+                'Inventaris'      => ['Inventaris', 'inventaris', 'buku-inventaris', 'buku_inventaris', 'ManajemenAset', 'manajemen-aset', 'manajemen_aset'],
+                'PenghapusanAset' => ['PenghapusanAset', 'penghapusan', 'penghapusan-aset', 'penghapusan_aset', 'Penghapusan', 'Penghapusan Aset'],
+                'JenisInventaris' => ['JenisInventaris', 'jenisinventaris', 'jenis_inventaris', 'jenis-inventaris', 'Jenis Inventaris'],
+                'User'            => ['User', 'user', 'users', 'Users', 'manajemen-pengguna'],
+                'Ruangan'         => ['Ruangan', 'ruangan', 'ruangans'],
+                'Bidang'          => ['Bidang', 'bidang', 'bidangs'],
+                'Pejabat'         => ['Pejabat', 'pejabat', 'pejabats', 'manajemen-pejabat'],
+                'Dropdown'        => ['Dropdown', 'dropdown', 'dropdowns', 'dropdown-dinamis'],
+                'Export'          => ['Export', 'export', 'ExportData', 'export-data', 'export_data', 'pusat-ekspor'],
+                'Backup'          => ['Backup', 'backup', 'cadangan', 'Cadangan'],
+                'Profile'         => ['Profile', 'profile', 'profil', 'auth'],
+                'Aktivitas'       => ['Aktivitas', 'aktivitas', 'aktivitas-sistem', 'activity', 'activity_log'],
+            ];
+
+            if (isset($modMapping[$mod])) {
+                $query->whereIn('module', $modMapping[$mod]);
+            } else {
+                $query->where('module', $mod);
+            }
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('detail', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', fn($u) => $u->where('nama', 'like', '%' . $search . '%'));
+            });
+        }
+
+        $dateStr = date('Ymd_His');
+
+        \App\Services\ActivityLogger::log('Aktivitas Sistem', 'export', 'Mengekspor log audit aktivitas sistem (format ' . strtoupper($format) . ')');
+
+        if ($format === 'pdf') {
+            $totalCount = (clone $query)->count();
+            $maxPdfLimit = 1000;
+            $isCapped = $totalCount > $maxPdfLimit;
+            $logs = $query->orderByDesc('created_at')->limit($maxPdfLimit)->get();
+
+            $headers = [
+                ['text' => 'NO', 'width' => '4%', 'align' => 'center'],
+                ['text' => 'WAKTU & TANGGAL', 'width' => '15%', 'align' => 'center'],
+                ['text' => 'PENGGUNA', 'width' => '15%', 'align' => 'left'],
+                ['text' => 'PERAN / JABATAN', 'width' => '15%', 'align' => 'left'],
+                ['text' => 'MODUL', 'width' => '11%', 'align' => 'left'],
+                ['text' => 'AKTIVITAS', 'width' => '12%', 'align' => 'center'],
+                ['text' => 'RINCIAN DETAIL', 'width' => '28%', 'align' => 'left'],
+            ];
+
+            $rows = [];
+            foreach ($logs as $i => $item) {
+                $userNama = $item->user?->nama ?? 'Sistem';
+                $userRole = $item->user?->role_name_display ?: ($item->user ? ($item->user->role?->nama ? ucwords(str_replace('_', ' ', $item->user->role->nama)) : '-') : 'Sistem');
+                $module   = $item->module_label ?? ucfirst((string)$item->module);
+                $action   = $item->action_label ?? (ucfirst((string)$item->action) . ' Data');
+
+                $rows[] = [
+                    ['text' => $i + 1, 'class' => 'text-center'],
+                    ['text' => $item->created_at ? $item->created_at->translatedFormat('d/m/Y H:i:s') : '-', 'class' => 'text-center'],
+                    ['text' => $userNama],
+                    ['text' => $userRole],
+                    ['text' => $module],
+                    ['text' => $action, 'class' => 'text-center'],
+                    ['text' => $item->detail ?? '-'],
+                ];
+            }
+
+            $summary = [
+                'Total Aktivitas' => $isCapped
+                    ? number_format(count($logs), 0, ',', '.') . ' dari ' . number_format($totalCount, 0, ',', '.') . ' (1.000 Terkini)'
+                    : count($logs) . ' Rekaman',
+            ];
+
+            $subtitle = $isCapped
+                ? 'Rekapitulasi Catatan Aktivitas dan Keamanan Pengguna Sistem (Dibatasi 1.000 data terkini - Gunakan format Excel untuk arsip lengkap)'
+                : 'Rekapitulasi Catatan Aktivitas dan Keamanan Pengguna Sistem';
+
+            return \App\Services\FeatureExportService::downloadPdf(
+                'Laporan Audit Trail Aktivitas Sistem',
+                $subtitle,
+                $headers,
+                $rows,
+                "Log_Aktivitas_{$dateStr}.pdf",
+                'landscape',
+                $summary
+            );
+        }
+
+        $logs = $query->orderByDesc('created_at')->get();
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\ActivityLogExport($logs),
+            "Log_Aktivitas_{$dateStr}.xlsx"
+        );
     }
 
     public function destroyActivity(Request $request, ActivityLog $activityLog)
@@ -848,25 +1301,16 @@ class DashboardController extends Controller
     {
         $this->authorize('viewAny', ExportLog::class);
 
-        $exports = ExportLog::with(['user:id,nama', 'jenisInventaris:id,nama'])
+        $exports = ExportLog::excludeSuperDevelopers()
+            ->with(['user:id,nama', 'jenisInventaris:id,nama'])
             ->whereIn('tipe_export', ['excel', 'pdf'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get()
             ->map(function($item) {
-                // Determine jenis name: real (DB) or virtual (sistem)
-                if ($item->jenis_inventaris_id) {
-                    // Real jenis dari database
-                    $jenis = $item->jenisInventaris->nama ?? 'Unknown';
-                } else {
-                    // Virtual jenis - lookup dari filters
-                    $filters = is_array($item->filters) ? $item->filters : [];
-                    $jenis = $filters['virtual_export_as'] ?? 'Semua Jenis';
-                }
-                
                 return [
                     'user' => $item->user->nama ?? 'Unknown',
-                    'jenis' => $jenis,
+                    'jenis' => $item->jenis_label,
                     'tanggal' => $item->created_at ? $item->created_at->format('d M Y, H:i') : '-',
                     'tipe' => strtoupper($item->tipe_export),
                 ];
@@ -880,6 +1324,6 @@ class DashboardController extends Controller
         /** @var \App\Models\User|null $user */
         $user = $request->user();
 
-        abort_unless($user && $user->isSuperAdmin(), 403);
+        abort_unless($user && ($user->isSuperAdmin() || $user->isSuperDeveloper()), 403);
     }
 }

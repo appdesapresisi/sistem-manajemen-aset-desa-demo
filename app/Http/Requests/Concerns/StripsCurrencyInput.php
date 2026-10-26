@@ -57,7 +57,13 @@ trait StripsCurrencyInput
         } elseif ($hasComma) {
             $parts = explode(',', $core);
             if (count($parts) > 2) {
-                $core = implode('', $parts);
+                $last = end($parts);
+                if (strlen($last) <= 2) {
+                    array_pop($parts);
+                    $core = implode('', $parts) . '.' . $last;
+                } else {
+                    $core = implode('', $parts);
+                }
             } else {
                 $left = $parts[0] ?? '';
                 $right = $parts[1] ?? '';
@@ -70,7 +76,13 @@ trait StripsCurrencyInput
         } elseif ($hasDot) {
             $parts = explode('.', $core);
             if (count($parts) > 2) {
-                $core = implode('', $parts);
+                $last = end($parts);
+                if (strlen($last) <= 2) {
+                    array_pop($parts);
+                    $core = implode('', $parts) . '.' . $last;
+                } else {
+                    $core = implode('', $parts);
+                }
             } else {
                 $left = $parts[0] ?? '';
                 $right = $parts[1] ?? '';

@@ -4,25 +4,32 @@
     @include('layouts.head-page-meta', ['title' => 'Tambah User'])
     @include('layouts.head-css')
     <style>
-      /* Form Styling */
+      /* Form Styling - SIMA Standard */
       .form-section {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 16px;
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin-bottom: 24px;
+      }
+      .form-section + .form-section {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--color-border);
       }
       .form-section-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #064635;
+        font-size: 14.5px;
+        font-weight: 700;
+        color: var(--color-primary);
         margin-bottom: 16px;
         display: flex;
         align-items: center;
         gap: 8px;
       }
-      .form-section-title i {
-        width: 18px;
-        height: 18px;
+      .form-section-title i,
+      .form-section-title svg {
+        color: var(--color-primary);
+        width: 16px;
+        height: 16px;
       }
       .form-grid {
         display: grid;
@@ -33,47 +40,91 @@
         margin-bottom: 0;
       }
       .form-label {
-        font-weight: 500;
-        font-size: 13px;
-        color: #374151;
-        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 13.5px;
+        color: var(--color-text);
+        margin-bottom: 8px;
         display: block;
       }
       .form-label .required {
-        color: #ef4444;
+        color: #D9383A;
+        font-weight: 700;
         margin-left: 2px;
       }
       .form-label .optional {
-        color: #9ca3af;
+        color: var(--color-text-muted);
         font-weight: 400;
-        font-size: 11px;
+        font-size: 12px;
         margin-left: 4px;
       }
-      .form-control, .form-select {
+      .form-control, textarea.form-control {
         width: 100%;
-        padding: 10px 14px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
+        height: 46px;
+        padding: 0 16px;
+        border: 1.5px solid var(--color-border);
+        border-radius: 10px;
         font-size: 14px;
-        transition: all 0.2s ease;
-        background: #fff;
+        transition: border-color 0.2s ease;
+        background: var(--color-surface);
+        color: var(--color-text);
+        box-shadow: none !important;
+      }
+      textarea.form-control {
+        height: auto;
+        min-height: 80px;
+        padding: 12px 16px;
       }
       .form-select option[value="add-new"] {
-        color: #2563eb;
+        color: var(--color-primary);
         font-weight: 600;
       }
-      .form-control:focus, .form-select:focus {
-        outline: none;
-        border-color: #064635;
-        box-shadow: 0 0 0 3px rgba(6, 70, 53, 0.1);
+      .form-control:focus, textarea.form-control:focus {
+        outline: none !important;
+        border-color: var(--color-primary) !important;
+        box-shadow: none !important;
       }
-      .form-control::placeholder {
-        color: #9ca3af;
+      .form-control.is-invalid, textarea.form-control.is-invalid, .form-select.is-invalid {
+        border-color: #E53935 !important;
+        box-shadow: none !important;
+      }
+      .error-text, .invalid-feedback-custom {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: #D9383A;
+        margin-top: 6px;
+        line-height: 1.4;
+      }
+      .error-text svg, .invalid-feedback-custom svg {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .form-control::placeholder, textarea.form-control::placeholder {
+        color: var(--color-text-muted);
+        opacity: 0.65;
+      }
+      /* Neutralize Browser Autofill Blue Tint */
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover, 
+      input:-webkit-autofill:focus,
+      input:-webkit-autofill:active,
+      textarea:-webkit-autofill,
+      select:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 1000px var(--color-surface, #f8faf7) inset !important;
+        -webkit-text-fill-color: var(--color-text, #1E231C) !important;
+        box-shadow: 0 0 0 1000px var(--color-surface, #f8faf7) inset !important;
+        transition: background-color 5000s ease-in-out 0s !important;
+        background-color: var(--color-surface, #f8faf7) !important;
+        color: var(--color-text, #1E231C) !important;
       }
       .form-hint {
         font-size: 12px;
-        color: #6b7280;
-        margin-top: 4px;
+        color: var(--color-text-muted);
+        margin-top: 6px;
       }
       .form-full {
         grid-column: 1 / -1;
@@ -116,7 +167,7 @@
         background-color: white;
         transition: 0.3s;
         border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: none;
       }
       .toggle-switch input:checked + .toggle-slider {
         background-color: #22c55e;
@@ -126,7 +177,7 @@
       }
       .toggle-label {
         font-size: 14px;
-        color: #374151;
+        color: var(--color-text);
       }
       .toggle-status {
         font-size: 12px;
@@ -146,30 +197,30 @@
       /* Checkbox styled */
       .checkbox-wrapper {
         display: flex;
-        align-items: flex-start;
-        gap: 10px;
+        align-items: center;
+        gap: 12px;
         padding: 14px 16px;
-        background: #fff;
-        border: 2px solid #e2e8f0;
+        background: var(--color-surface);
+        border: 1.5px solid var(--color-border);
         border-radius: 10px;
         cursor: pointer;
         transition: all 0.2s;
       }
       .checkbox-wrapper:hover {
-        border-color: #064635;
-        background: #f4faf5;
+        border-color: var(--color-primary);
+        background: var(--color-row-hover);
       }
       .checkbox-wrapper.checked {
-        border-color: #064635;
-        background: rgba(6, 70, 53, 0.05);
+        border-color: var(--color-primary);
+        background: var(--color-row-hover);
       }
       .checkbox-wrapper input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-        accent-color: #064635;
+        width: 18px;
+        height: 18px;
+        accent-color: var(--color-primary);
         cursor: pointer;
         flex-shrink: 0;
-        margin-top: 2px;
+        margin: 0;
       }
       .checkbox-content {
         flex: 1;
@@ -177,12 +228,12 @@
       .checkbox-title {
         font-weight: 600;
         font-size: 14px;
-        color: #374151;
+        color: var(--color-text);
         margin-bottom: 2px;
       }
       .checkbox-desc {
         font-size: 12px;
-        color: #6b7280;
+        color: var(--color-text-muted);
         line-height: 1.4;
       }
 
@@ -191,9 +242,9 @@
         display: none;
         margin-top: 16px;
         padding: 20px;
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        border: 1px solid #93c5fd;
-        border-radius: 10px;
+        background: var(--color-surface);
+        border: 1.5px solid var(--color-border);
+        border-radius: var(--radius-md);
       }
       .pejabat-section.show {
         display: block;
@@ -206,7 +257,7 @@
       .pejabat-section-title {
         font-size: 14px;
         font-weight: 600;
-        color: #1e40af;
+        color: var(--color-primary);
         margin-bottom: 16px;
         display: flex;
         align-items: center;
@@ -215,32 +266,37 @@
       .pejabat-section-title i {
         width: 18px;
         height: 18px;
-        color: #3b82f6;
+        color: var(--color-primary);
       }
 
       /* Info box */
       .info-box {
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        border: 1px solid #93c5fd;
-        border-radius: 8px;
-        padding: 12px 16px;
+        background: var(--color-primary-tint);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: 8px 14px;
         display: flex;
+        width: 100%;
+        box-sizing: border-box;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         margin-top: 12px;
+        color: var(--color-text);
       }
       .info-box i,
       .info-box svg {
-        color: #1e40af !important;
-        stroke: #1e40af !important;
+        color: var(--color-primary);
+        stroke: var(--color-primary);
         flex-shrink: 0;
-        width: 18px;
-        height: 18px;
+        width: 14px;
+        height: 14px;
       }
       .info-box-text {
-        font-size: 13px;
-        color: #1e40af;
-        line-height: 1.5;
+        font-size: 12px;
+        color: var(--color-text);
+        line-height: 1.45;
+        font-weight: 500;
+        flex: 1;
       }
 
       /* File upload */
@@ -254,52 +310,51 @@
         justify-content: center;
         gap: 12px;
         padding: 30px 20px;
-        background: #fff;
-        border: 2px dashed #d1d5db;
+        background: var(--color-surface);
+        border: 2px dashed var(--color-border);
         border-radius: 12px;
         cursor: pointer;
         transition: all 0.2s;
         text-align: center;
       }
       .file-upload-area:hover {
-        border-color: #064635;
-        background: #f4faf5;
+        border-color: var(--color-primary);
+        background: var(--color-row-hover);
       }
       .file-upload-area.has-file {
-        border-color: #22c55e;
-        background: #f0fdf4;
+        border-color: var(--color-primary);
+        background: var(--color-row-hover);
       }
       .file-upload-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #064635 0%, #519259 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
+        background: transparent !important;
+        width: auto !important;
+        height: auto !important;
+        display: block !important;
+        margin: 0 auto 8px auto !important;
       }
       .file-upload-icon i,
       .file-upload-icon svg {
-        width: 24px;
-        height: 24px;
-        color: #fff !important;
+        width: 28px !important;
+        height: 28px !important;
+        stroke-width: 1.5 !important;
+        color: var(--color-text-muted) !important;
+        stroke: var(--color-text-muted) !important;
       }
       .file-upload-text {
         font-size: 14px;
-        color: #374151;
+        color: var(--color-text);
         font-weight: 500;
       }
       .file-upload-hint {
         font-size: 12px;
-        color: #9ca3af;
+        color: var(--color-text-muted);
       }
       .file-preview {
         display: none;
         margin-top: 12px;
         padding: 12px;
-        background: #f0fdf4;
-        border: 1px solid #bbf7d0;
+        background: var(--color-row-hover);
+        border: 1px solid var(--color-border);
         border-radius: 8px;
       }
       .file-preview.show {
@@ -312,8 +367,8 @@
         height: 60px;
         border-radius: 8px;
         object-fit: contain;
-        background: #fff;
-        border: 1px solid #e5e7eb;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
         padding: 4px;
       }
       .file-preview-info {
@@ -322,12 +377,12 @@
       .file-preview-name {
         font-size: 13px;
         font-weight: 500;
-        color: #374151;
+        color: var(--color-text);
         margin-bottom: 2px;
       }
       .file-preview-size {
         font-size: 11px;
-        color: #6b7280;
+        color: var(--color-text-muted);
       }
       .file-preview-remove {
         width: 32px;
@@ -352,7 +407,7 @@
 
 @include('partials.signature-pad-styles')
       .signature-guide {
-        margin-top: 12px;
+        margin-top: 20px;
         padding: 16px;
         background: #fffbeb;
         border: 1px solid #fbbf24;
@@ -386,66 +441,106 @@
         display: flex;
         gap: 12px;
         justify-content: flex-end;
-        padding-top: 20px;
-        border-top: 1px solid #e5e7eb;
+        padding-top: 24px;
+        border-top: none;
         margin-top: 24px;
+        margin-bottom: 32px;
       }
       .btn-cancel {
-        padding: 10px 20px;
-        border: 1px solid #d1d5db;
-        background: #fff;
-        color: #374151;
-        border-radius: 8px;
+        height: 46px;
+        padding: 0 20px;
+        border: 1.5px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text);
+        border-radius: var(--radius-full);
         font-weight: 500;
+        font-size: 14px;
         cursor: pointer;
         transition: all 0.2s;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        box-shadow: none !important;
       }
       .btn-cancel:hover {
-        background: #f3f4f6;
+        background: var(--color-row-hover);
+        border-color: var(--color-border);
+        color: var(--color-text);
       }
       .btn-submit {
-        padding: 10px 24px;
+        height: 46px;
+        padding: 0 24px;
         border: none;
-        background: #064635;
+        background: var(--color-primary);
         color: #fff;
-        border-radius: 8px;
-        font-weight: 500;
+        border-radius: var(--radius-full);
+        font-weight: 600;
+        font-size: 14px;
         cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
+        box-shadow: none !important;
+        transition: background-color 0.2s ease;
+        display: inline-flex;
         align-items: center;
         gap: 8px;
       }
       .btn-submit:hover {
-        background: #1c5240;
+        background: var(--color-primary-hover);
+        color: #fff;
       }
-      .btn-submit i {
+      .btn-cancel i,
+      .btn-cancel svg {
+        width: 16px;
+        height: 16px;
+      }
+      .btn-submit i,
+      .btn-submit svg {
         width: 18px;
         height: 18px;
       }
 
       /* Card Header */
+      .card .card-header,
+      .card-header {
+        background-color: transparent !important;
+        padding: 32px 24px 0 24px !important;
+        border: none !important;
+        border-bottom: none !important;
+      }
+      .card .card-body,
+      .card-body {
+        padding-bottom: 0 !important;
+      }
+      .card .card-header > div,
+      .card-header > div,
+      .card-header-inner,
+      .card-header > .flex {
+        border-bottom: 1px dashed var(--color-border) !important;
+        padding-bottom: 20px !important;
+        width: 100% !important;
+      }
       .card-header-icon {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        background: #519259;
-        margin-right: 12px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        border-radius: 12px;
+        background: var(--color-primary);
+        margin-right: 14px;
         flex-shrink: 0;
+        position: relative !important;
       }
       .card-header-icon i,
       .card-header-icon svg {
         color: #fff !important;
         stroke: #fff !important;
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
+        position: relative !important;
+        top: unset !important;
+        left: unset !important;
       }
 
       /* Password visibility toggle */
@@ -460,14 +555,14 @@
         background: none;
         border: none;
         cursor: pointer;
-        color: #6b7280;
+        color: var(--color-text-muted);
         padding: 0;
         display: flex;
         align-items: center;
         justify-content: center;
       }
       .password-toggle:hover {
-        color: #374151;
+        color: var(--color-text);
       }
       .password-toggle i {
         width: 18px;
@@ -491,25 +586,24 @@
 
     <div class="pc-container">
       <div class="pc-content">
-        @include('layouts.breadcrumb', ['breadcrumbItemHome' => 'Master Data', 'breadcrumbItem' => 'Users', 'breadcrumbItemUrl' => route('users.index'), 'breadcrumbItemActive' => 'Tambah User'])
+        @include('layouts.breadcrumb', ['breadcrumbItemHome' => 'Master Data', 'breadcrumbItem' => 'Manajemen Pengguna', 'breadcrumbItemUrl' => route('users.index'), 'breadcrumbItemActive' => 'Tambah Pengguna'])
 
         <div class="grid grid-cols-12 gap-x-6">
-          <div class="col-span-12 lg:col-span-8 lg:col-start-3">
+          <div class="col-span-12 w-full">
             <div class="card">
-              <div class="card-header border-b border-gray-100">
+              <div class="card-header">
                 <div class="flex items-center">
                   <div class="card-header-icon">
-                    <i data-feather="user-plus"></i>
+                    <i data-feather="users"></i>
                   </div>
                   <div>
-                    <h5 class="mb-1">Tambah User Baru</h5>
-                    <p class="text-muted text-sm mb-0">Isi data untuk menambahkan user admin baru ke sistem</p>
+                    <h5 class="mb-0">Tambah User Baru</h5>
                   </div>
                 </div>
               </div>
 
               <div class="card-body pt-4">
-                <form id="user-form" action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
+                <form id="user-form" action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data" autocomplete="off" novalidate>
                   @csrf
                   <!-- Hidden field untuk is_aktif=0 jika checkbox unchecked -->
                   <input type="hidden" name="is_aktif" value="0" />
@@ -517,7 +611,6 @@
                   <!-- Informasi Akun -->
                   <div class="form-section">
                     <div class="form-section-title">
-                      <i data-feather="user"></i>
                       Informasi Akun
                     </div>
                     <div class="form-grid">
@@ -525,15 +618,8 @@
                         <label class="form-label" for="nama">
                           Nama Lengkap <span class="required">*</span>
                         </label>
-                        <input type="text" id="nama" name="nama" class="form-control @error('nama') is-invalid @enderror" placeholder="Masukkan nama lengkap" value="{{ old('nama') }}" required />
+                        <input type="text" id="nama" name="nama" class="form-control @error('nama') is-invalid @enderror" placeholder="Masukkan nama lengkap" value="{{ old('nama') }}" pattern="^[a-zA-Z\s\.,'\-]+$" title="Nama lengkap hanya boleh berisi huruf dan tanda baca nama/gelar (tidak boleh angka)" minlength="3" required />
                         @error('nama')
-                        <div class="text-danger" style="font-size:12px;margin-top:4px;">{{ $message }}</div>
-                        @enderror
-                      </div>
-                      <div class="form-group form-full">
-                        <label class="form-label" for="alamat">Alamat <span class="required">*</span></label>
-                        <textarea id="alamat" name="alamat" class="form-control @error('alamat') is-invalid @enderror" placeholder="Masukkan alamat lengkap" rows="2" required>{{ old('alamat') }}</textarea>
-                        @error('alamat')
                         <div class="text-danger" style="font-size:12px;margin-top:4px;">{{ $message }}</div>
                         @enderror
                       </div>
@@ -541,23 +627,29 @@
                         <label class="form-label" for="username">
                           Username <span class="required">*</span>
                         </label>
-                        <input type="text" id="username" name="username" class="form-control @error('username') is-invalid @enderror" placeholder="contoh: budi.santoso" value="{{ old('username') }}" required />
+                        <input type="text" id="username" name="username" class="form-control @error('username') is-invalid @enderror" placeholder="contoh: budi.santoso" value="{{ old('username') }}" autocomplete="off" required />
                         @error('username')
+                        <div class="invalid-feedback-custom">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                          <span>{{ $message }}</span>
+                        </div>
+                        @enderror
+                        <div id="username-live-error" class="invalid-feedback-custom" style="display:none;"></div>
+                        <p class="form-hint">Minimal 3 karakter, diawali huruf. Boleh mengandung angka, titik, strip, atau underscore</p>
+                      </div>
+                      <div class="form-group form-full">
+                        <label class="form-label" for="alamat">Alamat <span class="required">*</span></label>
+                        <textarea id="alamat" name="alamat" class="form-control @error('alamat') is-invalid @enderror" placeholder="Masukkan alamat lengkap" rows="4" required>{{ old('alamat') }}</textarea>
+                        @error('alamat')
                         <div class="text-danger" style="font-size:12px;margin-top:4px;">{{ $message }}</div>
                         @enderror
-                        <p class="form-hint">Minimal 3 karakter, diawali huruf. Boleh mengandung angka, titik, strip, atau underscore</p>
-                        <div id="username-live-error" class="text-danger" style="font-size:12px;margin-top:4px;display:none;color:#ef4444;"></div>
-                        {{-- Email tidak digunakan aktif. Kolom email tetap ada di DB sebagai nullable.
-                        <label class="form-label" for="email">Email</label>
-                        <input type="email" id="email" name="email" class="form-control" placeholder="contoh@email.com" value="{{ old('email') }}" />
-                        --}}
                       </div>
                       <div class="form-group">
                         <label class="form-label" for="password">
                           Password <span class="required">*</span>
                         </label>
                         <div class="password-wrapper">
-                          <input type="password" id="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Masukkan Password" required minlength="8" />
+                          <input type="password" id="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Masukkan Password" autocomplete="new-password" required minlength="8" />
                           <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
                             <i data-feather="eye"></i>
                           </button>
@@ -572,7 +664,7 @@
                           Konfirmasi Password <span class="required">*</span>
                         </label>
                         <div class="password-wrapper">
-                          <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" placeholder="Ulangi password" required />
+                          <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" placeholder="Ulangi password" autocomplete="new-password" required />
                           <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation', this)">
                             <i data-feather="eye"></i>
                           </button>
@@ -584,7 +676,6 @@
                   <!-- Role & Akses -->
                   <div class="form-section">
                     <div class="form-section-title">
-                      <i data-feather="shield"></i>
                       Role & Hak Akses
                     </div>
                     <div class="form-grid">
@@ -593,7 +684,7 @@
                           Role <span class="required">*</span>
                         </label>
                         <select id="role" name="role" class="form-select @error('role') is-invalid @enderror" required>
-                          <option value="" disabled hidden selected>-- Pilih Role --</option>
+                          <option value="" disabled hidden selected>Pilih Role</option>
                           @foreach($roles as $roleItem)
                             @php
                               $isSuperAdmin = $roleItem->nama === 'super_admin';
@@ -631,12 +722,12 @@
                           @endif
                         </div>
                       </div>
-                      <div class="form-group form-full" id="bidang-section" style="display:none;">
+                      <div class="form-group" id="bidang-section" style="display:none;">
                         <label class="form-label" for="bidang_id">
                           Bidang <span class="required">*</span>
                         </label>
                         <select id="bidang_id" name="bidang_id" class="form-select @error('bidang_id') is-invalid @enderror">
-                          <option value="" disabled hidden selected>-- Pilih Bidang --</option>
+                          <option value="" disabled hidden selected>Pilih Bidang</option>
                           @foreach($bidangs as $bidangItem)
                             <option value="{{ $bidangItem->id }}" {{ old('bidang_id') == $bidangItem->id ? 'selected' : '' }}>
                               {{ $bidangItem->nama }}
@@ -647,12 +738,12 @@
                           <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                         @enderror
                       </div>
-                      <div class="form-group form-full" id="dinas-section" style="display:none;">
+                      <div class="form-group" id="dinas-section" style="display:none;">
                         <label class="form-label" for="dinas_id">
                           Dinas <span class="required">*</span>
                         </label>
                         <select id="dinas_id" name="dinas_id" class="form-select @error('dinas_id') is-invalid @enderror">
-                          <option value="" disabled hidden selected>-- Pilih Dinas --</option>
+                          <option value="" disabled hidden selected>Pilih Dinas</option>
                           @foreach($dinas as $dinasItem)
                             <option value="{{ $dinasItem->id }}" {{ old('dinas_id') == $dinasItem->id ? 'selected' : '' }}>
                               {{ $dinasItem->nama }}
@@ -681,12 +772,11 @@
                   <!-- Pejabat TTD Option -->
                   <div class="form-section form-section-last">
                     <div class="form-section-title">
-                      <i data-feather="edit-3"></i>
                       Pejabat Tanda Tangan
                     </div>
                     
                     <label class="checkbox-wrapper" id="pejabat-checkbox-wrapper">
-                      <input type="checkbox" id="create_pejabat" name="create_pejabat" value="1" {{ old('create_pejabat') ? 'checked' : '' }} />
+                      <input type="checkbox" id="create_pejabat" name="create_pejabat" class="sima-checkbox" value="1" {{ old('create_pejabat') ? 'checked' : '' }} />
                       <div class="checkbox-content">
                         <div class="checkbox-title">User ini adalah Pejabat yang perlu Tanda Tangan</div>
                         <div class="checkbox-desc">Centang jika user ini perlu menandatangani dokumen pada Export Data manajemen aset. Data pejabat akan otomatis dibuat bersamaan dengan user.</div>
@@ -694,7 +784,7 @@
                     </label>
 
                     <div class="info-box" style="margin-top:12px;">
-                      <i data-feather="info" style="color:#1e40af !important;stroke:#1e40af !important;width:18px;height:18px;flex-shrink:0;"></i>
+                      <i data-feather="info"></i>
                       <div class="info-box-text">
                         <strong>Catatan:</strong> Jika user adalah pejabat, maka data pejabat dan user akan dibuat bersamaan.
                       </div>
@@ -703,9 +793,8 @@
                     <!-- Form Pejabat (muncul jika checkbox dicentang) -->
                     <div class="pejabat-section" id="pejabat-section">
                       <div class="pejabat-section-title">
-                        <i data-feather="file-text"></i>
-                        Data Pejabat
-                      </div>
+                      Data Pejabat
+                    </div>
                       <div class="form-grid">
                         <div class="form-group">
                           <label class="form-label" for="pejabat_nama">
@@ -725,13 +814,13 @@
                           @error('pejabat_jabatan')
                           <div class="text-danger" style="font-size:12px;margin-top:4px;">{{ $message }}</div>
                           @enderror
-                          <p class="form-hint">Contoh: Perbekel Mengwi, Sekretaris Desa</p>
+                          <p class="form-hint">Contoh: Perbekel Desa, Sekretaris Desa</p>
                         </div>
                         <div class="form-group form-full">
                           <label class="form-label" for="pejabat_tugas">
                             Tugas Pejabat <span class="required">*</span>
                           </label>
-                          <textarea id="pejabat_tugas" name="pejabat_tugas" class="form-control @error('pejabat_tugas') is-invalid @enderror" rows="2" placeholder="Deskripsi tugas pejabat...">{{ old('pejabat_tugas') }}</textarea>
+                          <textarea id="pejabat_tugas" name="pejabat_tugas" class="form-control @error('pejabat_tugas') is-invalid @enderror" rows="4" placeholder="Deskripsi tugas pejabat...">{{ old('pejabat_tugas') }}</textarea>
                           @error('pejabat_tugas')
                           <div class="text-danger" style="font-size:12px;margin-top:4px;">{{ $message }}</div>
                           @enderror
@@ -741,7 +830,7 @@
                           <label class="form-label" for="pejabat_alamat">
                             Alamat Pejabat <span class="required">*</span>
                           </label>
-                          <textarea id="pejabat_alamat" name="pejabat_alamat" class="form-control @error('pejabat_alamat') is-invalid @enderror" rows="2" placeholder="Masukkan alamat lengkap pejabat...">{{ old('pejabat_alamat') }}</textarea>
+                          <textarea id="pejabat_alamat" name="pejabat_alamat" class="form-control @error('pejabat_alamat') is-invalid @enderror" rows="4" placeholder="Masukkan alamat lengkap pejabat...">{{ old('pejabat_alamat') }}</textarea>
                           @error('pejabat_alamat')
                           <div class="text-danger" style="font-size:12px;margin-top:4px;">{{ $message }}</div>
                           @enderror
@@ -763,31 +852,29 @@
 
                       {{-- Section Petugas Barang — di dalam pejabat section --}}
                       @php $petugasBarang = \App\Models\Pejabat::where('is_petugas_barang', 1)->first(); @endphp
-                      <div id="petugas-barang-section-user" style="margin-top:16px;padding:16px;background:#f4faf5;border-radius:10px;border:1px solid #e2e8f0;">
-                        <div style="font-size:13px;font-weight:600;color:#064635;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-                          <i data-feather="shield" style="width:16px;height:16px;"></i>
+                      <div class="form-section" id="petugas-barang-section-user" style="margin-top:24px;padding-top:24px;border-top:1px dashed var(--color-border);">
+                        <div class="form-section-title">
                           Petugas / Pengurus Barang Milik Desa
                         </div>
                         @if($petugasBarang)
-                          <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:8px;">
-                            <i data-feather="alert-triangle" style="width:14px;height:14px;color:#d97706;flex-shrink:0;"></i>
-                            <div style="font-size:12px;color:#92400e;line-height:1.5;">
-                              Petugas/Pengurus Barang Milik Desa saat ini adalah <strong>{{ $petugasBarang->nama }}</strong>.
-                              Untuk menggantinya, edit pejabat tersebut dan hapus centang terlebih dahulu.
-                            </div>
+                          <div class="warning-box">
+                            <i data-feather="alert-triangle"></i>
+                            <span>Petugas/Pengurus Barang Milik Desa saat ini adalah <strong>{{ $petugasBarang->nama }}</strong>{{ $petugasBarang->jabatan ? ' (' . $petugasBarang->jabatan . ')' : '' }}. Untuk menggantinya, edit pejabat tersebut dan hapus centang terlebih dahulu.</span>
                           </div>
                         @else
-                          {{-- Hidden input fallback agar is_petugas_barang = 0 terkirim saat tidak dicentang --}}
-                          <input type="hidden" name="is_petugas_barang" value="0" />
-                          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;" id="petugas-barang-user-wrapper">
-                            <input type="checkbox" id="is_petugas_barang" name="is_petugas_barang" value="1"
-                                   {{ old('is_petugas_barang') ? 'checked' : '' }}
-                                   style="width:16px;height:16px;accent-color:#064635;cursor:pointer;flex-shrink:0;margin-top:2px;" />
-                            <div>
-                              <div style="font-weight:600;font-size:13px;color:#374151;">Jadikan sebagai Petugas/Pengurus Barang Milik Desa</div>
-                              <div style="font-size:12px;color:#6b7280;margin-top:2px;">Pejabat ini akan otomatis muncul sebagai penandatangan di kolom kanan pada export Kartu Inventaris Ruangan dan export Buku Inventaris (KIB).</div>
-                            </div>
-                          </label>
+                          <div class="form-group">
+                            {{-- Hidden input fallback agar is_petugas_barang = 0 terkirim saat tidak dicentang --}}
+                            <input type="hidden" name="is_petugas_barang" value="0" />
+                            <label style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--color-surface);border:1.5px solid var(--color-border);border-radius:10px;cursor:pointer;transition:background-color 0.15s ease, border-color 0.15s ease;" id="petugas-barang-user-wrapper">
+                              <input type="checkbox" id="is_petugas_barang" name="is_petugas_barang" value="1"
+                                     {{ old('is_petugas_barang') ? 'checked' : '' }}
+                                     onchange="document.getElementById('petugas-barang-user-wrapper').style.borderColor=this.checked?'var(--color-primary)':'var(--color-border)';document.getElementById('petugas-barang-user-wrapper').style.background=this.checked?'var(--color-primary-tint)':'var(--color-surface)';" />
+                              <div>
+                                <div style="font-weight:600;font-size:14px;color:var(--color-text);">Jadikan sebagai Petugas/Pengurus Barang Milik Desa</div>
+                                <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px;">Pejabat ini akan otomatis muncul sebagai penandatangan di kolom kanan pada export Kartu Inventaris Ruangan dan export Buku Inventaris (KIB).</div>
+                              </div>
+                            </label>
+                          </div>
                         @endif
                       </div>
                     </div>
@@ -801,7 +888,7 @@
                     </button>
                     <button type="button" class="btn-submit" onclick="confirmSubmit()">
                       <i data-feather="save"></i>
-                      Simpan User
+                      Simpan Pengguna
                     </button>
                   </div>
 
@@ -820,6 +907,7 @@
 
     <script>
       (function(){
+        try { sessionStorage.setItem('users_returning', '1'); } catch(e) {}
         const form = document.getElementById('user-form');
         const isAktif = document.getElementById('is_aktif');
         const statusBadge = document.getElementById('status-badge');
@@ -840,25 +928,62 @@
         function showError(input, message){
           if (!input) return;
           const errorContainer = input.closest('.form-group') || input.parentElement;
-          let errorEl = errorContainer.querySelector('.error-text');
-          if(!errorEl){
-            errorEl = document.createElement('small');
-            errorEl.classList.add('error-text');
-            errorEl.style.color = 'red';
-            errorEl.style.display = 'block';
-            errorContainer.appendChild(errorEl);
+          if (errorContainer) {
+            errorContainer.classList.add('has-error');
+            const labelEl = errorContainer.querySelector('.form-label, label');
+            if (labelEl) {
+              labelEl.classList.add('error', 'is-invalid');
+            }
           }
-          errorEl.innerText = message;
-          input.classList.add('is-invalid');
+          let errorEl = errorContainer ? errorContainer.querySelector('.error-text, .invalid-feedback-custom') : null;
+          if(!errorEl && errorContainer){
+            errorEl = document.createElement('div');
+            errorEl.classList.add('invalid-feedback-custom', 'sima-dynamic-feedback');
+            const formHint = errorContainer.querySelector('.form-hint');
+            if (formHint) {
+              errorContainer.insertBefore(errorEl, formHint);
+            } else {
+              errorContainer.appendChild(errorEl);
+            }
+          }
+          if (errorEl) {
+            errorEl.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span>' + escapeHtml(message) + '</span>';
+            errorEl.style.display = 'flex';
+          }
+          input.classList.add('is-invalid', 'error');
+          if (typeof input.setCustomValidity === 'function') {
+            input.setCustomValidity(message);
+          }
         }
 
         function clearError(input){
           if (!input) return;
+          if (typeof window.simaClearFieldError === 'function') {
+            window.simaClearFieldError(input);
+          }
           const errorContainer = input.closest('.form-group') || input.parentElement;
-          let errorEl = errorContainer.querySelector('.error-text');
-          if(errorEl) errorEl.innerText = '';
-          input.classList.remove('is-invalid');
+          if (errorContainer) {
+            errorContainer.classList.remove('has-error');
+            const labelEl = errorContainer.querySelector('.form-label, label');
+            if (labelEl) {
+              labelEl.classList.remove('error', 'is-invalid');
+            }
+            const errorEls = errorContainer.querySelectorAll('.error-text, .text-danger, .invalid-feedback-custom, .sima-dynamic-feedback');
+            errorEls.forEach(function(el) {
+              if (el.classList.contains('sima-dynamic-feedback')) {
+                el.remove();
+              } else {
+                el.innerHTML = '';
+                el.style.display = 'none';
+              }
+            });
+          }
+          input.classList.remove('is-invalid', 'error');
+          if (typeof input.setCustomValidity === 'function') {
+            input.setCustomValidity('');
+          }
         }
+        window.clearError = clearError;
 
         function syncPejabatRequiredFields() {
           const isRequired = !!(createPejabat && createPejabat.checked);
@@ -937,7 +1062,7 @@
         if(namaUser){
           namaUser.addEventListener('input', function(){
             const val = this.value.trim();
-            const regex = /^[a-zA-Z\s]+$/;
+            const regex = /^[a-zA-Z\s\.,'\-]+$/;
 
             if(val.length === 0){
               showError(this, 'Nama wajib diisi');
@@ -953,15 +1078,15 @@
             }
 
             if(createPejabat && createPejabat.checked && namaPejabat){
-              namaPejabat.value = val;
-            }
-
-            if(createPejabat && createPejabat.checked){
-              if(val.length < 3){
-                showError(namaPejabat, 'Nama pejabat minimal 3 karakter');
-              } else {
+              namaPejabat.value = this.value;
+              if(val.length >= 3){
                 clearError(namaPejabat);
+              } else if(val.length === 0){
+                showError(namaPejabat, 'Nama Pejabat wajib diisi');
+              } else {
+                showError(namaPejabat, 'Nama pejabat minimal 3 karakter');
               }
+              namaPejabat.dispatchEvent(new Event('input', { bubbles: true }));
             }
           });
         }
@@ -972,15 +1097,24 @@
 
           function showUsernameLiveError(message) {
             if (!usernameLiveError) return;
-            usernameLiveError.textContent = message;
-            usernameLiveError.style.display = 'block';
+            usernameLiveError.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span>' + escapeHtml(message) + '</span>';
+            usernameLiveError.style.display = 'flex';
             usernameInput.classList.add('is-invalid');
+            if (typeof usernameInput.setCustomValidity === 'function') {
+              usernameInput.setCustomValidity(message);
+            }
           }
 
           function clearUsernameLiveError() {
             if (!usernameLiveError) return;
-            usernameLiveError.textContent = '';
+            usernameLiveError.innerHTML = '';
             usernameLiveError.style.display = 'none';
+            if (usernameInput) {
+              usernameInput.classList.remove('is-invalid');
+              if (typeof usernameInput.setCustomValidity === 'function') {
+                usernameInput.setCustomValidity('');
+              }
+            }
           }
 
           function isUsernameFormatValid(value) {
@@ -1117,6 +1251,21 @@
           });
         }
 
+        if(alamatPejabat){
+          alamatPejabat.addEventListener('input', function(){
+            if(createPejabat && createPejabat.checked){
+              const val = this.value.trim();
+              if(val.length === 0){
+                showError(this, 'Alamat Pejabat wajib diisi');
+              } else {
+                clearError(this);
+              }
+            } else {
+              clearError(this);
+            }
+          });
+        }
+
         if (isAktif) {
           isAktif.addEventListener('change', function(){
             if(this.checked){
@@ -1139,9 +1288,17 @@
               pejabatSection.classList.add('show');
               if(namaUser && namaPejabat){
                 namaPejabat.value = namaUser.value;
+                if(namaPejabat.value.trim().length >= 3){
+                  clearError(namaPejabat);
+                  namaPejabat.dispatchEvent(new Event('input', { bubbles: true }));
+                }
               }
               if(alamatUser && alamatPejabat){
                 alamatPejabat.value = alamatUser.value;
+                if(alamatPejabat.value.trim().length > 0){
+                  clearError(alamatPejabat);
+                  alamatPejabat.dispatchEvent(new Event('input', { bubbles: true }));
+                }
               }
               if (typeof updateJabatanPejabat === 'function') {
                 updateJabatanPejabat();
@@ -1151,12 +1308,18 @@
               }
             } else {
               pejabatSection.classList.remove('show');
+              if (namaPejabat) {
+                clearError(namaPejabat);
+              }
               if (jabatanPejabat) {
                 jabatanPejabat.value = '';
                 clearError(jabatanPejabat);
               }
               if (tugasPejabat) {
                 clearError(tugasPejabat);
+              }
+              if (alamatPejabat) {
+                clearError(alamatPejabat);
               }
               signatureField.clearError();
             }
@@ -1181,43 +1344,21 @@
           statusBadge.classList.add('inactive');
         }
 
-        if(namaUser && namaPejabat){
-          namaUser.addEventListener('input', function(){
-            if(createPejabat && createPejabat.checked){
-              namaPejabat.value = this.value;
-            }
-          });
-        }
-
         if(alamatUser && alamatPejabat){
           alamatUser.addEventListener('input', function(){
             if(createPejabat && createPejabat.checked){
               alamatPejabat.value = this.value;
+              if(this.value.trim().length > 0){
+                clearError(alamatPejabat);
+              }
+              alamatPejabat.dispatchEvent(new Event('input', { bubbles: true }));
             }
           });
         }
 
         form.addEventListener('submit', function(e){
           e.preventDefault();
-
-          validatePasswordConfirmationLive(true);
-
-          if(!form.checkValidity()){
-            form.reportValidity();
-            return false;
-          }
-
-          AppModal.confirm(
-            'Konfirmasi Simpan Data',
-            'Apakah Anda yakin data yang dimasukkan sudah benar dan siap disimpan?',
-            function() {
-              prepareUserSignatureFile().then(function(isValid) {
-                if (isValid) {
-                  form.submit();
-                }
-              });
-            }
-          );
+          confirmSubmit();
         });
       })();
 
@@ -1384,6 +1525,12 @@
         const autoJabatan = getAutoJabatanByRole();
         if (autoJabatan) {
           jabatanPejabatInput.value = autoJabatan;
+          if (typeof window.clearError === 'function') {
+            window.clearError(jabatanPejabatInput);
+          } else if (typeof window.simaClearFieldError === 'function') {
+            window.simaClearFieldError(jabatanPejabatInput);
+          }
+          jabatanPejabatInput.dispatchEvent(new Event('input', { bubbles: true }));
         }
       }
 
@@ -1395,14 +1542,17 @@
 
       // Confirm Cancel
       function confirmCancel(){
-        if(confirm('Apakah Anda yakin ingin membatalkan? Data yang sudah diisi tidak akan tersimpan.')){
-          window.location.href = "{{ route('users.index') }}";
-        }
+        AppModal.confirmCancel({
+          url: "{{ route('users.index') }}",
+          returnKey: 'users_returning',
+          isEdit: false
+        });
       }
 
       // Confirm Submit
       function confirmSubmit(){
         const form = document.getElementById('user-form');
+        if (!form) return;
 
         const passwordInput = document.getElementById('password');
         const passwordConfirmationInput = document.getElementById('password_confirmation');
@@ -1418,10 +1568,32 @@
           }
         }
         
-        // Basic validation
-        if(!form.checkValidity()){
-          form.reportValidity();
-          return;
+        // Strict Validation via SIMA Standard
+        if (typeof window.simaValidateForm === 'function') {
+          if (!window.simaValidateForm(form)) {
+            return false;
+          }
+        } else if (!form.checkValidity()) {
+          const firstTarget = form.querySelector(':invalid');
+          if (firstTarget && typeof window.simaScrollToField === 'function') {
+            window.simaScrollToField(firstTarget);
+          }
+          return false;
+        }
+
+        const usernameLiveError = document.getElementById('username-live-error');
+        const isUsernameInvalid = usernameLiveError && usernameLiveError.style.display !== 'none' && usernameLiveError.textContent.trim() !== '';
+        if (isUsernameInvalid) {
+          const usernameInput = document.getElementById('username');
+          if (usernameInput) {
+            if (typeof window.simaScrollToField === 'function') {
+              window.simaScrollToField(usernameInput);
+            } else {
+              usernameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              usernameInput.focus();
+            }
+          }
+          return false;
         }
 
         AppModal.confirm(

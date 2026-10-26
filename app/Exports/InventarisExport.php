@@ -16,14 +16,18 @@ use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 
-class InventarisExport implements
+class InventarisExport extends StringValueBinder implements
     FromCollection,
     WithHeadings,
     WithMapping,
     WithColumnWidths,
     WithEvents,
-    WithTitle
+    WithTitle,
+    WithCustomValueBinder
 {
     protected int $jenisId;
     protected array $filters;
@@ -268,7 +272,12 @@ class InventarisExport implements
     public function collection(): Collection
     {
         $query = Inventaris::where('jenis_inventaris_id', $this->jenisId)
-            ->with(['jenis', 'values.field']);
+            ->with(['jenis', 'values.field'])
+            ->orderBy('kode_barang')
+            ->orderBy('tahun_perolehan')
+            ->orderBy('nama_barang')
+            ->orderByRaw('CAST(nup AS UNSIGNED) ASC')
+            ->orderBy('id');
 
         if (!empty($this->filters['tahun'])) {
             $query->where('tahun_perolehan', '<=', $this->filters['tahun']);
@@ -363,11 +372,11 @@ class InventarisExport implements
                 $num = $this->parseNumberForExcel($value);
                 $this->sumTargetTotal += $num;
                 $isBlank = ($value === null || $value === '' || $value === '-');
-                $row[] = $isBlank ? '' : number_format($num, 2, ',', '.');
+                $row[] = $isBlank ? '' : number_format($num, fmod($num, 1) != 0 ? 2 : 0, ',', '.');
             } elseif ($this->isCurrencyField($field)) {
                 $num = $this->parseNumberForExcel($value);
                 $isBlank = ($value === null || $value === '' || $value === '-');
-                $row[] = $isBlank ? '' : number_format($num, 2, ',', '.');
+                $row[] = $isBlank ? '' : number_format($num, fmod($num, 1) != 0 ? 2 : 0, ',', '.');
             } elseif (in_array($field->tipe ?? null, ['decimal_m2', 'decimal_km', 'decimal_m'], true)) {
                 $num = $this->parseNumberForExcel($value);
                 $isBlank = ($value === null || $value === '' || $value === '-');
@@ -377,7 +386,30 @@ class InventarisExport implements
             }
             $fieldIdx++;
         }
+        $row = array_map([$this, 'sanitizeFormulaInjection'], $row);
         return $row;
+    }
+
+    public function sanitizeFormulaInjection($value)
+    {
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        $trimmed = trim($value);
+        if ($trimmed === '' || $trimmed === '-') {
+            return $value;
+        }
+
+        $firstChar = $trimmed[0];
+        if (in_array($firstChar, ['=', '+', '-', '@'], true)) {
+            if ($firstChar === '-' && is_numeric($trimmed)) {
+                return $value;
+            }
+            return "'" . $value;
+        }
+
+        return $value;
     }
 
     public function columnWidths(): array
@@ -725,11 +757,11 @@ class InventarisExport implements
                     foreach ($this->currencyColLetters as $curCol) {
                         $sheet->getStyle("{$curCol}{$dataStart}:{$curCol}{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                     }
-                    // Format kolom mata uang sebagai teks (nilai sudah diformat sebagai "850.000.000")
+                    // Format kolom mata uang dengan number format text agar separator titik Indonesia tidak terkonversi
                     foreach ($this->currencyColLetters as $cLetter) {
                         $sheet->getStyle("{$cLetter}{$dataStart}:{$cLetter}{$lastRow}")
                               ->getNumberFormat()
-                              ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+                              ->setFormatCode(NumberFormat::FORMAT_TEXT);
                     }
                 }
 
@@ -743,11 +775,8 @@ class InventarisExport implements
                         $sheet->mergeCells("A{$jumlahRow}:{$mergeEnd}{$jumlahRow}");
                     }
                     $sheet->setCellValue("A{$jumlahRow}", 'JUMLAH HARGA');
-                    // Write total as formatted text to enforce dot separators regardless of Excel locale
-                    $sheet->setCellValue("{$this->nilaiColLetter}{$jumlahRow}", number_format($this->sumTargetTotal, 2, ',', '.'));
-                    $sheet->getStyle("{$this->nilaiColLetter}{$jumlahRow}")
-                        ->getNumberFormat()
-                        ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+                    // Write total as Indonesian formatted string
+                    $sheet->setCellValue("{$this->nilaiColLetter}{$jumlahRow}", number_format($this->sumTargetTotal, fmod($this->sumTargetTotal, 1) != 0 ? 2 : 0, ',', '.'));
                     // Nilai → kanan; label JUMLAH HARGA → center
                     $sheet->getStyle("{$this->nilaiColLetter}{$jumlahRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                     $sheet->getStyle("A{$jumlahRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);

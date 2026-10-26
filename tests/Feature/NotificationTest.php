@@ -324,4 +324,22 @@ class NotificationTest extends TestCase
         $notif = $this->createNotification(['type' => 'inventaris_rejected']);
         $this->assertEquals('#f3f4f6', $notif->bg_color);
     }
+
+    public function test_reading_notification_blocks_external_open_redirect(): void
+    {
+        $notif = $this->createNotification(['url' => 'https://evil.com/phishing']);
+        $response = $this->actingAs($this->user)->get(route('notifications.read', $notif->id));
+        $response->assertRedirect(route('notifications.index'));
+    }
+
+    public function test_reading_notification_blocks_javascript_scheme_and_protocol_relative_url(): void
+    {
+        $notifJs = $this->createNotification(['url' => 'javascript:alert(1)']);
+        $responseJs = $this->actingAs($this->user)->get(route('notifications.read', $notifJs->id));
+        $responseJs->assertRedirect(route('notifications.index'));
+
+        $notifRelative = $this->createNotification(['url' => '//evil.com/payload']);
+        $responseRel = $this->actingAs($this->user)->get(route('notifications.read', $notifRelative->id));
+        $responseRel->assertRedirect(route('notifications.index'));
+    }
 }

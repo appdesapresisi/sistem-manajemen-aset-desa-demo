@@ -25,6 +25,11 @@ class ActivityLogger
         ?string $subjectName = null
     ): void {
         try {
+            $user = Auth::user();
+            if ($user instanceof \App\Models\User && method_exists($user, 'isSuperDeveloper') && $user->isSuperDeveloper()) {
+                return;
+            }
+
             ActivityLog::create([
                 'user_id'      => Auth::id(),
                 'module'       => $module,
@@ -45,10 +50,12 @@ class ActivityLogger
     public static function colorFor(string $action): string
     {
         return match ($action) {
-            'tambah'  => '#10b981',  // hijau
-            'ubah'    => '#f59e0b',  // kuning/orange
+            'tambah', 'restore' => '#10b981',  // hijau
+            'ubah', 'update' => '#6366f1',  // biru-ungu
             'hapus'   => '#ef4444',  // merah
-            'export'  => '#3b82f6',  // biru
+            'approve' => '#059669',  // emerald
+            'reject'  => '#dc2626',  // merah tua
+            'export'  => '#f59e0b',  // kuning
             default   => '#6b7280',  // abu
         };
     }
@@ -60,10 +67,32 @@ class ActivityLogger
     {
         return match ($action) {
             'tambah'  => 'menambahkan',
-            'ubah'    => 'mengubah',
+            'ubah', 'update' => 'mengupdate',
             'hapus'   => 'menghapus',
+            'restore' => 'memulihkan',
             'export'  => 'mengekspor',
             default   => $action,
+        };
+    }
+
+    /**
+     * Nama modul resmi yang sesuai dengan menu sidebar.
+     */
+    public static function moduleLabel(?string $module): string
+    {
+        $raw = strtolower(trim((string) $module));
+        return match ($raw) {
+            'inventaris', 'manajemen-aset', 'manajemen_aset', 'manajemenaset' => 'Manajemen Aset',
+            'export', 'export-data', 'export_data', 'exportdata' => 'Export Data',
+            'penghapusan', 'penghapusan-aset', 'penghapusan_aset', 'penghapusanaset' => 'Penghapusan Aset',
+            'jenisinventaris', 'jenis-inventaris', 'jenis_inventaris' => 'Jenis Inventaris',
+            'ruangan', 'ruangans' => 'Ruangan',
+            'dropdown', 'dropdowns' => 'Dropdown',
+            'bidang', 'bidangs' => 'Bidang',
+            'pejabat', 'pejabats' => 'Pejabat',
+            'user', 'users' => 'Users',
+            'profile', 'profil', 'auth' => 'Profil',
+            default => !empty($module) ? ucwords(str_replace(['_', '-'], ' ', (string) $module)) : '-',
         };
     }
 }

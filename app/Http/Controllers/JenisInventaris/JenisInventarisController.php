@@ -52,15 +52,15 @@ class JenisInventarisController extends Controller
         }
         
         // Sort order
-        $sortBy = $request->get('sort', 'nama_asc');
+        $sortBy = $request->get('sort', 'terbaru');
         if ($sortBy === 'nama_desc') {
             $query->orderBy('nama', 'desc');
-        } elseif ($sortBy === 'terbaru' || $sortBy === 'newest') {
-            $query->orderBy('created_at', 'desc');
+        } elseif ($sortBy === 'nama_asc') {
+            $query->orderBy('nama', 'asc');
         } elseif ($sortBy === 'terlama') {
             $query->orderBy('created_at', 'asc');
         } else {
-            $query->orderBy('nama', 'asc');
+            $query->orderBy('created_at', 'desc');
         }
         
         $perPage = (int) $request->input('per_page', $request->input('limit', 10));
@@ -74,7 +74,8 @@ class JenisInventarisController extends Controller
         // Get total counts
         $allJenis = JenisInventaris::all();
         
-        // Count inventaris — approval system disabled, hitung semua aset tanpa filter status
+        /*
+        // Kodingan vs Kemarin (Daily) — disimpan untuk opsi filter di masa depan
         $todayStart = now()->startOfDay();
         $yesterdayStart = now()->subDay()->startOfDay();
 
@@ -87,6 +88,21 @@ class JenisInventarisController extends Controller
         $invYesterday = \App\Models\Inventaris::whereBetween('created_at', [$yesterdayStart, $todayStart])->count();
         $invDiff = $invToday - $invYesterday;
         $invPercent = $invYesterday > 0 ? round(($invDiff / $invYesterday) * 100, 1) : ($invToday > 0 ? 100 : 0);
+        */
+
+        // Konteks Per Bulan (vs. Bulan Lalu)
+        $thisMonthStart = now()->startOfMonth();
+        $lastMonthStart = now()->subMonth()->startOfMonth();
+
+        $jenisThisMonth = JenisInventaris::where('created_at', '>=', $thisMonthStart)->count();
+        $jenisLastMonth = JenisInventaris::where('created_at', '>=', $lastMonthStart)->where('created_at', '<', $thisMonthStart)->count();
+        $jenisDiff = $jenisThisMonth - $jenisLastMonth;
+        $jenisPercent = $jenisLastMonth > 0 ? round(($jenisDiff / $jenisLastMonth) * 100, 1) : ($jenisThisMonth > 0 ? 100 : 0);
+
+        $invThisMonth = \App\Models\Inventaris::where('created_at', '>=', $thisMonthStart)->count();
+        $invLastMonth = \App\Models\Inventaris::where('created_at', '>=', $lastMonthStart)->where('created_at', '<', $thisMonthStart)->count();
+        $invDiff = $invThisMonth - $invLastMonth;
+        $invPercent = $invLastMonth > 0 ? round(($invDiff / $invLastMonth) * 100, 1) : ($invThisMonth > 0 ? 100 : 0);
         $totalInventaris = \App\Models\Inventaris::count();
 
         $realJenis = JenisInventaris::where('nama', '!=', 'Buku Inventaris Aset Desa')->get();
@@ -99,6 +115,14 @@ class JenisInventarisController extends Controller
         
         $topJenisNama = $topJenis ? $topJenis->nama : '-';
         $topJenisCount = $topJenis ? $topJenis->inventaris_count : 0;
+
+        $lowestJenis = JenisInventaris::where('nama', '!=', 'Buku Inventaris Aset Desa')
+            ->withCount('inventaris')
+            ->orderBy('inventaris_count', 'asc')
+            ->first();
+        
+        $lowestJenisNama = $lowestJenis ? $lowestJenis->nama : '-';
+        $lowestJenisCount = $lowestJenis ? $lowestJenis->inventaris_count : 0;
         $avgAssetsPerJenis = $realJenisCount > 0 ? round($totalInventaris / $realJenisCount, 1) : 0;
 
         $stats = [
@@ -106,6 +130,8 @@ class JenisInventarisController extends Controller
             'totalAssets'         => $totalInventaris,
             'topJenisNama'        => $topJenisNama,
             'topJenisCount'       => $topJenisCount,
+            'lowestJenisNama'     => $lowestJenisNama,
+            'lowestJenisCount'    => $lowestJenisCount,
             'avgAssetsPerJenis'   => $avgAssetsPerJenis,
             'assetsApproved'      => $totalInventaris, // alias untuk kompatibilitas view
             'assetsPending'       => 0,
@@ -467,12 +493,18 @@ class JenisInventarisController extends Controller
             return redirect()->route('jenis-inventaris.show', $existing->id)
                 ->with('error', '❌ Buku Inventaris Aset Desa tidak boleh dihapus. Hanya pejabat yang dapat diubah.');
         }
+
+        // Prevent delete template sistem pakem LHI (Inventaris yang tidak ditemukan)
+        if ($existing->isTidakDitemukan()) {
+            return redirect()->route('jenis-inventaris.show', $existing->id)
+                ->with('error', '❌ Jenis template LHI "Inventaris yang tidak ditemukan" adalah master sistem pakem dan tidak boleh dihapus.');
+        }
         
         $this->authorize('delete', $existing);
 
         try {
-            ActivityLogger::log('JenisInventaris', 'hapus', 'Menghapus jenis inventaris ' . ($existing->nama ?? '-'), (int) $id, $existing->nama ?? null);
             $this->service->delete($id);
+            ActivityLogger::log('JenisInventaris', 'hapus', 'Menghapus jenis inventaris ' . ($existing->nama ?? '-'), (int) $id, $existing->nama ?? null);
             return redirect()->route('jenis-inventaris.index')->with('success', 'Data jenis inventaris berhasil dihapus dari sistem!');
         } catch (\Exception $e) {
             Log::error('Web delete error', ['id' => $id, 'error' => $e->getMessage()]);
@@ -511,9 +543,15 @@ class JenisInventarisController extends Controller
                 continue;
             }
 
+            // Proteksi: Jenis template LHI tidak boleh dihapus
+            if ($jenis->isTidakDitemukan()) {
+                $skipped[] = $jenis->nama . ' (template sistem pakem tidak dapat dihapus)';
+                continue;
+            }
+
             try {
-                ActivityLogger::log('JenisInventaris', 'hapus', 'Menghapus jenis inventaris ' . ($jenis->nama ?? '-'), (int) $id, $jenis->nama ?? null);
                 $this->service->delete($id);
+                ActivityLogger::log('JenisInventaris', 'hapus', 'Menghapus jenis inventaris ' . ($jenis->nama ?? '-'), (int) $id, $jenis->nama ?? null);
                 $deleted++;
             } catch (\Exception $e) {
                 $skipped[] = $jenis->nama ?? $id;

@@ -13,9 +13,9 @@ class InventarisPolicy
             || $user->isKasi() || $user->isKelianBanjar() || $user->isStaf();
     }
 
-    public function view(User $user, Inventaris $inventaris)
+    public function view(User $user, ?Inventaris $inventaris = null)
     {
-        return $user->isAdmin() || $user->isSuperAdmin()
+        return $user->isAdmin() || $user->isSuperAdmin() 
             || $user->isKasi() || $user->isKelianBanjar() || $user->isStaf();
     }
 
@@ -25,18 +25,23 @@ class InventarisPolicy
             || $user->isKasi() || $user->isKelianBanjar() || $user->isStaf();
     }
 
-    public function update(User $user, Inventaris $inventaris)
+    public function update(User $user, ?Inventaris $inventaris = null)
     {
         return $user->isAdmin() || $user->isSuperAdmin()
             || $user->isKasi() || $user->isKelianBanjar() || $user->isStaf();
     }
 
-    public function delete(User $user, Inventaris $inventaris)
+    public function delete(User $user, ?Inventaris $inventaris = null)
     {
-        return $user->isSuperAdmin();
+        return $user->canDeleteAset();
     }
 
-    public function approve(User $user, Inventaris $inventaris)
+    public function bulkDelete(User $user)
+    {
+        return $user->canDeleteAset();
+    }
+
+    public function approve(User $user, ?Inventaris $inventaris = null)
     {
         // Approval workflow removed — method kept for backward compat but always denies
         return false;

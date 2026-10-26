@@ -17,7 +17,10 @@ class StoreJenisInventarisRequest extends FormRequest
             'nama' => [
                 'required',
                 'string',
+                'min:3',
                 'max:255',
+                'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s\/\.,\-\(\)]+$/',
+                'unique:jenis_inventaris,nama',
                 function ($attribute, $value, $fail) {
                     // Prevent creating duplicate "Inventaris yang tidak ditemukan" template
                     if (trim($value) === \App\Models\JenisInventaris::NAMA_TIDAK_DITEMUKAN) {
@@ -55,6 +58,16 @@ class StoreJenisInventarisRequest extends FormRequest
             'selected_dropdowns.*.enabled' => 'sometimes|in:0,1',
             'selected_dropdowns.*.required' => 'sometimes|in:0,1',
             'selected_dropdowns.*.include_in_export' => 'sometimes|in:0,1',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nama.required' => 'Nama jenis inventaris wajib diisi.',
+            'nama.min'      => 'Nama jenis inventaris minimal 3 karakter.',
+            'nama.regex'    => 'Nama jenis inventaris harus memuat huruf dan tidak boleh hanya berisi angka/simbol.',
+            'nama.unique'   => 'Nama jenis inventaris sudah terdaftar, silakan gunakan nama lain.',
         ];
     }
 }

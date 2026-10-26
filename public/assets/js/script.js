@@ -145,17 +145,24 @@ document.addEventListener('DOMContentLoaded', function () {
   if (mobile_collapse_over) {
     mobile_collapse_over.addEventListener('click', function (e) {
       e.preventDefault();
+      e.stopPropagation();
+      if (typeof window.toggleSidebar === 'function') {
+        window.toggleSidebar(e);
+        return;
+      }
       var mobile_sidebar = document.querySelector('.pc-sidebar');
       if (mobile_sidebar) {
-        if (document.querySelector('.pc-sidebar').classList.contains('mob-sidebar-active')) {
+        if (mobile_sidebar.classList.contains('mob-sidebar-active')) {
           rm_menu();
         } else {
-          document.querySelector('.pc-sidebar').classList.add('mob-sidebar-active');
-          // add overlay when sidebar open
-          document.querySelector('.pc-sidebar').insertAdjacentHTML('beforeend', '<div class="pc-menu-overlay"></div>');
-          document.querySelector('.pc-menu-overlay').addEventListener('click', function () {
-            rm_menu();
-          });
+          mobile_sidebar.classList.add('mob-sidebar-active');
+          let overlay = document.querySelector('.pc-menu-overlay');
+          if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'pc-menu-overlay';
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', rm_menu);
+          }
         }
       }
     });
@@ -345,25 +352,22 @@ window.addEventListener('load', function () {
   }
 });
 
-// Function to mark active menu items based on current page URL
-var elem = document.querySelectorAll('.pc-sidebar .pc-navbar a');
-for (var l = 0; l < elem.length; l++) {
-  // Check if current URL matches menu item URL (exact match OR starts with for sub-pages)
+// Function to mark active menu items based on current page URL (only if not already marked by Blade)
+if (!document.querySelector('.pc-sidebar .pc-navbar .pc-item.active')) {
+  var elem = document.querySelectorAll('.pc-sidebar .pc-navbar a');
   var pageUrl = window.location.href.split(/[?#]/)[0];
-  var menuHref = elem[l].href;
-  if (elem[l].getAttribute('href') != '' && elem[l].getAttribute('href') != '#') {
-    // Exact match OR current page is a sub-page of this menu item
-    // e.g. /jenis-inventaris/create starts with /jenis-inventaris
-    var isActive = (menuHref == pageUrl) || 
-      (menuHref !== window.location.origin + '/' && pageUrl.indexOf(menuHref) === 0);
-    if (isActive) {
-      // Add active class to matching menu item and its parent elements
-      elem[l].parentNode.classList.add('active');
-      elem[l].parentNode.parentNode.parentNode.classList.add('pc-trigger');
-      elem[l].parentNode.parentNode.parentNode.classList.add('active');
-      elem[l].parentNode.parentNode.style.display = 'block';
-      elem[l].parentNode.parentNode.parentNode.parentNode.parentNode.classList.add('pc-trigger');
-      elem[l].parentNode.parentNode.parentNode.parentNode.style.display = 'block';
+  for (var l = 0; l < elem.length; l++) {
+    var menuHref = elem[l].href;
+    if (elem[l].getAttribute('href') && elem[l].getAttribute('href') !== '#') {
+      if (menuHref === pageUrl) {
+        elem[l].parentNode.classList.add('active');
+        elem[l].parentNode.parentNode.parentNode.classList.add('pc-trigger');
+        elem[l].parentNode.parentNode.parentNode.classList.add('active');
+        elem[l].parentNode.parentNode.style.display = 'block';
+        elem[l].parentNode.parentNode.parentNode.parentNode.parentNode.classList.add('pc-trigger');
+        elem[l].parentNode.parentNode.parentNode.parentNode.style.display = 'block';
+        break;
+      }
     }
   }
 }
@@ -384,7 +388,8 @@ function removeClassByPrefix(node, prefix) {
 }
 
 // Functions for sliding up, sliding down, and toggling visibility of elements
-let slideUp = (target, duration = 0) => {
+var slideUp = window.slideUp || ((target, duration = 0) => {
+  if (!target) return;
   // Slide up animation implementation
   target.style.transitionProperty = 'height, margin, padding';
   target.style.transitionDuration = duration + 'ms';
@@ -397,9 +402,10 @@ let slideUp = (target, duration = 0) => {
   target.style.paddingBottom = 0;
   target.style.marginTop = 0;
   target.style.marginBottom = 0;
-};
+});
 
-let slideDown = (target, duration = 0) => {
+var slideDown = window.slideDown || ((target, duration = 0) => {
+  if (!target) return;
   // Slide down animation implementation
   target.style.removeProperty('display');
   let display = window.getComputedStyle(target).display;
@@ -429,16 +435,17 @@ let slideDown = (target, duration = 0) => {
     target.style.removeProperty('transition-duration');
     target.style.removeProperty('transition-property');
   }, duration);
-};
+});
 
-var slideToggle = (target, duration = 0) => {
+var slideToggle = window.slideToggle || ((target, duration = 0) => {
+  if (!target) return;
   // Slide toggle animation implementation
   if (window.getComputedStyle(target).height === '0px') {
     return slideDown(target, duration);
   } else {
     return slideUp(target, duration);
   }
-};
+});
 
 // Wrap tables with known table classes into a `.table-responsive` wrapper at runtime
 // so they become horizontally scrollable on small screens without changing markup.

@@ -4,44 +4,66 @@
     @include('layouts.head-page-meta', ['title' => 'Tambah Ruangan'])
     @include('layouts.head-css')
     <style>
-        .form-section { background:#f8f9fa; border-radius:12px; padding:20px; margin-bottom:16px; }
-        .form-section-title { font-size:14px; font-weight:600; color:#064635; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
-        .form-section-title i { width:18px; height:18px; }
-        .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
-        .form-full { grid-column:1/-1; }
-        .form-group { margin-bottom:0; }
-        .form-label { font-weight:500; font-size:13px; color:#374151; margin-bottom:6px; display:block; }
-        .form-label .required { color:#ef4444; margin-left:2px; }
-        .form-control { width:100%; padding:10px 14px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; transition:all 0.2s; background:#fff; }
-        .form-control:focus { outline:none; border-color:#064635; box-shadow:0 0 0 3px rgba(6, 70, 53,0.1); }
-        .form-control::placeholder { color:#9ca3af; }
-        .form-select { appearance:none; -webkit-appearance:none; }
-        .form-hint { font-size:12px; color:#6b7280; margin-top:4px; }
-        .card-header-icon { display:flex; align-items:center; justify-content:center; width:44px; height:44px; min-width:44px; border-radius:12px; background:#519259; margin-right:14px; flex-shrink:0; position:relative !important; }
-        .card-header-icon svg, .card-header-icon i { color:#fff !important; stroke:#fff !important; width:22px; height:22px; position:relative !important; top:unset !important; left:unset !important; }
-        .form-actions { display:flex; gap:12px; justify-content:flex-end; padding-top:20px; border-top:1px solid #e5e7eb; margin-top:24px; }
-        .btn-cancel { padding:10px 20px; border:1px solid #d1d5db; background:#fff; color:#374151; border-radius:8px; font-weight:500; cursor:pointer; transition:all 0.2s; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
-        .btn-cancel:hover { background:#f3f4f6; }
-        .btn-submit { padding:10px 24px; border:none; background:#064635; color:#fff; border-radius:8px; font-weight:500; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:8px; }
-        .btn-submit:hover { background:#1c5240; }
-        .btn-submit i { width:18px; height:18px; }
-        @media(max-width:768px){ .form-grid { grid-template-columns:1fr; } }
+        .form-section { background: transparent; border: none; padding: 0; margin-bottom: 24px; }
+        .form-section-title { font-size: 14.5px; font-weight: 700; color: var(--color-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .form-section-title i, .form-section-title svg { color: var(--color-primary); width: 16px; height: 16px; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 24px; }
+        .form-full { grid-column: 1 / -1; }
+        .form-group { margin-bottom: 0; }
+        .form-label { font-weight: 600; font-size: 13.5px; color: var(--color-text); margin-bottom: 8px; display: block; }
+        .form-label .required { color: #D9383A; font-weight: 700; margin-left: 2px; }
+        .form-control { width: 100%; height: 46px; padding: 0 16px; border: 1.5px solid var(--color-border); border-radius: 10px; font-size: 14px; transition: border-color 0.2s ease; background: var(--color-surface); color: var(--color-text); box-shadow: none !important; }
+        .form-control:focus { outline: none !important; border-color: var(--color-primary) !important; box-shadow: none !important; }
+        .form-control::placeholder { color: var(--color-text-muted); opacity: 0.65; }
+        .form-hint { font-size: 12px; color: var(--color-text-muted); margin-top: 6px; }
+        
+        /* Card Header */
+        .card .card-header,
+        .card-header {
+            background-color: transparent !important;
+            padding: 32px 24px 0 24px !important;
+            border: none !important;
+            border-bottom: none !important;
+        }
+        .card .card-body,
+        .card-body {
+            padding-bottom: 0 !important;
+        }
+        .card .card-header > div,
+        .card-header > div,
+        .card-header-inner,
+        .card-header > .flex {
+            border-bottom: 1px dashed var(--color-border) !important;
+            padding-bottom: 20px !important;
+            width: 100% !important;
+        }
+        .card-header-icon { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; min-width: 44px; border-radius: 12px; background: var(--color-primary); margin-right: 14px; flex-shrink: 0; position: relative !important; }
+        .card-header-icon svg, .card-header-icon i { color: #fff !important; stroke: #fff !important; width: 22px; height: 22px; position: relative !important; top: unset !important; left: unset !important; }
+        
+        .form-actions { display: flex; gap: 12px; justify-content: flex-end; padding-top: 24px; border-top: none; margin-top: 24px; margin-bottom: 32px; }
+        .btn-cancel { height: 46px; padding: 0 20px; border: 1.5px solid var(--color-border); background: var(--color-surface); color: var(--color-text); border-radius: var(--radius-full); font-weight: 500; font-size: 14px; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: none !important; }
+        .btn-cancel:hover { background: var(--color-row-hover); border-color: var(--color-border); color: var(--color-text); }
+        .btn-submit { height: 46px; padding: 0 24px; border: none; background: var(--color-primary); color: #fff; border-radius: var(--radius-full); font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: none !important; transition: background-color 0.2s ease; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-submit:hover { background: var(--color-primary-hover); color: #fff; }
+        .btn-cancel i, .btn-cancel svg { width: 16px; height: 16px; }
+        .btn-submit i, .btn-submit svg { width: 18px; height: 18px; }
+        @media(max-width:768px){ .form-grid { grid-template-columns: 1fr; } }
+        
         /* Searchable Select Component */
         .searchable-select { position: relative; width: 100%; }
-        .ss-trigger { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; color: #374151; transition: all 0.2s; }
-        .ss-trigger:hover { border-color: #d1d5db; }
-        .ss-trigger.ss-open { border-color: #064635; box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1); }
+        .ss-trigger { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 12px 18px; border: 1px solid var(--color-border); border-radius: var(--radius-sm, 8px); background: var(--color-surface); cursor: pointer; font-size: 13.5px; font-weight: 500; color: var(--color-text); transition: all 0.2s; box-sizing: border-box; }
+        .ss-trigger:hover, .ss-trigger.ss-open { border-color: var(--color-primary); background-color: var(--color-row-hover); box-shadow: none; }
         .ss-value-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .ss-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); z-index: 1000; max-height: 280px; display: flex; flex-direction: column; }
-        .ss-search-wrap { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; flex-shrink: 0; }
-        .ss-search { width: 100%; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; outline: none; }
-        .ss-search:focus { border-color: #064635; box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1); }
-        .ss-options { overflow-y: auto; max-height: 200px; }
-        .ss-option { padding: 9px 14px; font-size: 13px; color: #374151; cursor: pointer; transition: background 0.15s; }
-        .ss-option:hover { background: #f4faf5; }
-        .ss-option.ss-selected { background: #f0f4f8; font-weight: 600; color: #064635; }
+        .ss-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--color-surface); border: 1.5px solid var(--color-border); border-radius: 12px; box-shadow: var(--shadow-float); z-index: 1000; max-height: 280px; display: flex; flex-direction: column; padding: 8px; }
+        .ss-search-wrap { padding: 4px 4px 8px 4px; border-bottom: 1px solid var(--color-border); flex-shrink: 0; }
+        .ss-search { width: 100%; height: 38px; padding: 0 12px; border: 1.5px solid var(--color-border); border-radius: 8px; font-size: 13px; outline: none; background: var(--color-surface); color: var(--color-text); }
+        .ss-search:focus { border-color: var(--color-primary); box-shadow: none; }
+        .ss-options { overflow-y: auto; max-height: 200px; padding: 4px 0 0 0; }
+        .ss-option { padding: 9px 12px; font-size: 13px; font-weight: 500; color: var(--color-text); border-radius: 6px; cursor: pointer; transition: all 0.15s ease; }
+        .ss-option:hover { background: var(--color-row-hover); color: var(--color-primary); }
+        .ss-option.ss-selected { background: var(--color-row-hover); font-weight: 700; color: var(--color-primary); }
         .ss-option.ss-hidden { display: none; }
-        .ss-empty { padding: 16px; text-align: center; color: #9ca3af; font-size: 13px; }
+        .ss-empty { padding: 16px; text-align: center; color: var(--color-text-muted); font-size: 13px; }
     </style>
 </head>
 <body>
@@ -50,17 +72,16 @@
     @include('layouts.layout-vertical')
     <div class="pc-container">
         <div class="pc-content">
-            @include('layouts.breadcrumb', ['breadcrumbItemHome'=>'Master Data','breadcrumbItem'=>'Ruangan','breadcrumbItemUrl'=>route('ruangan.index'),'breadcrumbItemActive'=>'Tambah Ruangan'])
+            @include('layouts.breadcrumb', ['breadcrumbItemHome'=>'Inventaris Desa','breadcrumbItem'=>'Ruangan','breadcrumbItemUrl'=>route('ruangan.index'),'breadcrumbItemActive'=>'Tambah Ruangan'])
 
             <div class="grid grid-cols-12 gap-x-6">
-                <div class="col-span-12 lg:col-span-8 lg:col-start-3">
+                <div class="col-span-12 w-full">
                     <div class="card">
-                        <div class="card-header border-b border-gray-100">
+                        <div class="card-header">
                             <div class="flex items-center">
-                                <div class="card-header-icon"><i data-feather="grid"></i></div>
+                                <div class="card-header-icon"><i data-feather="map-pin"></i></div>
                                 <div>
-                                    <h5 class="mb-1">Tambah Ruangan Baru</h5>
-                                    <p class="text-muted text-sm mb-0">Isi data ruangan yang akan ditambahkan ke sistem</p>
+                                    <h5 class="mb-0">Tambah Ruangan Baru</h5>
                                 </div>
                             </div>
                         </div>
@@ -74,30 +95,32 @@
                             </div>
                             @endif
 
-                            <form action="{{ route('ruangan.store') }}" method="POST">
+                            <form action="{{ route('ruangan.store') }}" method="POST" novalidate>
                                 @csrf
                                 <div class="form-section">
-                                    <div class="form-section-title"><i data-feather="info"></i> Informasi Ruangan</div>
+                                    <div class="form-section-title">
+                      Informasi Ruangan
+                    </div>
                                     <div class="form-grid">
-                                        <div class="form-group form-full">
+                                        <div class="form-group">
+                                            <label class="form-label" for="kode">Kode Ruangan <span class="required">*</span></label>
+                                             <input type="text" id="kode" name="kode" class="form-control"
+                                                    placeholder="Contoh: {{ $nextSuggestedKode ?? 'R-001' }}" value="{{ old('kode', $nextSuggestedKode ?? '') }}"
+                                                    maxlength="50" pattern="[a-zA-Z0-9\-_]+" title="Kode ruangan berupa huruf, angka, tanda minus (-), atau garis bawah (_)" required />
+                                             @if(!empty($lastKodeRuangan))
+                                                 <p class="form-hint" style="color: #4b5563;">Kode terakhir: <strong style="color: #1f3a2a;">{{ $lastKodeRuangan }}</strong> (Rekomendasi: <strong style="color: #1f3a2a;">{{ $nextSuggestedKode }}</strong>)</p>
+                                             @else
+                                                 <p class="form-hint">Kode unik ruangan (Contoh: R-001, R-002, atau angka 1, 2)</p>
+                                             @endif
+                                        </div>
+                                        <div class="form-group">
                                             <label class="form-label" for="nama">Nama Ruangan <span class="required">*</span></label>
                                             <input type="text" id="nama" name="nama" class="form-control"
-                                                   placeholder="Contoh: Ruang Rapat Utama" value="{{ old('nama') }}" required />
+                                                   placeholder="Contoh: Ruang Rapat Utama" value="{{ old('nama') }}"
+                                                   pattern=".*[a-zA-Z].*" title="Nama ruangan harus memuat huruf (tidak boleh hanya angka)" minlength="3" required />
                                             <p class="form-hint">Nama ruangan yang akan tampil di sistem</p>
                                         </div>
-                                        <div class="form-group form-full">
-                                            <label class="form-label" for="kode">Kode Ruangan <span class="required">*</span></label>
-                                            <input type="text" id="kode" name="kode" class="form-control"
-                                                   placeholder="Contoh: 27" value="{{ old('kode') }}"
-                                                   inputmode="numeric" pattern="[0-9]*" required />
-                                            <p class="form-hint">Angka unik, tidak boleh sama dengan ruangan lain</p>
-                                        </div>
-                                        <div class="form-group form-full">
-                                            <label class="form-label" for="deskripsi">Deskripsi</label>
-                                            <textarea id="deskripsi" name="deskripsi" class="form-control" rows="3"
-                                                      placeholder="Keterangan tambahan tentang ruangan ini...">{{ old('deskripsi') }}</textarea>
-                                        </div>
-                                        <div class="form-group form-full">
+                                        <div class="form-group">
                                             <label class="form-label" for="penanggung_jawab_id">Penanggung Jawab <span class="required">*</span></label>
                                             <input type="hidden" name="penanggung_jawab_id" id="penanggung_jawab_id" value="{{ old('penanggung_jawab_id') }}">
                                             <div class="searchable-select" id="ss-pj">
@@ -110,7 +133,7 @@
                                                                 $rLabel = $oldPjUser->role_name_display ?? '';
                                                                 echo e($oldPjUser->nama . ($rLabel ? ' ('.$rLabel.')' : ''));
                                                             } else {
-                                                                echo '-- Pilih Penanggung Jawab --';
+                                                                echo 'Pilih Penanggung Jawab';
                                                             }
                                                         @endphp
                                                     </span>
@@ -142,10 +165,15 @@
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
                                         </div>
+                                        <div class="form-group form-full">
+                                            <label class="form-label" for="deskripsi">Deskripsi</label>
+                                            <textarea id="deskripsi" name="deskripsi" class="form-control" rows="4"
+                                                      placeholder="Keterangan tambahan tentang ruangan ini...">{{ old('deskripsi') }}</textarea>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-actions">
-                                    <a href="{{ route('ruangan.index') }}" class="btn-cancel" onclick="return confirm('Apakah Anda yakin ingin membatalkan? Data yang sudah diisi tidak akan tersimpan.');">
+                                    <a href="{{ route('ruangan.index') }}" class="btn-cancel" onclick="return confirmCancel(event, { returnKey: 'ruangan_returning', isEdit: false })">
                                         <i data-feather="x" style="width:16px;height:16px;"></i> Batal
                                     </a>
                                     <button type="button" class="btn-submit" onclick="confirmSimpan()">
@@ -164,18 +192,40 @@
     <script>
         function confirmSimpan() {
             const form = document.querySelector('form');
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
+            let isValid = true;
+            if (typeof window.simaValidateForm === 'function') {
+                if (!window.simaValidateForm(form)) isValid = false;
+            } else if (!form.checkValidity()) {
+                isValid = false;
+                const firstInvalid = form.querySelector(':invalid');
+                if (firstInvalid) {
+                    const target = (firstInvalid.offsetParent !== null) ? firstInvalid : (firstInvalid.closest('.form-group') || firstInvalid);
+                    if (target && typeof target.scrollIntoView === 'function') {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    if (typeof firstInvalid.focus === 'function') {
+                        try { firstInvalid.focus(); } catch(err) {}
+                    }
+                }
             }
+
             // Validasi manual: penanggung_jawab_id wajib
-            const pj = document.getElementById('penanggung_jawab_id').value;
+            const pj = document.getElementById('penanggung_jawab_id')?.value;
             if (!pj) {
-                const trigger = document.querySelector('#ss-pj .ss-trigger');
-                if (trigger) { trigger.style.borderColor = '#ef4444'; trigger.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.1)'; }
-                alert('Penanggung Jawab wajib dipilih.');
-                return;
+                isValid = false;
+                const pjEl = document.getElementById('penanggung_jawab_id');
+                if (typeof window.simaShowFieldError === 'function') {
+                    window.simaShowFieldError(pjEl, 'Penanggung Jawab wajib dipilih.');
+                }
+                const trigger = document.querySelector('#ss-pj .ss-trigger') || pjEl;
+                if (trigger && typeof window.simaScrollToField === 'function') {
+                    window.simaScrollToField(trigger);
+                } else if (trigger && typeof trigger.scrollIntoView === 'function') {
+                    trigger.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
             }
+
+            if (!isValid) return;
             const nama = document.getElementById('nama').value.trim();
             AppModal.confirm(
                 'Simpan Ruangan',
@@ -232,6 +282,9 @@
                 document.querySelectorAll('.searchable-select .ss-dropdown').forEach(d => { d.style.display = 'none'; });
                 document.querySelectorAll('.ss-trigger').forEach(t => t.classList.remove('ss-open'));
             }
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            try { sessionStorage.setItem('ruangan_returning', '1'); } catch(e) {}
         });
     </script>
 </body>

@@ -4,19 +4,20 @@
  */
 
 // Get CSRF token from meta tag
-function getCsrfToken() {
+window.getCsrfToken = window.getCsrfToken || function() {
     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-}
+};
 
 // Default fetch options with CSRF token and credentials
-const defaultFetchOptions = {
+window.defaultFetchOptions = window.defaultFetchOptions || {
     credentials: 'same-origin', // Include cookies for session authentication
     headers: {
-        'X-CSRF-TOKEN': getCsrfToken(),
+        'X-CSRF-TOKEN': window.getCsrfToken(),
         'Accept': 'application/json',
         'Content-Type': 'application/json'
     }
 };
+var defaultFetchOptions = window.defaultFetchOptions;
 
 /**
  * Enhanced fetch with automatic CSRF token and credentials

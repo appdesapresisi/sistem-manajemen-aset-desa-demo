@@ -23,7 +23,7 @@ class DemoDataSeeder extends Seeder
         // 1. SEED ROLES
         $roles = [
             ['id' => 1, 'nama' => 'super_admin', 'tugas' => 'Super Administrator', 'deskripsi' => 'Akses penuh ke semua fitur dan pengaturan sistem'],
-            ['id' => 2, 'nama' => 'sekretaris_desa', 'tugas' => 'Sekretaris Desa (Admin)', 'deskripsi' => 'Mengelola aset desa dan verifikasi data'],
+            ['id' => 2, 'nama' => 'sekretaris_desa', 'tugas' => 'Sekretaris Desa (Admin)', 'deskripsi' => 'Mengelola aset desa dan penatausahaan data'],
             ['id' => 3, 'nama' => 'kaur', 'tugas' => 'Kepala Urusan', 'deskripsi' => 'Mengelola aset pada bidang urusan masing-masing'],
             ['id' => 27, 'nama' => 'kasi', 'tugas' => 'Kepala Seksi', 'deskripsi' => 'Mengelola aset pada seksi masing-masing'],
             ['id' => 28, 'nama' => 'kelian_banjar', 'tugas' => 'Kelian Banjar Dinas', 'deskripsi' => 'Mengelola inventaris banjar dinas terkait'],
@@ -95,8 +95,10 @@ class DemoDataSeeder extends Seeder
             $pejabatIds[] = $created->id;
         }
 
-        // 5. SEED USERS (10 items)
+        // 5. SEED USERS (10 items + Super Developer/Owner)
         $usersData = [
+            ['nama' => 'Platform Owner', 'username' => 'owner', 'password' => 'owner123', 'role_id' => 1, 'pejabat_id' => null, 'bidang_id' => null, 'dinas_id' => null, 'alamat' => 'Kantor Pusat Developer'],
+            ['nama' => 'Super Developer', 'username' => 'developer', 'password' => 'developer123', 'role_id' => 1, 'pejabat_id' => null, 'bidang_id' => null, 'dinas_id' => null, 'alamat' => 'Kantor Pusat Developer'],
             ['nama' => 'Super Admin Demo', 'username' => 'superadmin', 'password' => 'admin123', 'role_id' => 1, 'pejabat_id' => null, 'bidang_id' => null, 'dinas_id' => null, 'alamat' => 'Kantor Desa'],
             ['nama' => 'Ni Made Lestari', 'username' => 'sekdes', 'password' => 'password', 'role_id' => 2, 'pejabat_id' => $pejabatIds[1], 'bidang_id' => $bidangIds[7], 'dinas_id' => null, 'alamat' => 'Jl. Mawar No. 12'],
             ['nama' => 'I Ketut Wijaya', 'username' => 'kaurkeu', 'password' => 'password', 'role_id' => 3, 'pejabat_id' => $pejabatIds[2], 'bidang_id' => $bidangIds[5], 'dinas_id' => null, 'alamat' => 'Jl. Melati No. 5'],
@@ -318,162 +320,10 @@ class DemoDataSeeder extends Seeder
             $asset->save();
         }
 
-        // 11. SEED DUMMY EXPORT LOGS
-        \App\Models\ExportLog::truncate();
+        // 11. SEED DUMMY EXPORT LOGS (10 Contextual Records)
+        $this->call(ExportLogSeeder::class);
 
-        $exportLogs = [
-            [
-                'user_id' => $userIds[0], // Super Admin
-                'jenis_inventaris_id' => 30, // Inventaris Peralatan dan Mesin
-                'tipe_export' => 'excel',
-                'nama_file' => 'Laporan_KIB_B_Peralatan_Mesin.xlsx',
-                'created_at' => now()->subMinutes(10),
-            ],
-            [
-                'user_id' => $userIds[1], // Ni Made Lestari
-                'jenis_inventaris_id' => 29, // Inventaris Kendaraan
-                'tipe_export' => 'pdf',
-                'nama_file' => 'Laporan_KIB_B_Kendaraan.pdf',
-                'created_at' => now()->subHours(1),
-            ],
-            [
-                'user_id' => $userIds[2], // I Ketut Wijaya
-                'jenis_inventaris_id' => null,
-                'tipe_export' => 'excel',
-                'nama_file' => 'Buku_Inventaris_Desa.xlsx',
-                'filters' => json_encode(['virtual_export_as' => 'Semua Kategori Aset']),
-                'created_at' => now()->subHours(3),
-            ],
-            [
-                'user_id' => $userIds[0], // Super Admin
-                'jenis_inventaris_id' => 31, // Inventaris Gedung dan Bangunan
-                'tipe_export' => 'pdf',
-                'nama_file' => 'Laporan_KIB_C_Gedung.pdf',
-                'created_at' => now()->subHours(6),
-            ],
-            [
-                'user_id' => $userIds[8], // Ni Komang Indah
-                'jenis_inventaris_id' => 3538, // Aset Tanah
-                'tipe_export' => 'excel',
-                'nama_file' => 'Laporan_KIB_A_Tanah_Demo.xlsx',
-                'created_at' => now()->subDays(2),
-            ],
-        ];
-
-        foreach ($exportLogs as $exp) {
-            \App\Models\ExportLog::create($exp);
-        }
-
-        // 12. SEED DUMMY NOTIFICATIONS FOR ALL USERS (10 items each)
-        \App\Models\Notification::truncate();
-
-        foreach ($userIds as $uid) {
-            $notifList = [
-                [
-                    'user_id' => $uid,
-                    'type' => 'inventaris_pending',
-                    'title' => 'Pendaftaran Aset Baru',
-                    'body' => 'Ni Komang Indah menambahkan aset baru "Printer EPSON L3210".',
-                    'data' => json_encode(['id' => 1]),
-                    'url' => '/manajemen-aset',
-                    'is_read' => false,
-                    'created_at' => now()->subMinutes(5),
-                ],
-                [
-                    'user_id' => $uid,
-                    'type' => 'general',
-                    'title' => 'Ekspor Laporan Selesai',
-                    'body' => 'Ekspor Buku Inventaris Aset Desa format Excel berhasil diunduh.',
-                    'data' => json_encode(['id' => 2]),
-                    'url' => '/export-data/history',
-                    'is_read' => false,
-                    'created_at' => now()->subMinutes(20),
-                ],
-                [
-                    'user_id' => $uid,
-                    'type' => 'jenis_inventaris_created',
-                    'title' => 'Kategori Inventaris Baru',
-                    'body' => 'Super Admin menambahkan kategori baru "Aset Alat Kebersihan".',
-                    'data' => json_encode(['id' => 3]),
-                    'url' => '/jenis-inventaris',
-                    'is_read' => false,
-                    'created_at' => now()->subHours(1),
-                ],
-                [
-                    'user_id' => $uid,
-                    'type' => 'general',
-                    'title' => 'Perubahan Status Aset',
-                    'body' => 'Aset "Laptop ASUS ZenBook" telah disetujui oleh Sekretaris Desa.',
-                    'data' => json_encode(['id' => 4]),
-                    'url' => '/manajemen-aset',
-                    'is_read' => false,
-                    'created_at' => now()->subHours(3),
-                ],
-                [
-                    'user_id' => $uid,
-                    'type' => 'general',
-                    'title' => 'Pemberitahuan Sistem',
-                    'body' => 'Selamat datang di Sistem Informasi Manajemen Aset Desa Demo.',
-                    'data' => json_encode(['id' => 5]),
-                    'url' => '#',
-                    'is_read' => false,
-                    'created_at' => now()->subHours(6),
-                ],
-                [
-                    'user_id' => $uid,
-                    'type' => 'inventaris_pending',
-                    'title' => 'Pengajuan Penghapusan Aset',
-                    'body' => 'Kaur Perencanaan mengajukan penghapusan aset rusak berat "Kursi Tamu".',
-                    'data' => json_encode(['id' => 6]),
-                    'url' => '/manajemen-aset',
-                    'is_read' => false,
-                    'created_at' => now()->subHours(12),
-                ],
-                [
-                    'user_id' => $uid,
-                    'type' => 'general',
-                    'title' => 'Update Profil',
-                    'body' => 'Informasi profil akun Anda berhasil diperbarui.',
-                    'data' => json_encode(['id' => 7]),
-                    'url' => '/profile',
-                    'is_read' => true,
-                    'created_at' => now()->subDays(1),
-                ],
-                [
-                    'user_id' => $uid,
-                    'type' => 'general',
-                    'title' => 'Backup Database Otomatis',
-                    'body' => 'Sistem berhasil melakukan pencadangan database harian secara berkala.',
-                    'data' => json_encode(['id' => 8]),
-                    'url' => '#',
-                    'is_read' => true,
-                    'created_at' => now()->subDays(2),
-                ],
-                [
-                    'user_id' => $uid,
-                    'type' => 'general',
-                    'title' => 'Laporan Tahunan KIB',
-                    'body' => 'Laporan KIB B (Peralatan dan Mesin) tahun 2025 telah diarsipkan.',
-                    'data' => json_encode(['id' => 9]),
-                    'url' => '#',
-                    'is_read' => true,
-                    'created_at' => now()->subDays(3),
-                ],
-                [
-                    'user_id' => $uid,
-                    'type' => 'general',
-                    'title' => 'Aset Baru Terdaftar',
-                    'body' => 'Aset "Gamelan Gong Desa" berhasil ditambahkan ke inventaris.',
-                    'data' => json_encode(['id' => 10]),
-                    'url' => '/manajemen-aset',
-                    'is_read' => true,
-                    'created_at' => now()->subDays(4),
-                ],
-            ];
-
-            foreach ($notifList as $nt) {
-                \App\Models\Notification::create($nt);
-            }
-        }
+        // 12. SEED DYNAMIC NOTIFICATIONS FOR ALL USERS
+        $this->call(NotificationSeeder::class);
     }
 }

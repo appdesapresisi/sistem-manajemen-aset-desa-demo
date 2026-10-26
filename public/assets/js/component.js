@@ -127,6 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (drpopen) {
           drpclose();
         }
+        dropdownMenu.style.display = 'block';
         Popper.createPopper(targetElement, dropdownMenu, { placement });
         targetElement.parentNode.classList.add('drp-show');
         setTimeout(() => {
@@ -146,7 +147,9 @@ document.addEventListener('DOMContentLoaded', function () {
     dropdownToggles.forEach(toggle => {
       toggle.parentNode.classList.remove('drp-show');
       const dropdownMenu = toggle.parentNode.querySelector('.dropdown-menu');
-      dropdownMenu.removeAttribute('style');
+      if (dropdownMenu) {
+        dropdownMenu.style.display = 'none';
+      }
     });
     drpopen = false;
   }
@@ -350,51 +353,53 @@ function offcanvasclose() {
 }
 // -----------------------------
 // tooltip
-const tooltipElements = document.querySelectorAll('[data-pc-toggle="tooltip"]');
+(() => {
+  const tooltipElements = document.querySelectorAll('[data-pc-toggle="tooltip"]');
 
-tooltipElements.forEach(element => {
-  // Add event listener for when the mouse enters the element
-  element.addEventListener('mouseenter', event => {
-    const targetElement = event.target;
+  tooltipElements.forEach(element => {
+    // Add event listener for when the mouse enters the element
+    element.addEventListener('mouseenter', event => {
+      const targetElement = event.target;
 
-    // Get the tooltip text and placement from the element's attributes
-    const tooltipText = targetElement.getAttribute('data-pc-title');
-    const tooltipPlacement = targetElement.getAttribute('data-pc-placement');
+      // Get the tooltip text and placement from the element's attributes
+      const tooltipText = targetElement.getAttribute('data-pc-title');
+      const tooltipPlacement = targetElement.getAttribute('data-pc-placement');
 
-    // Create the tooltip template
-    const tooltipTemplate = `
-      <div class="flex items-center p-1 z-[1024]" role="tooltip">
-        <span class="relative max-w-48 rounded-lg  py-1 px-2 text-xs text-white whitespace-normal text-center bg-dark-500">
-          ${tooltipText}
-        </span>
-      </div>
-    `;
+      // Create the tooltip template
+      const tooltipTemplate = `
+        <div class="flex items-center p-1 z-[1024]" role="tooltip">
+          <span class="relative max-w-48 rounded-lg  py-1 px-2 text-xs text-white whitespace-normal text-center bg-dark-500">
+            ${tooltipText}
+          </span>
+        </div>
+      `;
 
-    // Create a new div element to hold the tooltip and set its inner HTML to the template
-    const tooltip = document.createElement('div');
-    tooltip.setAttribute('id', 'pctooltip');
-    tooltip.innerHTML = tooltipTemplate;
-    tooltip.classList.add('z-[1024]');
+      // Create a new div element to hold the tooltip and set its inner HTML to the template
+      const tooltip = document.createElement('div');
+      tooltip.setAttribute('id', 'pctooltip');
+      tooltip.innerHTML = tooltipTemplate;
+      tooltip.classList.add('z-[1024]');
 
-    // Initialize the tooltip with Popper.js for positioning
-    Popper.createPopper(targetElement, tooltip, {
-      placement: tooltipPlacement,
-      delay: 0, // No delay for showing the tooltip
-      animation: true, // Enables animation for the tooltip
-      boundary: 'clippingParents' // Restricts tooltip to visible boundaries
+      // Initialize the tooltip with Popper.js for positioning
+      Popper.createPopper(targetElement, tooltip, {
+        placement: tooltipPlacement,
+        delay: 0, // No delay for showing the tooltip
+        animation: true, // Enables animation for the tooltip
+        boundary: 'clippingParents' // Restricts tooltip to visible boundaries
+      });
+
+      // Append the tooltip to the body
+      document.body.appendChild(tooltip);
     });
 
-    // Append the tooltip to the body
-    document.body.appendChild(tooltip);
+    // Add event listener for when the mouse leaves the element
+    element.addEventListener('mouseleave', () => {
+      // Remove the tooltip if it exists
+      const existingTooltip = document.getElementById('pctooltip');
+      if (existingTooltip) {
+        existingTooltip.remove();
+      }
+    });
   });
-
-  // Add event listener for when the mouse leaves the element
-  element.addEventListener('mouseleave', () => {
-    // Remove the tooltip if it exists
-    const existingTooltip = document.getElementById('pctooltip');
-    if (existingTooltip) {
-      existingTooltip.remove();
-    }
-  });
-});
-// -----------------------------4
+})();
+// -----------------------------

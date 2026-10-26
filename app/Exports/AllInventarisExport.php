@@ -40,8 +40,16 @@ class AllInventarisExport implements WithMultipleSheets
                 ->exists();
             if (!$hasData) continue;
 
-            $sheets[] = new InventarisExport($jenis->id, $this->filters, null, $this->includeSignatureImage);
+            $sheets[] = new InventarisExport($jenis->id, $this->filters, !empty($this->pejabatSnapshot) ? $this->pejabatSnapshot : null, $this->includeSignatureImage, $this->tanggalDokumen);
         }
+
+        // PhpSpreadsheet mensyaratkan minimal 1 sheet dalam workbook.
+        // Jika seluruh jenis kosong untuk filter yang dipilih, sertakan jenis pertama sebagai template kosong.
+        if (empty($sheets) && $allJenis->isNotEmpty()) {
+            $firstJenis = $allJenis->first();
+            $sheets[] = new InventarisExport($firstJenis->id, $this->filters, !empty($this->pejabatSnapshot) ? $this->pejabatSnapshot : null, $this->includeSignatureImage, $this->tanggalDokumen);
+        }
+
         return $sheets;
     }
 }

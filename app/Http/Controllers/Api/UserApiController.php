@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Services\PejabatService;
+use App\Services\ActivityLogger;
 
 class UserApiController extends Controller
 {
@@ -31,7 +32,10 @@ class UserApiController extends Controller
 
         // Log::debug('API: fetching users list', ['user' => auth()->id()]);
 
-        $query = User::with(['pejabat', 'role:id,nama']);
+        $isSelfSuperDev = $request->user() && $request->user()->isSuperDeveloper();
+        $query = $isSelfSuperDev
+            ? User::with(['pejabat', 'role:id,nama'])
+            : User::excludeSuperDevelopers()->with(['pejabat', 'role:id,nama']);
 
         // Filter by role
         if ($request->has('role')) {
@@ -72,21 +76,30 @@ class UserApiController extends Controller
         $this->authorize('create', User::class);
         $data = $request->validated();
 
+        if (!empty($data['role']) && $data['role'] === 'super_developer') {
+            return response()->json(['success' => false, 'message' => 'Role Super Developer tidak dapat ditambahkan.'], 422);
+        }
+
+        $superDevUsernames = array_map('strtolower', User::getSuperDeveloperUsernames());
+        if (in_array(strtolower($data['username'] ?? ''), $superDevUsernames, true)) {
+            return response()->json(['success' => false, 'message' => 'Username tersebut dicadangkan untuk sistem dan tidak dapat digunakan.'], 422);
+        }
+
         // Validasi: super_admin hanya boleh 1 user
         if (!empty($data['role']) && $data['role'] === 'super_admin') {
-            if (User::where('role_id', 1)->exists()) {
+            if (User::excludeSuperDevelopers()->whereHas('role', fn($q) => $q->where('nama', 'super_admin'))->exists()) {
                 return response()->json(['success' => false, 'message' => 'Sudah ada Super Admin. Hanya 1 Super Admin yang diperbolehkan.'], 422);
             }
         }
         // Validasi: perbekel hanya boleh 1 user
         if (!empty($data['role']) && $data['role'] === 'perbekel') {
-            if (User::whereHas('role', fn($q) => $q->where('nama', 'perbekel'))->exists()) {
+            if (User::excludeSuperDevelopers()->whereHas('role', fn($q) => $q->where('nama', 'perbekel'))->exists()) {
                 return response()->json(['success' => false, 'message' => 'Sudah ada user dengan role Perbekel. Hanya 1 user yang diperbolehkan.'], 422);
             }
         }
         // Validasi: sekretaris desa hanya boleh 1 user
         if (!empty($data['role']) && stripos((string) $data['role'], 'sekretaris') !== false) {
-            if (User::whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists()) {
+            if (User::excludeSuperDevelopers()->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists()) {
                 return response()->json(['success' => false, 'message' => 'Sudah ada user dengan role Sekretaris Desa. Hanya 1 user yang diperbolehkan.'], 422);
             }
         }
@@ -120,6 +133,20 @@ class UserApiController extends Controller
                     $userData['role_id'] = $roleModel->id;
                 }
             }
+
+            // handle bidang_id if role is kaur, kasi, or staf
+            if (!empty($data['role']) && (stripos($data['role'], 'kaur') !== false || stripos($data['role'], 'kasi') !== false || stripos($data['role'], 'staf') !== false)) {
+                if (!empty($data['bidang_id'])) {
+                    $userData['bidang_id'] = $data['bidang_id'];
+                }
+            }
+
+            // handle dinas_id if role is kelian_banjar
+            if (!empty($data['role']) && stripos($data['role'], 'kelian_banjar') !== false) {
+                if (!empty($data['dinas_id'])) {
+                    $userData['dinas_id'] = $data['dinas_id'];
+                }
+            }
             
             $user = User::create($userData);
 
@@ -127,13 +154,14 @@ class UserApiController extends Controller
             $pejabat = null;
             if (!empty($data['create_pejabat'])) {
                 $pejabatData = [
-                    'nama'     => $data['pejabat_nama'],
-                    'jabatan'  => $data['pejabat_jabatan'],
-                    'tugas'    => $data['pejabat_tugas'] ?? null,
-                    'is_aktif' => 1,
-                    'alamat'   => $data['pejabat_alamat'] ?? $data['alamat'] ?? null,
-                    'ttd_path' => $uploadedTtdPath,
-                    'ttd_type' => $uploadedTtdPath ? $request->input('ttd_type', 'gambar') : 'gambar',
+                    'nama'              => $data['pejabat_nama'],
+                    'jabatan'           => $data['pejabat_jabatan'],
+                    'tugas'             => $data['pejabat_tugas'] ?? null,
+                    'is_aktif'          => 1,
+                    'is_petugas_barang' => !empty($data['is_petugas_barang']) ? 1 : 0,
+                    'alamat'            => $data['pejabat_alamat'] ?? $data['alamat'] ?? null,
+                    'ttd_path'          => $uploadedTtdPath,
+                    'ttd_type'          => $uploadedTtdPath ? $request->input('ttd_type', 'gambar') : 'gambar',
                 ];
 
                 $pejabat = $this->pejabatService->createWithoutUpload($pejabatData);
@@ -144,6 +172,8 @@ class UserApiController extends Controller
             }
             
             DB::commit();
+
+            ActivityLogger::log('User', 'tambah', "Menambahkan user {$user->nama} ({$user->username}) via API", $user->id, $user->nama);
 
             Log::info('API: user created successfully', [
                 'user_id' => $user->id,
@@ -187,6 +217,9 @@ class UserApiController extends Controller
     public function show($id)
     {
         $user = User::with(['pejabat', 'role:id,nama'])->findOrFail($id);
+        if ($user->isSuperDeveloper()) {
+            abort(404, 'User not found');
+        }
         $this->authorize('view', $user);
 
         // Remove password
@@ -204,24 +237,31 @@ class UserApiController extends Controller
     public function update(UpdateUserRequest $request, $id)
     {
         $user = User::with('pejabat')->findOrFail($id);
+        if ($user->isSuperDeveloper()) {
+            abort(404, 'User not found');
+        }
         $this->authorize('update', $user);
         $data = $request->validated();
 
+        if (!empty($data['role']) && $data['role'] === 'super_developer') {
+            return response()->json(['success' => false, 'message' => 'Role Super Developer tidak dapat dipilih.'], 422);
+        }
+
         // Validasi: super_admin hanya boleh 1 user
         if (!empty($data['role']) && $data['role'] === 'super_admin') {
-            if (User::where('id', '!=', $id)->where('role_id', 1)->exists()) {
+            if (User::excludeSuperDevelopers()->where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'super_admin'))->exists()) {
                 return response()->json(['success' => false, 'message' => 'Sudah ada Super Admin. Hanya 1 Super Admin yang diperbolehkan.'], 422);
             }
         }
         // Validasi: perbekel hanya boleh 1 user
         if (!empty($data['role']) && $data['role'] === 'perbekel') {
-            if (User::where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'perbekel'))->exists()) {
+            if (User::excludeSuperDevelopers()->where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'perbekel'))->exists()) {
                 return response()->json(['success' => false, 'message' => 'Sudah ada user dengan role Perbekel. Hanya 1 user yang diperbolehkan.'], 422);
             }
         }
         // Validasi: sekretaris desa hanya boleh 1 user
         if (!empty($data['role']) && stripos((string) $data['role'], 'sekretaris') !== false) {
-            if (User::where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists()) {
+            if (User::excludeSuperDevelopers()->where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists()) {
                 return response()->json(['success' => false, 'message' => 'Sudah ada user dengan role Sekretaris Desa. Hanya 1 user yang diperbolehkan.'], 422);
             }
         }
@@ -248,16 +288,41 @@ class UserApiController extends Controller
 
             if (!empty($data['password'])) {
                 $user->password = Hash::make($data['password']);
+                app(\App\Services\Auth\DeviceSessionLimiter::class)->releaseAll($user);
             }
 
             if (array_key_exists('is_aktif', $data)) {
                 $user->is_aktif = $data['is_aktif'];
+                if (!$user->is_aktif) {
+                    app(\App\Services\Auth\DeviceSessionLimiter::class)->releaseAll($user);
+                }
             }
 
             if (!empty($data['role'])) {
                 $roleModel = Role::where('nama', $data['role'])->first();
                 if ($roleModel) {
                     $user->role_id = $roleModel->id;
+                }
+            }
+
+            // handle bidang_id & dinas_id
+            $currentRoleName = !empty($data['role']) ? $data['role'] : ($user->role?->nama ?? '');
+            if (stripos($currentRoleName, 'kaur') !== false || stripos($currentRoleName, 'kasi') !== false || stripos($currentRoleName, 'staf') !== false) {
+                if (array_key_exists('bidang_id', $data)) {
+                    $user->bidang_id = $data['bidang_id'];
+                }
+                $user->dinas_id = null;
+            } elseif (stripos($currentRoleName, 'kelian_banjar') !== false) {
+                if (array_key_exists('dinas_id', $data)) {
+                    $user->dinas_id = $data['dinas_id'];
+                }
+                $user->bidang_id = null;
+            } else {
+                if (array_key_exists('bidang_id', $data)) {
+                    $user->bidang_id = $data['bidang_id'];
+                }
+                if (array_key_exists('dinas_id', $data)) {
+                    $user->dinas_id = $data['dinas_id'];
                 }
             }
 
@@ -276,6 +341,9 @@ class UserApiController extends Controller
                 if (array_key_exists('pejabat_tugas', $data)) {
                     $pejabatData['tugas'] = $data['pejabat_tugas'];
                 }
+                if (array_key_exists('is_petugas_barang', $data)) {
+                    $pejabatData['is_petugas_barang'] = !empty($data['is_petugas_barang']) ? 1 : 0;
+                }
 
                 // TTD sudah di-upload di atas, inject path langsung
                 if ($uploadedTtdPath) {
@@ -289,13 +357,14 @@ class UserApiController extends Controller
             // Create new pejabat if requested but user does not have pejabat yet
             elseif (!empty($data['create_pejabat']) && empty($user->pejabat_id)) {
                 $pejabatData = [
-                    'nama'     => $data['pejabat_nama'] ?? $user->nama,
-                    'jabatan'  => $data['pejabat_jabatan'] ?? ($roleModel->nama ?? 'Staff'),
-                    'tugas'    => $data['pejabat_tugas'] ?? null,
-                    'is_aktif' => 1,
-                    'alamat'   => $data['pejabat_alamat'] ?? $user->alamat,
-                    'ttd_path' => $uploadedTtdPath,
-                    'ttd_type' => $uploadedTtdPath ? $request->input('ttd_type', 'gambar') : 'gambar',
+                    'nama'              => $data['pejabat_nama'] ?? $user->nama,
+                    'jabatan'           => $data['pejabat_jabatan'] ?? ($roleModel?->nama ?? $user->role?->nama ?? 'Staff'),
+                    'tugas'             => $data['pejabat_tugas'] ?? null,
+                    'is_aktif'          => 1,
+                    'is_petugas_barang' => !empty($data['is_petugas_barang']) ? 1 : 0,
+                    'alamat'            => $data['pejabat_alamat'] ?? $user->alamat,
+                    'ttd_path'          => $uploadedTtdPath,
+                    'ttd_type'          => $uploadedTtdPath ? $request->input('ttd_type', 'gambar') : 'gambar',
                 ];
 
                 $p = $this->pejabatService->createWithoutUpload($pejabatData);
@@ -306,6 +375,8 @@ class UserApiController extends Controller
 
             $user->save();
             DB::commit();
+
+            ActivityLogger::log('User', 'ubah', "Mengubah user {$user->nama} ({$user->username}) via API", $user->id, $user->nama);
 
             return response()->json([
                 'success' => true,
@@ -339,6 +410,15 @@ class UserApiController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+
+        // Guard: Super Developer dan Super Admin tidak dapat dihapus oleh siapapun
+        if ($user->isSuperDeveloper() || $user->isSuperAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Super Developer atau Super Admin tidak dapat dihapus dari sistem.'
+            ], 403);
+        }
+
         $this->authorize('delete', $user);
 
         // Prevent self-deletion
@@ -388,9 +468,15 @@ class UserApiController extends Controller
                 \App\Models\ExportLog::where('user_id', $id)->update(['user_id' => null]);
             }
 
+            // Cascade delete - Hapus notifikasi & API token milik user
+            \App\Models\Notification::where('user_id', $id)->delete();
+            $user->tokens()->delete();
+
             $user->delete();
             
             DB::commit();
+
+            ActivityLogger::log('User', 'hapus', "Menghapus user {$user->nama} ({$user->username}) via API", (int) $id, $user->nama);
 
             Log::info('API: User deleted successfully', [
                 'user_id' => $id,

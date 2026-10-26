@@ -23,6 +23,22 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
 
+        // Auto-create required storage & cache directories with safe permissions
+        foreach ([
+            storage_path('fonts'),
+            storage_path('app/public/exports'),
+            storage_path('app/public/ttd'),
+            storage_path('app/public/inventaris_foto'),
+            storage_path('framework/cache/data'),
+            storage_path('framework/views'),
+            storage_path('framework/sessions'),
+            storage_path('logs'),
+        ] as $dir) {
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0775, true);
+            }
+        }
+
         // Share theme configuration variables globally to all views
         View::share([
             'pc_dark_layout' => config('theme.dark_layout', 'light'),

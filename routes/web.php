@@ -28,7 +28,9 @@ if (app()->environment('local')) {
         abort_unless(in_array($code, ['403', '404', '405', '419', '429', '500', '503'], true), 404);
 
         return response()->view('errors.' . $code, [], (int) $code);
-    })->where('code', '403|404|405|419|429|500|503')->name('errors.preview');
+    })->where('code', '403|404|405|419|429|500|503')->name('errors.preview.local');
+
+    Route::view('/design-preview', 'design-preview')->name('design.preview');
 }
 
 // Public: login page (blade: resources/views/auth/login.blade.php)
@@ -66,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [\App\Http\Controllers\Dashboard\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/activities', [\App\Http\Controllers\Dashboard\DashboardController::class, 'allActivities'])->name('dashboard.activities');
+    Route::get('/dashboard/activities/export', [\App\Http\Controllers\Dashboard\DashboardController::class, 'exportActivities'])->name('dashboard.activities.export');
     Route::post('/dashboard/activities/delete-all', [\App\Http\Controllers\Dashboard\DashboardController::class, 'destroyAllActivities'])->name('dashboard.activities.destroy-all');
     Route::delete('/dashboard/activities/{activityLog}', [\App\Http\Controllers\Dashboard\DashboardController::class, 'destroyActivity'])->name('dashboard.activities.destroy');
     Route::get('/dashboard/charts/export/{chart}', [\App\Http\Controllers\Dashboard\DashboardController::class, 'exportChartPdf'])->name('dashboard.charts.export');
@@ -81,7 +84,11 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Manajemen Aset (resource controller)
+    Route::get('manajemen-aset/template/download', [\App\Http\Controllers\ManajemenAset\ManajemenAsetController::class, 'downloadTemplate'])->name('manajemen-aset.template.download');
+    Route::post('manajemen-aset/import', [\App\Http\Controllers\ManajemenAset\ManajemenAsetController::class, 'import'])->name('manajemen-aset.import');
+    Route::get('manajemen-aset/next-nup', [\App\Http\Controllers\ManajemenAset\ManajemenAsetController::class, 'getNextNup'])->name('manajemen-aset.next-nup');
     Route::post('manajemen-aset/bulk-destroy', [\App\Http\Controllers\ManajemenAset\ManajemenAsetController::class, 'bulkDestroy'])->name('manajemen-aset.bulk-destroy');
+    Route::post('manajemen-aset/bulk-print-qr', [\App\Http\Controllers\ManajemenAset\ManajemenAsetController::class, 'bulkPrintQr'])->name('manajemen-aset.bulk-print-qr');
     Route::post('manajemen-aset/{id}/duplicate', [\App\Http\Controllers\ManajemenAset\ManajemenAsetController::class, 'duplicate'])->name('manajemen-aset.duplicate');
     Route::resource('manajemen-aset', \App\Http\Controllers\ManajemenAset\ManajemenAsetController::class);
     Route::get('manajemen-aset/{id}/qr.png', [\App\Http\Controllers\ManajemenAset\ManajemenAsetController::class, 'qrImage'])->name('inventaris.qr');
@@ -105,22 +112,40 @@ Route::middleware(['auth'])->group(function () {
     Route::post('export-data/store-all', [\App\Http\Controllers\ExportData\ExportController::class, 'storeAll'])->name('export-data.store-all');
     Route::post('export-data/store-ruangan', [\App\Http\Controllers\ExportData\ExportController::class, 'storeRuangan'])->name('export-data.store-ruangan');
     Route::post('export-data/store-kib', [\App\Http\Controllers\ExportData\ExportController::class, 'storeKib'])->name('export-data.store-kib');
+    Route::get('export-data/kib-count', [\App\Http\Controllers\ExportData\ExportController::class, 'getKibCount'])->name('export-data.kib-count');
     Route::get('export-data/kib-pejabat-info', [\App\Http\Controllers\ExportData\ExportController::class, 'getKibPejabatInfo'])->name('export-data.kib-pejabat-info');
     Route::post('export-data/store-laporan-aset', [\App\Http\Controllers\ExportData\ExportController::class, 'storeLaporanAset'])->name('export-data.store-laporan-aset');
     Route::get('export-data/laporan-count', [\App\Http\Controllers\ExportData\ExportController::class, 'getLaporanCount'])->name('export-data.laporan-count');
+    Route::post('export-data/store-buku-inventaris-aset', [\App\Http\Controllers\ExportData\ExportController::class, 'storeBukuInventarisAset'])->name('export-data.store-buku-inventaris-aset');
+    Route::get('export-data/buku-inventaris-count', [\App\Http\Controllers\ExportData\ExportController::class, 'getBukuInventarisCount'])->name('export-data.buku-inventaris-count');
     Route::post('export-data/set-override', [\App\Http\Controllers\ExportData\ExportController::class, 'setPejabatOverride'])->name('export-data.set-override');
     Route::resource('export-data', \App\Http\Controllers\ExportData\ExportController::class)->only(['index','store']);
 
+    // Penghapusan Aset (Mutasi Berkurang)
+    Route::get('penghapusan-aset/export', [\App\Http\Controllers\PenghapusanAset\PenghapusanAsetController::class, 'export'])->name('penghapusan-aset.export');
+    Route::post('penghapusan-aset/restore', [\App\Http\Controllers\PenghapusanAset\PenghapusanAsetController::class, 'restore'])->name('penghapusan-aset.restore');
+    Route::get('penghapusan-aset/{id}/download-pdf', [\App\Http\Controllers\PenghapusanAset\PenghapusanAsetController::class, 'downloadPdf'])->name('penghapusan-aset.download-pdf');
+    Route::resource('penghapusan-aset', \App\Http\Controllers\PenghapusanAset\PenghapusanAsetController::class)->only(['index', 'store', 'show']);
+
     // Users & Pejabat (master data)
+    Route::get('users/export', [\App\Http\Controllers\User\UserController::class, 'export'])->name('users.export');
+    Route::get('users/template/download', [\App\Http\Controllers\User\UserController::class, 'downloadTemplate'])->name('users.template.download');
+    Route::post('users/import', [\App\Http\Controllers\User\UserController::class, 'import'])->name('users.import');
     Route::post('users/bulk-destroy', [\App\Http\Controllers\User\UserController::class, 'bulkDestroy'])->name('users.bulk-destroy');
     Route::get('users/check-username', [\App\Http\Controllers\User\UserController::class, 'checkUsername'])->name('users.check-username');
     Route::patch('users/{id}/toggle-aktif', [\App\Http\Controllers\User\UserController::class, 'toggleAktif'])->name('users.toggle-aktif');
     Route::resource('users', \App\Http\Controllers\User\UserController::class);
     
     // Bidang (master data)
+    Route::get('bidangs/export', [\App\Http\Controllers\Bidang\BidangController::class, 'export'])->name('bidangs.export');
+    Route::get('bidangs/template/download', [\App\Http\Controllers\Bidang\BidangController::class, 'downloadTemplate'])->name('bidangs.template.download');
+    Route::post('bidangs/import', [\App\Http\Controllers\Bidang\BidangController::class, 'import'])->name('bidangs.import');
     Route::post('bidangs/bulk-destroy', [\App\Http\Controllers\Bidang\BidangController::class, 'bulkDestroy'])->name('bidangs.bulk-destroy');
     Route::resource('bidangs', \App\Http\Controllers\Bidang\BidangController::class);
     
+    Route::get('pejabat/export', [\App\Http\Controllers\Pejabat\PejabatController::class, 'export'])->name('pejabat.export');
+    Route::get('pejabat/template/download', [\App\Http\Controllers\Pejabat\PejabatController::class, 'downloadTemplate'])->name('pejabat.template.download');
+    Route::post('pejabat/import', [\App\Http\Controllers\Pejabat\PejabatController::class, 'import'])->name('pejabat.import');
     Route::post('pejabat/bulk-destroy', [\App\Http\Controllers\Pejabat\PejabatController::class, 'bulkDestroy'])->name('pejabat.bulk-destroy');
     Route::get('pejabat/{id}/ttd', [\App\Http\Controllers\Pejabat\PejabatController::class, 'viewTtd'])->name('pejabat.ttd.view');
     Route::resource('pejabat', \App\Http\Controllers\Pejabat\PejabatController::class);
@@ -131,21 +156,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('api/jenis-inventaris-field/{fieldId}/usage', [\App\Http\Controllers\JenisInventaris\JenisInventarisController::class, 'fieldUsage'])->name('jenis-inventaris.field-usage');
 
     // Ruangan (Master Data)
+    Route::get('ruangan/export', [\App\Http\Controllers\Ruangan\RuanganController::class, 'export'])->name('ruangan.export');
+    Route::get('ruangan/template/download', [\App\Http\Controllers\Ruangan\RuanganController::class, 'downloadTemplate'])->name('ruangan.template.download');
+    Route::post('ruangan/import', [\App\Http\Controllers\Ruangan\RuanganController::class, 'import'])->name('ruangan.import');
     Route::post('ruangan/bulk-destroy', [\App\Http\Controllers\Ruangan\RuanganController::class, 'bulkDestroy'])->name('ruangan.bulk-destroy');
     Route::resource('ruangan', \App\Http\Controllers\Ruangan\RuanganController::class);
 
     // Dropdown (Master Data)
+    Route::get('dropdown/export', [\App\Http\Controllers\Dropdown\DropdownController::class, 'export'])->name('dropdown.export');
+    Route::get('dropdown/template/download', [\App\Http\Controllers\Dropdown\DropdownController::class, 'downloadTemplate'])->name('dropdown.template.download');
+    Route::post('dropdown/import', [\App\Http\Controllers\Dropdown\DropdownController::class, 'import'])->name('dropdown.import');
     Route::post('dropdown/bulk-destroy', [\App\Http\Controllers\Dropdown\DropdownController::class, 'bulkDestroy'])->name('dropdown.bulk-destroy');
     Route::resource('dropdown', \App\Http\Controllers\Dropdown\DropdownController::class);
-
-    // API endpoint for dynamic fields (used by frontend to render forms)
-    Route::get('api/jenis-inventaris/{id}/fields', [\App\Http\Controllers\Api\JenisInventarisFieldApiController::class, 'show'])->name('api.jenis-inventaris.fields');
-
-    // API endpoint for kode barang hierarki (5-level hierarchy search)
-    // Catatan: route ini ada di web.php (bukan api.php) agar menggunakan session auth
-    Route::get('api/kb/search', [\App\Http\Controllers\Api\KodeBarangHierarkiController::class, 'search'])->name('api.kb.search');
-    Route::get('api/kb/by-kode', [\App\Http\Controllers\Api\KodeBarangHierarkiController::class, 'getByKode'])->name('api.kb.by-kode');
-    Route::get('api/kb/resolve-ancestors', [\App\Http\Controllers\Api\KodeBarangHierarkiController::class, 'resolveAncestors'])->name('api.kb.resolve-ancestors');
 
     // Notifications
     Route::prefix('notifications')->name('notifications.')->group(function () {
@@ -155,6 +177,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/delete-read', [NotificationController::class, 'destroyRead'])->name('delete-read');
         Route::get('/{id}/read',   [NotificationController::class, 'read'])->name('read');
         Route::delete('/{id}',     [NotificationController::class, 'destroy'])->name('destroy');
+    });
+
+    // Cadangan Basis Data (Super Admin only)
+    Route::prefix('backup')->name('backup.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Backup\BackupController::class, 'index'])->name('index');
+        Route::post('/create', [\App\Http\Controllers\Backup\BackupController::class, 'store'])->name('store');
+        Route::get('/download/{filename}', [\App\Http\Controllers\Backup\BackupController::class, 'download'])->name('download');
+        Route::delete('/{filename}', [\App\Http\Controllers\Backup\BackupController::class, 'destroy'])->name('destroy');
     });
 
 });
@@ -168,7 +198,12 @@ Route::get('/scan/{barcode}', [\App\Http\Controllers\ManajemenAset\ManajemenAset
 // Jika belum pakai auth dan ingin akses semua halaman tanpa middleware,
 // Anda bisa memindahkan/duplikasi route di atas keluar dari group middleware.
 
-// Fallback / 404 (opsional): tampilkan view custom
-// Route::fallback(function () {
-//     return view('errors.404');
-// });
+// Route Preview Halaman Error (Hanya aktif di environment local & testing untuk keperluan pengetesan desain)
+if (app()->environment('local', 'testing')) {
+    Route::get('/errors/{code}', function ($code) {
+        if (view()->exists("errors.{$code}")) {
+            return response()->view("errors.{$code}", [], (int) $code);
+        }
+        abort(404);
+    })->where('code', '403|404|405|419|429|500|503')->name('errors.preview');
+}

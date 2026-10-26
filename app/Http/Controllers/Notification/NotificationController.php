@@ -90,6 +90,7 @@ class NotificationController extends Controller
 
         // Group by date label (Hari ini / Kemarin / tanggal)
         $grouped = $notifications->getCollection()->groupBy(function ($notif) {
+            if (!$notif->created_at) return 'Lainnya';
             if ($notif->created_at->isToday()) return 'Hari ini';
             if ($notif->created_at->isYesterday()) return 'Kemarin';
             return $notif->created_at->translatedFormat('d F Y');
@@ -104,10 +105,11 @@ class NotificationController extends Controller
                         'id'             => $notif->id,
                         'title'          => $notif->title,
                         'body'           => $notif->body,
+                        'icon'           => $notif->icon ?? 'bell',
                         'is_read'        => (bool)$notif->is_read,
                         'actor_nama'     => $notif->actor_nama,
                         'date_formatted' => $notif->created_at?->translatedFormat('d M Y'),
-                        'time_formatted' => $notif->created_at?->format('H:i'),
+                        'time_formatted' => $notif->created_at ? ($notif->created_at->diffForHumans(null, true) . ' lalu') : '',
                         'read_url'       => route('notifications.read', $notif->id),
                         'destroy_url'    => route('notifications.destroy', $notif->id),
                     ];
@@ -157,8 +159,19 @@ class NotificationController extends Controller
      */
     private function resolveNotificationTarget(string $url, Request $request): ?string
     {
+        // Tolak URL berbahaya yang diawali double slash (protocol-relative) atau backslash
+        if (str_starts_with($url, '//') || str_starts_with($url, '\\\\')) {
+            return null;
+        }
+
         $parsed = parse_url($url);
         if ($parsed === false) {
+            return null;
+        }
+
+        $scheme = isset($parsed['scheme']) ? strtolower($parsed['scheme']) : null;
+        // Jika ada scheme, hanya izinkan http dan https (cegah javascript:, data:, dll)
+        if ($scheme !== null && !in_array($scheme, ['http', 'https'], true)) {
             return null;
         }
 
@@ -167,9 +180,12 @@ class NotificationController extends Controller
         $query = isset($parsed['query']) ? ('?' . $parsed['query']) : '';
         $fragment = isset($parsed['fragment']) ? ('#' . $parsed['fragment']) : '';
 
-        // URL relatif sudah aman dipakai langsung.
+        // URL relatif: harus diawali satu '/' dan bukan '//'
         if (!$host) {
-            return $url;
+            if (str_starts_with($path, '/') && !str_starts_with($path, '//')) {
+                return $path . $query . $fragment;
+            }
+            return null;
         }
 
         $currentHost = $request->getHost();
@@ -184,7 +200,8 @@ class NotificationController extends Controller
             return $path . $query . $fragment;
         }
 
-        return $url;
+        // Jangan redirect ke host eksternal tak dikenal (Open Redirect Protection)
+        return null;
     }
 
     private function isInternalAppPath(string $path): bool
@@ -192,12 +209,17 @@ class NotificationController extends Controller
         $prefixes = [
             '/persetujuan',
             '/manajemen-aset',
+            '/penghapusan-aset',
             '/notifications',
             '/dashboard',
             '/users',
             '/pejabat',
             '/jenis-inventaris',
+            '/ruangan',
+            '/bidangs',
+            '/dropdown',
             '/export-data',
+            '/backup',
             '/profile',
         ];
 
@@ -224,9 +246,14 @@ class NotificationController extends Controller
     }
 
     /** Hapus satu notif. */
-    public function destroy(int $id)
+    public function destroy(Request $request, int $id)
     {
         Notification::where('user_id', Auth::id())->findOrFail($id)->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Notifikasi dihapus.']);
+        }
+
         return redirect()->back()->with('success', 'Notifikasi dihapus.');
     }
 
@@ -251,14 +278,17 @@ class NotificationController extends Controller
         return redirect()->back()->with('info', 'Tidak ada notifikasi yang sudah dibaca untuk dihapus.');
     }
 
-    /** JSON: unread count + 5 notif terbaru (untuk dropdown di header). */
+    /** JSON: unread count + notif terbaru (untuk dropdown di header). */
     public function dropdown()
     {
-        $unread = Notification::where('user_id', Auth::id())
+        $userId = Auth::id();
+        $unread = Notification::where('user_id', $userId)
             ->where('is_read', false)
             ->count();
 
-        $items = Notification::where('user_id', Auth::id())
+        $total = Notification::where('user_id', $userId)->count();
+
+        $items = Notification::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
@@ -272,9 +302,9 @@ class NotificationController extends Controller
                 'icon'     => $n->icon,
                 'color'    => $n->color,
                 'bg_color' => $n->bg_color,
-                'time'     => $n->created_at?->diffForHumans(null, true),
+                'time'     => $n->created_at ? ($n->created_at->diffForHumans(null, true) . ' lalu') : '',
             ]);
 
-        return response()->json(['unread' => $unread, 'items' => $items]);
+        return response()->json(['unread' => $unread, 'total' => $total, 'items' => $items]);
     }
 }

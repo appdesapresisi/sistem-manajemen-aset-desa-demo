@@ -12,6 +12,7 @@ use App\Models\JenisInventarisPejabat;
 use App\Http\Requests\StoreJenisInventarisRequest;
 use App\Http\Requests\UpdateJenisInventarisRequest;
 use App\Services\JenisInventarisService;
+use App\Services\ActivityLogger;
 
 class JenisInventarisApiController extends Controller
 {
@@ -43,7 +44,9 @@ class JenisInventarisApiController extends Controller
     {
         $this->authorize('create', JenisInventaris::class);
         try {
-            $jenis = $this->service->create($request->validated());
+            $data = $request->validated();
+            $jenis = $this->service->create($data);
+            ActivityLogger::log('JenisInventaris', 'tambah', 'Menambahkan jenis inventaris ' . ($jenis->nama ?? '-'), $jenis?->id, $jenis->nama ?? null);
             return response()->json($jenis, 201);
         } catch (\Exception $e) {
             Log::error('API store error', ['error' => $e->getMessage()]);
@@ -59,6 +62,7 @@ class JenisInventarisApiController extends Controller
             $this->authorize('update', $existing);
             $jenis = $this->service->update($id, $request->validated());
             if (!$jenis) return response()->json(['message' => 'JenisInventaris tidak ditemukan'], 404);
+            ActivityLogger::log('JenisInventaris', 'ubah', 'Mengubah jenis inventaris ' . ($jenis->nama ?? '-'), (int) $id, $jenis->nama ?? null);
             return response()->json($jenis);
         } catch (\Exception $e) {
             Log::error('API update error', ['id' => $id, 'error' => $e->getMessage()]);
@@ -71,8 +75,24 @@ class JenisInventarisApiController extends Controller
         $existing = $this->service->getById($id);
         if (!$existing) return response()->json(['message' => 'JenisInventaris tidak ditemukan'], 404);
         $this->authorize('delete', $existing);
-        $deleted = $this->service->delete($id);
-        if (!$deleted) return response()->json(['message' => 'JenisInventaris tidak ditemukan'], 404);
-        return response()->json(['message' => 'JenisInventaris dihapus']);
+
+        if ($existing->isVirtual() || $existing->isTidakDitemukan()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jenis inventaris sistem ini dilindungi dan tidak dapat dihapus.'
+            ], 422);
+        }
+
+        try {
+            $deleted = $this->service->delete($id);
+            if (!$deleted) return response()->json(['message' => 'JenisInventaris tidak ditemukan'], 404);
+            ActivityLogger::log('JenisInventaris', 'hapus', 'Menghapus jenis inventaris ' . ($existing->nama ?? '-'), (int) $id, $existing->nama ?? null);
+            return response()->json(['success' => true, 'message' => 'JenisInventaris dihapus']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 422);
+        }
     }
 }

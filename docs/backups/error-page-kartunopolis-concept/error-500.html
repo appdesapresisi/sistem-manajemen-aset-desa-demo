@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>500 — Gangguan Server</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ====== GANTI WARNA DI SINI ======
+     Ungu = sama seperti referensi.
+     Untuk tema hijau proyekmu: --bg-top:#cfdcc4; --accent:#1f3a2a; --ink:#16251b; */
+  :root{
+    --bg-top:#cfdcc4;
+    --bg-mid:#e8f0e2;
+    --bg-bottom:#ffffff;
+    --big-num:rgba(255,255,255,.82);
+    --ink:#16251b;
+    --muted:#546958;
+    --accent:#1f3a2a;
+    --accent-hover:#162c1f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;
+    color:var(--ink);
+    background:linear-gradient(180deg,var(--bg-top) 0%,var(--bg-mid) 52%,var(--bg-bottom) 100%);
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* TOP NAVBAR (KARTUNOPOLIS STYLE) */
+  .topbar{
+    position:absolute;top:0;left:0;right:0;z-index:20;
+    max-width:1160px;margin:0 auto;padding:28px 32px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .topbar-brand{
+    display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);
+  }
+  .topbar-brand img{height:34px;width:auto;object-fit:contain}
+  .topbar-brand span{font-family:'Fredoka','Outfit',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.01em;color:var(--accent)}
+  .topbar-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,.65);backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.8);padding:6px 16px;border-radius:999px;
+    font-size:12px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--accent);
+  }
+
+  /* PANGGUNG UTAMA (KARTUNOPOLIS STAGE) */
+  .stage{
+    position:relative;min-height:100vh;
+    max-width:1160px;margin:0 auto;
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  /* Angka besar transparan */
+  .big{
+    position:absolute;top:10vh;left:50%;transform:translateX(-50%);
+    font-family:'Outfit','Plus Jakarta Sans',sans-serif;font-weight:700;
+    font-size:clamp(220px,36vw,460px);line-height:.88;letter-spacing:-.04em;
+    color:var(--big-num);white-space:nowrap;user-select:none;
+    text-shadow:0 20px 48px rgba(31,58,42,.06);
+    z-index:1;
+  }
+
+  /* Ilustrasi/maskot 3D — kiri bawah, menimpa angka */
+  .mascot{
+    position:absolute;left:5%;bottom:6vh;z-index:3;
+    width:clamp(260px,32vw,400px);height:auto;
+    filter:drop-shadow(0 24px 32px rgba(31,58,42,.18));
+    animation:float 5s ease-in-out infinite;
+    user-select:none;pointer-events:none;
+  }
+  @keyframes float{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-12px)}
+  }
+
+  /* Teks sisi kanan */
+  .copy{
+    position:absolute;left:42%;right:4%;bottom:12vh;z-index:3;
+    text-align:center;
+  }
+  .copy h1{
+    font-family:'Fredoka','Outfit',sans-serif;font-weight:700;
+    font-size:clamp(28px,3.5vw,42px);line-height:1.22;letter-spacing:-0.02em;
+    color:var(--ink);margin-bottom:14px;
+  }
+  .copy p{
+    margin:0 auto;max-width:440px;
+    font-size:14.5px;line-height:1.75;color:var(--muted);font-weight:400;
+  }
+
+  /* Tombol mengambang pill khas Kartunopolis */
+  .btn{
+    position:absolute;right:8%;top:53%;z-index:4;
+    display:inline-flex;align-items:center;gap:12px;
+    background:rgba(255,255,255,.75);backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.9);
+    padding:6px 22px 6px 6px;border-radius:999px;
+    color:var(--ink);text-decoration:none;font-size:13.5px;font-weight:600;
+    box-shadow:0 8px 24px rgba(31,58,42,.12);
+    transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
+  }
+  .btn:hover{
+    transform:translateY(-2px);
+    background:rgba(255,255,255,.95);
+    box-shadow:0 12px 28px rgba(31,58,42,.18);
+    color:var(--accent);
+  }
+  .btn .ic{
+    width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;
+    display:grid;place-items:center;flex-shrink:0;
+    box-shadow:0 3px 8px rgba(31,58,42,.25);
+  }
+
+  /* MOBILE RESPONSIVE */
+  @media (max-width:860px){
+    .topbar{position:relative;padding:20px 24px;justify-content:center}
+    .topbar-badge{display:none}
+    .big{position:relative;top:auto;left:auto;transform:none;font-size:clamp(140px,32vw,220px);margin-top:10px}
+    .mascot{position:relative;display:block;left:auto;bottom:auto;margin:-40px auto 0;width:58vw;max-width:280px}
+    .copy{position:relative;left:auto;right:auto;bottom:auto;padding:0 24px;margin-top:14px}
+    .btn{position:relative;right:auto;top:auto;margin:24px auto 40px}
+    .stage{flex-direction:column;align-items:center;min-height:auto;padding-bottom:40px}
+  }
+  @media (prefers-reduced-motion:reduce){.mascot{animation:none}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="/dashboard" class="topbar-brand">
+    <img src="/assets/images/logo/logo-sima-desa-demo.png" alt="SIMA Desa DEMO" onerror="this.style.display='none'">
+    <span>SIMA Desa</span>
+  </a>
+  <div class="topbar-badge">
+    Status: Kendala Server (500)
+  </div>
+</header>
+
+<main class="stage">
+  <div class="big" aria-hidden="true">500</div>
+
+  <img class="mascot" src="/assets/images/errors/mascot-3d.png" alt="Ilustrasi gangguan server">
+
+  <!-- Tombol pill mengambang khas Kartunopolis dengan icon navigasi compass/home -->
+  <a class="btn" href="/dashboard" title="Kembali ke Dashboard Utama">
+    <span class="ic">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+    </span>
+    Kembali ke Base Camp
+  </a>
+
+  <div class="copy">
+    <h1>Waduh! Server Kami<br>Sedang Istirahat Sebentar</h1>
+    <p>Permintaan Anda belum dapat diselesaikan saat ini karena terjadi kendala internal pada server. Tim teknis sedang menanganinya dengan sigap.</p>
+  </div>
+</main>
+
+</body>
+</html>

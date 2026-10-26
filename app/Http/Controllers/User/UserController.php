@@ -26,8 +26,11 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
         
-        // Build query with filters
-        $query = User::with(['role', 'bidang', 'dinas', 'pejabat']);
+        // Build query with filters (secara ketat mengecualikan akun Super Developer / Owner kecuali jika yang login adalah akunnya sendiri)
+        $isSelfSuperDev = auth()->user() && auth()->user()->isSuperDeveloper();
+        $query = $isSelfSuperDev
+            ? User::with(['role', 'bidang', 'dinas', 'pejabat'])
+            : User::excludeSuperDevelopers()->with(['role', 'bidang', 'dinas', 'pejabat']);
         
         // Search filter
         if ($request->has('search') && $request->search != '') {
@@ -45,7 +48,9 @@ class UserController extends Controller
             $query->where(function($q) use ($roles) {
                 foreach ($roles as $role) {
                     if ($role === 'Super Admin') {
-                        $q->orWhere('role_id', 1);
+                        $q->orWhereHas('role', function($rq) {
+                            $rq->where('nama', 'super_admin');
+                        });
                     } elseif ($role === 'Admin / SekDes') {
                         $q->orWhereHas('role', function($rq) {
                             $rq->where('nama', 'like', '%sekretaris%');
@@ -57,6 +62,18 @@ class UserController extends Controller
                     } elseif ($role === 'Perbekel') {
                         $q->orWhereHas('role', function($rq) {
                             $rq->where('nama', 'like', '%perbekel%');
+                        });
+                    } elseif ($role === 'Kasi') {
+                        $q->orWhereHas('role', function($rq) {
+                            $rq->where('nama', 'like', '%kasi%');
+                        });
+                    } elseif ($role === 'Kelian Banjar') {
+                        $q->orWhereHas('role', function($rq) {
+                            $rq->where('nama', 'like', '%kelian%');
+                        });
+                    } elseif ($role === 'Staf') {
+                        $q->orWhereHas('role', function($rq) {
+                            $rq->where('nama', 'like', '%staf%');
                         });
                     }
                 }
@@ -73,15 +90,15 @@ class UserController extends Controller
         }
         
         // Sort order
-        $sortBy = $request->get('sort', 'nama_asc');
+        $sortBy = $request->get('sort', 'terbaru');
         if ($sortBy === 'nama_desc') {
             $query->orderBy('nama', 'desc');
-        } elseif ($sortBy === 'terbaru') {
-            $query->orderBy('created_at', 'desc');
+        } elseif ($sortBy === 'nama_asc') {
+            $query->orderBy('nama', 'asc');
         } elseif ($sortBy === 'terlama') {
             $query->orderBy('created_at', 'asc');
         } else {
-            $query->orderBy('nama', 'asc');
+            $query->orderBy('created_at', 'desc');
         }
 
         // Paginate with dynamic per_page (options: 10, 20, 50, 100)
@@ -96,19 +113,58 @@ class UserController extends Controller
         // Get total counts from all users (not just current page)
         // Count stats: treat Admin group as roles matching sekretaris, kaur, perbekel, kasi, kelian_banjar, staf
         // (avoid hard-coding numeric role ids; use role.name patterns for consistency)
-        $statsRow = User::query()
+        $statsBase = $isSelfSuperDev ? User::query() : User::excludeSuperDevelopers();
+        $statsRow = $statsBase
             ->leftJoin('roles as r', 'users.role_id', '=', 'r.id')
             ->selectRaw('COUNT(*) as total_users')
             ->selectRaw('SUM(CASE WHEN is_aktif = 1 THEN 1 ELSE 0 END) as user_aktif')
             ->selectRaw('SUM(CASE WHEN is_aktif = 0 THEN 1 ELSE 0 END) as user_tidak_aktif')
-            ->selectRaw("SUM(CASE WHEN (LOWER(COALESCE(r.nama, '')) LIKE '%sekretaris%' OR LOWER(COALESCE(r.nama, '')) LIKE '%kaur%' OR LOWER(COALESCE(r.nama, '')) LIKE '%perbekel%' OR LOWER(COALESCE(r.nama, '')) LIKE '%kasi%' OR LOWER(COALESCE(r.nama, '')) LIKE '%kelian_banjar%' OR LOWER(COALESCE(r.nama, '')) LIKE '%staf%') THEN 1 ELSE 0 END) as total_admin")
+            ->selectRaw("SUM(CASE WHEN (LOWER(COALESCE(r.nama, '')) LIKE '%admin%' OR LOWER(COALESCE(r.nama, '')) LIKE '%sekretaris%' OR LOWER(COALESCE(r.nama, '')) LIKE '%kaur%' OR LOWER(COALESCE(r.nama, '')) LIKE '%perbekel%' OR LOWER(COALESCE(r.nama, '')) LIKE '%kasi%' OR LOWER(COALESCE(r.nama, '')) LIKE '%kelian_banjar%' OR LOWER(COALESCE(r.nama, '')) LIKE '%staf%') THEN 1 ELSE 0 END) as total_admin")
             ->first();
 
+        /*
+        // Kodingan vs Kemarin (Daily) — disimpan untuk opsi filter di masa depan
+        $todayStart = now()->startOfDay();
+        $yesterdayStart = now()->subDay()->startOfDay();
+        $usersToday = User::where('created_at', '>=', $todayStart)->count();
+        $usersYesterday = User::whereBetween('created_at', [$yesterdayStart, $todayStart])->count();
+        $usersDiff = $usersToday - $usersYesterday;
+        $usersPercent = $usersYesterday > 0 ? round(($usersDiff / $usersYesterday) * 100, 1) : ($usersToday > 0 ? 100 : 0);
+        */
+
+        // Konteks Per Bulan (vs. Bulan Lalu)
+        $thisMonthStart = now()->startOfMonth();
+        $lastMonthStart = now()->subMonth()->startOfMonth();
+
+        $calcMonthlyTrend = function($queryCallback) use ($thisMonthStart, $lastMonthStart) {
+            $thisMonth = $queryCallback(User::excludeSuperDevelopers()->where('created_at', '>=', $thisMonthStart))->count();
+            $lastMonth = $queryCallback(User::excludeSuperDevelopers()->where('created_at', '>=', $lastMonthStart)->where('created_at', '<', $thisMonthStart))->count();
+            $diff = $thisMonth - $lastMonth;
+            $percent = $lastMonth > 0 ? round(($diff / $lastMonth) * 100, 1) : ($thisMonth > 0 ? 100 : 0);
+            return ['diff' => $diff, 'percent' => $percent];
+        };
+
+        $trends = [
+            'total'      => $calcMonthlyTrend(fn($q) => $q),
+            'aktif'      => $calcMonthlyTrend(fn($q) => $q->where('is_aktif', 1)),
+            'tidakAktif' => $calcMonthlyTrend(fn($q) => $q->where('is_aktif', 0)),
+            'admin'      => $calcMonthlyTrend(fn($q) => $q->whereHas('role', fn($rq) => $rq->where(function($sq) {
+                $sq->where('nama', 'like', '%admin%')
+                   ->orWhere('nama', 'like', '%sekretaris%')
+                   ->orWhere('nama', 'like', '%kaur%')
+                   ->orWhere('nama', 'like', '%perbekel%')
+                   ->orWhere('nama', 'like', '%kasi%')
+                   ->orWhere('nama', 'like', '%kelian_banjar%')
+                   ->orWhere('nama', 'like', '%staf%');
+            }))),
+        ];
+
         $stats = [
-            'totalUsers' => (int) ($statsRow->total_users ?? 0),
-            'userAktif' => (int) ($statsRow->user_aktif ?? 0),
+            'totalUsers'     => (int) ($statsRow->total_users ?? 0),
+            'userAktif'      => (int) ($statsRow->user_aktif ?? 0),
             'userTidakAktif' => (int) ($statsRow->user_tidak_aktif ?? 0),
-            'totalAdmin' => (int) ($statsRow->total_admin ?? 0), // Admin: sekretaris + kaur + perbekel + kasi + kelian_banjar + staf (EXCLUDE super_admin)
+            'totalAdmin'     => (int) ($statsRow->total_admin ?? 0), // Admin: sekretaris + kaur + perbekel + kasi + kelian_banjar + staf (EXCLUDE super_admin)
+            'trends'         => $trends,
         ];
         
         // Avatar colors for cycling
@@ -179,15 +235,95 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Download template resmi CSV (.csv) untuk import akun pengguna.
+     */
+    public function downloadTemplate()
+    {
+        $this->authorize('create', User::class);
+        $fileName = 'Template_Import_Pengguna_' . date('Ymd_His') . '.csv';
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\UserTemplateExport(), $fileName, \Maatwebsite\Excel\Excel::CSV);
+    }
+
+    /**
+     * Proses import data akun pengguna dari file Excel (.xlsx) atau CSV (.csv).
+     */
+    public function import(Request $request)
+    {
+        $this->authorize('create', User::class);
+
+        $request->validate([
+            'file_excel' => ['required', 'file', 'mimes:csv,txt', 'max:10240'],
+        ], [
+            'file_excel.required' => 'Silakan pilih file CSV (.csv) untuk diimpor.',
+            'file_excel.file'     => 'File yang diunggah tidak valid.',
+            'file_excel.mimes'    => 'Format file harus berupa CSV (.csv). Format Excel (.xlsx/.xls) tidak didukung.',
+            'file_excel.max'      => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        try {
+            $importer = new \App\Imports\UserImport();
+            \Maatwebsite\Excel\Facades\Excel::import($importer, $request->file('file_excel'));
+
+            // Log aktivitas
+            ActivityLogger::log(
+                'User',
+                'tambah',
+                "Import CSV: {$importer->importedCount} akun berhasil diimpor, {$importer->skippedCount} dilewati (duplikat), {$importer->failedCount} gagal."
+            );
+
+            $resultData = [
+                'success' => true,
+                'message' => "Proses impor selesai. {$importer->importedCount} akun berhasil ditambahkan ke sistem.",
+                'stats' => [
+                    'total_rows'     => $importer->totalRows,
+                    'imported_count' => $importer->importedCount,
+                    'skipped_count'  => $importer->skippedCount,
+                    'failed_count'   => $importer->failedCount,
+                ],
+                'imported_rows' => $importer->importedRows,
+                'skipped_rows'  => $importer->skippedRows,
+                'failed_rows'   => $importer->failedRows,
+            ];
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json($resultData);
+            }
+
+            return redirect()->route('users.index')
+                ->with('import_result', $resultData)
+                ->with('success', "Proses impor selesai: {$importer->importedCount} pengguna berhasil diimpor.");
+
+        } catch (\Throwable $e) {
+            Log::error('Import User error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $errorMessage = $e instanceof \InvalidArgumentException
+                ? $e->getMessage()
+                : 'Terjadi kesalahan saat memproses file Excel: ' . $e->getMessage();
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage,
+                ], 422);
+            }
+
+            return redirect()->back()
+                ->with('error', $errorMessage);
+        }
+    }
+
     public function create()
     {
         $this->authorize('create', User::class);
-        $roles = Role::orderBy('nama')->get();
+        $roles = Role::where('nama', '!=', 'super_developer')->orderBy('nama')->get();
         $bidangs = \App\Models\Bidang::orderBy('nama')->get();
         $dinas = \App\Models\Dinas::orderBy('nama')->get();
-        $perbekelExists = User::whereHas('role', fn($q) => $q->where('nama', 'perbekel'))->exists();
-        $sekretarisExists = User::whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists();
-        $superAdminExists = User::where('role_id', 1)->exists();
+        $perbekelExists = User::excludeSuperDevelopers()->whereHas('role', fn($q) => $q->where('nama', 'perbekel'))->exists();
+        $sekretarisExists = User::excludeSuperDevelopers()->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists();
+        $superAdminExists = User::excludeSuperDevelopers()->whereHas('role', fn($q) => $q->where('nama', 'super_admin'))->exists();
         return view('users.create', [
             'roles' => $roles,
             'bidangs' => $bidangs,
@@ -201,7 +337,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::with(['role', 'pejabat', 'bidang', 'dinas'])->find($id);
-        if (!$user) return redirect()->route('users.index')->withErrors('User tidak ditemukan');
+        if (!$user || $user->isSuperDeveloper()) return redirect()->route('users.index')->withErrors('User tidak ditemukan');
         $this->authorize('view', $user);
 
         // Attach to user so view can reuse same mapping as index
@@ -266,6 +402,11 @@ class UserController extends Controller
             return response()->json(['exists' => false]);
         }
 
+        $superDevUsernames = array_map('strtolower', User::getSuperDeveloperUsernames());
+        if (in_array(strtolower($username), $superDevUsernames, true)) {
+            return response()->json(['exists' => true]);
+        }
+
         $query = User::query()->where('username', $username);
         if ($ignoreId > 0) {
             $query->where('id', '!=', $ignoreId);
@@ -279,16 +420,26 @@ class UserController extends Controller
         $this->authorize('create', User::class);
         $data = $request->validated();
 
+        $superDevUsernames = array_map('strtolower', User::getSuperDeveloperUsernames());
+        if (in_array(strtolower($data['username'] ?? ''), $superDevUsernames, true)) {
+            return redirect()->back()->withInput()->with('error', 'Username tersebut dicadangkan untuk sistem dan tidak dapat digunakan.');
+        }
+
         // Validasi: super_admin hanya boleh 1 user
+        // Cegah penambahan role super_developer
+        if (!empty($data['role']) && $data['role'] === 'super_developer') {
+            return redirect()->back()->withInput()->with('error', 'Role Super Developer tidak dapat ditambahkan.');
+        }
+
         if (!empty($data['role']) && $data['role'] === 'super_admin') {
-            if (User::where('role_id', 1)->exists()) {
+            if (User::excludeSuperDevelopers()->whereHas('role', fn($q) => $q->where('nama', 'super_admin'))->exists()) {
                 return redirect()->back()->withInput()->with('error', 'Sudah ada Super Admin. Hanya 1 Super Admin yang diperbolehkan.');
             }
         }
 
         // Validasi: perbekel hanya boleh 1 user
         if (!empty($data['role']) && $data['role'] === 'perbekel') {
-            $alreadyExists = User::whereHas('role', fn($q) => $q->where('nama', 'perbekel'))->exists();
+            $alreadyExists = User::excludeSuperDevelopers()->whereHas('role', fn($q) => $q->where('nama', 'perbekel'))->exists();
             if ($alreadyExists) {
                 return redirect()->back()->withInput()->with('error', 'Sudah ada user dengan role Perbekel. Hanya 1 user yang diperbolehkan.');
             }
@@ -296,7 +447,7 @@ class UserController extends Controller
 
         // Validasi: sekretaris desa hanya boleh 1 user
         if (!empty($data['role']) && stripos((string) $data['role'], 'sekretaris') !== false) {
-            $alreadyExists = User::whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists();
+            $alreadyExists = User::excludeSuperDevelopers()->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists();
             if ($alreadyExists) {
                 return redirect()->back()->withInput()->with('error', 'Sudah ada user dengan role Sekretaris Desa. Hanya 1 user yang diperbolehkan.');
             }
@@ -399,14 +550,14 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::with('pejabat')->find($id);
-        if (!$user) return redirect()->route('users.index')->withErrors('User tidak ditemukan');
+        if (!$user || ($user->isSuperDeveloper() && !(auth()->user() && auth()->user()->isSuperDeveloper()))) return redirect()->route('users.index')->withErrors('User tidak ditemukan');
         $this->authorize('update', $user);
-        $roles = Role::orderBy('nama')->get();
+        $roles = Role::where('nama', '!=', 'super_developer')->orderBy('nama')->get();
         $bidangs = \App\Models\Bidang::orderBy('nama')->get();
         $dinas = \App\Models\Dinas::orderBy('nama')->get();
-        $perbekelExists = User::where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'perbekel'))->exists();
-        $sekretarisExists = User::where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists();
-        $superAdminExists = User::where('id', '!=', $id)->where('role_id', 1)->exists();
+        $perbekelExists = User::excludeSuperDevelopers()->where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'perbekel'))->exists();
+        $sekretarisExists = User::excludeSuperDevelopers()->where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists();
+        $superAdminExists = User::excludeSuperDevelopers()->where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'super_admin'))->exists();
         return view('users.edit', [
             'user' => $user,
             'roles' => $roles,
@@ -421,21 +572,26 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, $id)
     {
         $user = User::with('pejabat')->find($id);
-        if (!$user) return redirect()->route('users.index')->withErrors('User tidak ditemukan');
+        if (!$user || $user->isSuperDeveloper()) return redirect()->route('users.index')->withErrors('User tidak ditemukan');
         $this->authorize('update', $user);
 
         $data = $request->validated();
 
+        // Cegah perubahan menjadi role super_developer
+        if (!empty($data['role']) && $data['role'] === 'super_developer') {
+            return redirect()->back()->withInput()->with('error', 'Role Super Developer tidak dapat dipilih.');
+        }
+
         // Validasi: super_admin hanya boleh 1 user
         if (!empty($data['role']) && $data['role'] === 'super_admin') {
-            if (User::where('id', '!=', $id)->where('role_id', 1)->exists()) {
+            if (User::excludeSuperDevelopers()->where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'super_admin'))->exists()) {
                 return redirect()->back()->withInput()->with('error', 'Sudah ada Super Admin. Hanya 1 Super Admin yang diperbolehkan.');
             }
         }
 
         // Validasi: perbekel hanya boleh 1 user
         if (!empty($data['role']) && $data['role'] === 'perbekel') {
-            $alreadyExists = User::where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'perbekel'))->exists();
+            $alreadyExists = User::excludeSuperDevelopers()->where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'perbekel'))->exists();
             if ($alreadyExists) {
                 return redirect()->back()->withInput()->with('error', 'Sudah ada user dengan role Perbekel. Hanya 1 user yang diperbolehkan.');
             }
@@ -443,7 +599,7 @@ class UserController extends Controller
 
         // Validasi: sekretaris desa hanya boleh 1 user
         if (!empty($data['role']) && stripos((string) $data['role'], 'sekretaris') !== false) {
-            $alreadyExists = User::where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists();
+            $alreadyExists = User::excludeSuperDevelopers()->where('id', '!=', $id)->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists();
             if ($alreadyExists) {
                 return redirect()->back()->withInput()->with('error', 'Sudah ada user dengan role Sekretaris Desa. Hanya 1 user yang diperbolehkan.');
             }
@@ -474,9 +630,15 @@ class UserController extends Controller
             // $user->email = $data['email'];
             if (!empty($data['password'])) {
                 $user->password = Hash::make($data['password']);
+                app(\App\Services\Auth\DeviceSessionLimiter::class)->releaseAll($user);
+                $user->tokens()->delete();
             }
             if (array_key_exists('is_aktif', $data)) {
                 $user->is_aktif = $data['is_aktif'];
+                if (!$user->is_aktif) {
+                    app(\App\Services\Auth\DeviceSessionLimiter::class)->releaseAll($user);
+                    $user->tokens()->delete();
+                }
             }
 
             $roleModel = null;
@@ -549,7 +711,7 @@ class UserController extends Controller
             elseif (!empty($data['create_pejabat']) && empty($user->pejabat_id)) {
                 $pejabatData = [
                     'nama'              => $data['pejabat_nama'] ?? $user->nama,
-                    'jabatan'           => $data['pejabat_jabatan'] ?? ($roleModel->nama ?? 'Staff'),
+                    'jabatan'           => $data['pejabat_jabatan'] ?? ($roleModel?->nama ?? $user->role?->nama ?? 'Staff'),
                     'tugas'             => $data['pejabat_tugas'] ?? null,
                     'is_aktif'          => 1,
                     'is_petugas_barang' => !empty($data['is_petugas_barang']) ? 1 : 0,
@@ -594,12 +756,19 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::find($id);
-        if (!$user) return redirect()->route('users.index')->withErrors('User tidak ditemukan');
+        if (!$user || ($user->isSuperDeveloper() && !(auth()->user() && auth()->user()->isSuperDeveloper()))) {
+            return redirect()->route('users.index')->withErrors('User tidak ditemukan');
+        }
         $this->authorize('delete', $user);
 
-        // Guard: Super Admin tidak dapat dihapus oleh siapapun
-        if ($user->isSuperAdmin()) {
-            return redirect()->back()->with('error', 'Super Admin tidak dapat dihapus dari sistem.');
+        // Guard: Pengguna tidak dapat menghapus akun sendiri
+        if ((int) $user->id === (int) auth()->id()) {
+            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun yang sedang Anda gunakan.');
+        }
+
+        // Guard: Super Developer dan Super Admin tidak dapat dihapus oleh siapapun
+        if ($user->isSuperDeveloper() || $user->isSuperAdmin()) {
+            return redirect()->back()->with('error', 'Akun Super Developer atau Super Admin tidak dapat dihapus dari sistem.');
         }
 
         // Blokir: user masih terhubung dengan pejabat, harus hapus pejabat dulu
@@ -631,6 +800,10 @@ class UserController extends Controller
             if ($exportLogCount > 0) {
                 \App\Models\ExportLog::where('user_id', $id)->update(['user_id' => null]);
             }
+
+            // Cascade delete - Hapus notifikasi & API token milik user
+            \App\Models\Notification::where('user_id', $id)->delete();
+            $user->tokens()->delete();
             
             $user->delete();
             
@@ -680,11 +853,11 @@ class UserController extends Controller
             foreach ($ids as $id) {
                 if ($id == auth()->id()) { $skipped++; continue; } // jangan hapus diri sendiri
                 $user = User::find($id);
-                if (!$user) continue;
+                if (!$user || $user->isSuperDeveloper()) { $skipped++; continue; }
                 $this->authorize('delete', $user);
 
-                // Guard: Super Admin tidak dapat dihapus
-                if ($user->isSuperAdmin()) { $skipped++; continue; }
+                // Guard: Super Admin & Super Developer tidak dapat dihapus
+                if ($user->isSuperDeveloper() || $user->isSuperAdmin()) { $skipped++; continue; }
 
                 // Blokir: user masih terhubung dengan pejabat
                 if ($user->pejabat_id) { $skipped++; continue; }
@@ -695,10 +868,17 @@ class UserController extends Controller
 
                 \App\Models\Inventaris::where('updated_by', $id)->update(['updated_by' => null]);
                 \App\Models\ExportLog::where('user_id', $id)->update(['user_id' => null]);
+                \App\Models\Notification::where('user_id', $id)->delete();
+                $user->tokens()->delete();
                 $user->delete();
                 $deleted++;
             }
             \DB::commit();
+
+            if ($deleted > 0) {
+                ActivityLogger::log('User', 'hapus', "Menghapus {$deleted} user secara masal", null, "{$deleted} User");
+            }
+
             $msg = $deleted . ' user berhasil dihapus.';
             if ($skipped > 0) $msg .= ' ' . $skipped . ' dilewati (akun sendiri atau masih memiliki data inventaris).';
             if ($totalRequested > 100) {
@@ -719,6 +899,11 @@ class UserController extends Controller
     {
         $user = User::find($id);
         if (!$user) return redirect()->route('users.index')->withErrors('User tidak ditemukan');
+
+        if ($user->isSuperDeveloper() || $user->isSuperAdmin()) {
+            return redirect()->back()->with('error', 'Akun ' . ($user->isSuperDeveloper() ? 'Super Developer' : 'Super Admin') . ' tidak dapat dinonaktifkan dari sistem.');
+        }
+
         $this->authorize('update', $user);
 
         if ($user->id === auth()->id()) {
@@ -762,4 +947,85 @@ class UserController extends Controller
 
         return $roleNama !== '' ? ucwords(str_replace('_', ' ', $roleNama)) : 'Staff';
     }
+
+    /**
+     * Ekspor daftar pengguna/user SIMA ke Excel atau PDF.
+     */
+    public function export(Request $request)
+    {
+        $this->authorize('viewAny', User::class);
+        $format = strtolower($request->query('format', 'excel'));
+
+        $query = User::excludeSuperDevelopers()->with(['role', 'bidang']);
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('alamat', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('role')) {
+            $query->whereHas('role', fn($r) => $r->where('nama', $request->role));
+        }
+
+        if ($request->filled('status') && in_array($request->status, ['0', '1', 0, 1])) {
+            $query->where('is_aktif', (int)$request->status);
+        }
+
+        $users = $query->orderBy('nama', 'asc')->get();
+        $dateStr = date('Ymd_His');
+
+        ActivityLogger::log('User', 'export', 'Mengekspor daftar pengguna (format ' . strtoupper($format) . ')');
+
+        if ($format === 'pdf') {
+            $headers = [
+                ['text' => 'NO', 'width' => '4%', 'align' => 'center'],
+                ['text' => 'NAMA LENGKAP', 'width' => '22%', 'align' => 'left'],
+                ['text' => 'USERNAME', 'width' => '14%', 'align' => 'center'],
+                ['text' => 'PERAN / ROLE', 'width' => '18%', 'align' => 'left'],
+                ['text' => 'BIDANG / UNIT', 'width' => '15%', 'align' => 'left'],
+                ['text' => 'ALAMAT DOMISILI', 'width' => '18%', 'align' => 'left'],
+                ['text' => 'STATUS', 'width' => '9%', 'align' => 'center'],
+            ];
+
+            $rows = [];
+            foreach ($users as $i => $item) {
+                $statusText = ($item->is_aktif ?? 1) == 1 ? 'Aktif' : 'Nonaktif';
+                $roleName   = $item->role_name_display ?: ($item->role?->nama ? ucwords(str_replace('_', ' ', $item->role->nama)) : '-');
+                $rows[] = [
+                    ['text' => $i + 1, 'class' => 'text-center'],
+                    ['text' => $item->nama ?? '-'],
+                    ['text' => $item->username ?? '-', 'class' => 'text-center'],
+                    ['text' => $roleName],
+                    ['text' => $item->bidang?->nama ?? '-'],
+                    ['text' => $item->alamat ?: '-'],
+                    ['text' => $statusText, 'class' => 'text-center'],
+                ];
+            }
+
+            $summary = [
+                'Total Pengguna' => count($users) . ' Akun',
+                'Akun Aktif'     => $users->where('is_aktif', 1)->count() . ' Akun',
+            ];
+
+            return \App\Services\FeatureExportService::downloadPdf(
+                'Daftar Pengguna Sistem Informasi Manajemen Aset (SIMA)',
+                'Daftar Akun dan Hak Akses Pengguna Terdaftar di Sistem',
+                $headers,
+                $rows,
+                "Daftar_Pengguna_{$dateStr}.pdf",
+                'portrait',
+                $summary
+            );
+        }
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\UserExport($users),
+            "Daftar_Pengguna_{$dateStr}.xlsx"
+        );
+    }
 }
+

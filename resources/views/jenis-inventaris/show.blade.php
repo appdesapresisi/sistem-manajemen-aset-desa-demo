@@ -1,655 +1,384 @@
 <!doctype html>
 <html lang="en" data-pc-preset="{{ $pc_preset_theme }}" data-pc-theme="{{ $pc_dark_layout }}">
   <head>
-    @include('layouts.head-page-meta', ['title' => 'Detail Jenis Inventaris'])
+    @include('layouts.head-page-meta', ['title' => 'Detail Jenis Inventaris — ' . ($jenis->nama ?? 'Jenis Inventaris')])
     @include('layouts.head-css')
     <style>
-      /* ===== LAYOUT CENTER ===== */
-      .page-center { max-width:720px; margin:0 auto; }
-
-      /* Detail Section Styling */
-      .detail-section {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 20px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      }
-      .detail-section-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #064635;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #f1f5f9;
-      }
-      .detail-section-title i {
-        width: 18px;
-        height: 18px;
-      }
-      .detail-grid {
+      /* SIMA Portal Specific Enhancements */
+      .pejabat-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
       }
-      .detail-item {
+      .pejabat-card-item {
+        background: var(--color-surface, #f8faf7);
+        border: 1px solid var(--color-border, #cfdcc8);
+        border-radius: var(--radius-sm, 10px);
+        padding: 12px 16px;
         display: flex;
-        flex-direction: column;
-        gap: 6px;
+        align-items: center;
+        gap: 12px;
+        transition: background-color 0.15s ease;
       }
-      .detail-label {
+      .pejabat-card-item:hover {
+        background: var(--color-row-hover, #eff5ed);
+      }
+      .pejabat-order-num {
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        background: var(--color-primary-tint, #d5e4d7);
+        color: var(--color-primary, #1f3a2a);
         font-size: 12px;
-        font-weight: 600;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-      .detail-value {
-        font-size: 15px;
-        color: #1e293b;
-        font-weight: 500;
-      }
-      .detail-value.empty {
-        color: #94a3b8;
-        font-style: italic;
-      }
-      .detail-full {
-        grid-column: 1 / -1;
-      }
-
-      /* Vertical Detail List (replaces 2-col grid for info section) */
-      .detail-list { list-style:none; margin:0; padding:0; }
-      .detail-list li { display:flex; align-items:flex-start; padding:11px 0; border-bottom:1px solid #f1f5f9; gap:12px; }
-      .detail-list li:last-child { border-bottom:none; }
-      .dl-label { width:150px; flex-shrink:0; font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.4px; padding-top:3px; }
-      .dl-value { flex:1; font-size:14px; color:#1e293b; font-weight:500; word-break:break-word; }
-      .dl-value.empty { color:#cbd5e1; font-style:italic; font-weight:400; }
-
-      /* Card Header */
-      .card-header-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        background: #519259;
-        margin-right: 12px;
-      }
-      .card-header-icon i {
-        color: #fff !important;
-        stroke: #fff !important;
-        width: 20px;
-        height: 20px;
-      }
-      .card-header-icon svg {
-        width: 20px;
-        height: 20px;
-        stroke: #fff !important;
-        color: #fff !important;
-      }
-
-      /* Pejabat List */
-      .pejabat-list-container {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .pejabat-card {
-        background: #f4faf5;
-        border: 1px solid #e2e8f0;
-        border-left: 3px solid #064635;
-        border-radius: 8px;
-        padding: 14px 16px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .pejabat-order {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        background: #064635;
-        color: #fff;
-        font-size: 14px;
         font-weight: 700;
+        font-variant-numeric: tabular-nums;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
       }
-      .pejabat-info {
+      .pejabat-item-details {
         flex: 1;
+        min-width: 0;
       }
-      .pejabat-nama {
-        font-size: 14px;
+      .pejabat-item-name {
+        font-size: 13.5px;
         font-weight: 600;
-        color: #1e293b;
-      }
-      .pejabat-jabatan {
-        font-size: 12px;
-        color: #64748b;
-      }
-
-      /* Fields Table */
-      .fields-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
+        color: var(--color-text, #16251b);
+        white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis;
       }
-      .fields-table thead {
-        background: #f4faf5;
-      }
-      .fields-table th {
-        padding: 12px 16px;
-        text-align: left;
+      .pejabat-item-sub {
         font-size: 12px;
-        font-weight: 600;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 1px solid #e2e8f0;
-      }
-      .fields-table td {
-        padding: 14px 16px;
-        font-size: 14px;
-        color: #1e293b;
-        border-bottom: 1px solid #f1f5f9;
-      }
-      .fields-table tbody tr:last-child td {
-        border-bottom: none;
-      }
-      .fields-table tbody tr:hover {
-        background: #f4faf5;
-      }
-      .field-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-      }
-      .badge-text { background: #dbeafe; color: #1e40af; }
-      .badge-number { background: #dcfce7; color: #166534; }
-      .badge-date { background: #fef3c7; color: #92400e; }
-      .badge-textarea { background: #e0e7ff; color: #3730a3; }
-      .badge-required { background: #fee2e2; color: #991b1b; }
-      .badge-optional { background: #f1f5f9; color: #64748b; }
-
-      /* Action Bar */
-      .action-bar { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:14px 20px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; box-shadow:0 1px 3px rgba(0,0,0,.05); justify-content:space-between; }
-      .action-bar-right { display:flex; gap:10px; align-items:center; }
-
-      /* Action Buttons */
-      .action-buttons {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        margin-top: 24px;
-      }
-      .action-buttons-right {
-        display: flex;
-        gap: 12px;
-      }
-      .btn {
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
-      }
-      .btn i {
-        width: 16px;
-        height: 16px;
-      }
-      .btn-back {
-        border: 1px solid #d1d5db;
-        background: #fff;
-        color: #374151;
-      }
-      .btn-back:hover {
-        background: #f4faf5;
-      }
-      .btn-edit {
-        border: none;
-        background: #064635;
-        color: #fff;
-      }
-      .btn-edit:hover {
-        background: #1c5240;
-      }
-      .btn-delete {
-        border: none;
-        background: #dc2626;
-        color: #fff;
-      }
-      .btn-delete:hover {
-        background: #b91c1c;
-      }
-
-      /* Stats Card */
-      .stats-card {
-        background: linear-gradient(135deg, #064635 0%, #519259 100%);
-        color: #fff;
-        border-radius: 12px;
-        padding: 20px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-      }
-      .stats-icon {
-        width: 50px;
-        height: 50px;
-        background: rgba(255,255,255,0.2);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .stats-icon i {
-        width: 26px;
-        height: 26px;
-        color: #fff;
-      }
-      .stats-info {
-        flex: 1;
-      }
-      .stats-label {
-        font-size: 13px;
-        opacity: 0.9;
-        margin-bottom: 4px;
-      }
-      .stats-value {
-        font-size: 28px;
-        font-weight: 700;
-      }
-
-      .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 2rem;
-        color: #94a3b8;
-      }
-      .empty-state i {
-        width: 48px;
-        height: 48px;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-      }
-
-      @media (max-width: 768px) {
-        .detail-grid {
-          grid-template-columns: 1fr;
-        }
-        .action-buttons {
-          flex-direction: column;
-          align-items: stretch;
-        }
-        .action-buttons-right {
-          flex-direction: column;
-        }
-        .detail-list li {
-          gap: 8px;
-        }
-        .dl-label {
-          width: 92px;
-          font-size: 10px;
-          letter-spacing: 0.3px;
-        }
-        .dl-value {
-          font-size: 13px;
-        }
-        .card-header-icon {
-          width: 44px;
-          height: 44px;
-          min-width: 44px;
-          position: relative !important;
-          flex-shrink: 0;
-        }
-        .card-header-icon i,
-        .card-header-icon svg {
-          position: relative !important;
-          top: auto !important;
-          left: auto !important;
-        }
+        color: var(--color-text-muted, #546958);
+        margin-top: 2px;
       }
     </style>
   </head>
 
-  <body>
+  <body data-pc-preset="{{ $pc_preset_theme }}" data-pc-sidebar-theme="{{ $pc_sidebar_theme ?? 'light' }}">
+    @include('layouts.notification')
+    @include('layouts.modals')
     @include('layouts.layout-vertical')
 
     <div class="pc-container">
       <div class="pc-content">
-        @include('layouts.breadcrumb', ['breadcrumbItemHome' => 'Master Data', 'breadcrumbItem' => 'Jenis Inventaris', 'breadcrumbItemUrl' => route('jenis-inventaris.index'), 'breadcrumbItemActive' => 'Detail'])
+        @include('layouts.breadcrumb', [
+          'breadcrumbItemHome' => 'Master Data',
+          'breadcrumbItem' => 'Jenis Inventaris',
+          'breadcrumbItemUrl' => route('jenis-inventaris.index'),
+          'breadcrumbItemActive' => 'Detail Jenis Inventaris'
+        ])
 
-        <div class="page-center">
-
-          <!-- Action Bar -->
-          <div class="action-bar">
-            <a href="{{ route('jenis-inventaris.index') }}" class="btn btn-back">
-              <i data-feather="arrow-left"></i>
-              Kembali
+        <!-- Top Action Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <a href="{{ route('jenis-inventaris.index') }}" class="btn-sima-secondary" style="border: none !important; padding-left: 0 !important; background-color: transparent !important;" onclick="try { sessionStorage.setItem('jenis_inventaris_returning', '1'); } catch(e) {} if (window.history.length > 1 && document.referrer && document.referrer.includes('/jenis-inventaris')) { window.history.back(); return false; } return true;">
+            <i data-feather="arrow-left" style="width: 14px; height: 14px;"></i>
+            <span>Kembali ke Daftar Jenis Inventaris</span>
+          </a>
+          @canany(['update', 'delete'], $jenis)
+          <div style="display: flex; gap: 10px; align-items: center;">
+            @can('update', $jenis)
+            <a href="{{ route('jenis-inventaris.edit', $jenis->id) }}" class="btn-sima-primary">
+              <i data-feather="edit-2" style="width: 14px; height: 14px;"></i>
+              <span>Edit Jenis</span>
             </a>
-            @canany(['update', 'delete'], $jenis)
-            <div class="action-bar-right">
-              @can('update', $jenis)
-              <a href="{{ route('jenis-inventaris.edit', $jenis->id) }}" class="btn btn-edit">
-                <i data-feather="edit-2"></i>
-                Edit Jenis
-              </a>
-              @endcan
-              @can('delete', $jenis)
-              @if(!($isVirtual ?? false))
-              <button type="button" onclick="confirmDelete()" class="btn btn-delete">
-                <i data-feather="trash-2"></i>
-                Hapus
-              </button>
-              @endif
-              @endcan
+            @endcan
+            @can('delete', $jenis)
+            @if(!($isVirtual ?? false))
+            <button type="button" onclick="confirmDelete()" class="btn-sima-danger">
+              <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
+              <span>Hapus Jenis</span>
+            </button>
+            @endif
+            @endcan
+          </div>
+          @endcanany
+        </div>
+
+        <!-- ===== MAIN PORTAL CARD ===== -->
+        <div class="portal-card">
+
+          <!-- Section: Informasi & Spesifikasi Jenis Inventaris -->
+          <div class="portal-section" style="padding-top: 0; border-top: none; margin-top: 32px;">
+            <div class="portal-section-header">
+              <h2 class="portal-section-title">
+                <span>Informasi & Spesifikasi Jenis Inventaris</span>
+              </h2>
             </div>
-            @endcanany
+
+            <div class="portal-stats-grid" style="grid-template-columns: repeat(2, 1fr); gap: 24px 36px;">
+              <div class="portal-stat-item">
+                <span class="portal-stat-label">Nama Jenis Inventaris</span>
+                <span class="portal-stat-value">{{ $jenis->nama ?? '-' }}</span>
+              </div>
+
+              <div class="portal-stat-item">
+                <span class="portal-stat-label">Format Dokumen KIB</span>
+                <span class="portal-stat-value">
+                  @if(!($isVirtual ?? false) && $jenis->kib_type && ($kibConfig = config('kib.' . $jenis->kib_type)))
+                    KIB {{ $jenis->kib_type }} ({{ $kibConfig['nama'] ?? 'Standar Permendagri' }})
+                  @else
+                    Tidak Menggunakan KIB
+                  @endif
+                </span>
+              </div>
+
+              <div class="portal-stat-item">
+                <span class="portal-stat-label">Konfigurasi Ruangan</span>
+                <span class="portal-stat-value">
+                  @if($jenis->requires_ruangan)
+                    Wajib dialokasikan ke ruangan (KIR)
+                  @else
+                    Tidak memerlukan ruangan
+                  @endif
+                </span>
+              </div>
+
+              <div class="portal-stat-item">
+                <span class="portal-stat-label">Total Aset Terdaftar</span>
+                <span class="portal-stat-value">{{ $approvedCount ?? 0 }} aset</span>
+              </div>
+
+              <div class="portal-stat-item" style="grid-column: 1 / -1;">
+                <span class="portal-stat-label">Deskripsi</span>
+                <span class="portal-stat-value {{ !($jenis->deskripsi ?? null) ? 'text-empty-fallback' : '' }}">
+                  {{ $jenis->deskripsi ?: 'Tidak ada deskripsi untuk jenis inventaris ini.' }}
+                </span>
+              </div>
+            </div>
           </div>
 
-            <!-- Basic Information -->
-            <div class="card mb-4">
-              <div class="card-header border-b border-gray-100">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <div class="card-header-icon">
-                      <i data-feather="info"></i>
-                    </div>
-                    <div>
-                      <h5 class="mb-1">
-                        {{ $jenis->nama ?? 'Jenis tidak diketahui' }}
-                      </h5>
-                      <p class="text-muted text-sm mb-0">Detail informasi dan pengaturan jenis inventaris</p>
-                    </div>
-                  </div>
-                  <!-- Edit button removed - using bottom action buttons instead -->
-                </div>
-              </div>
-
-              <div class="card-body">
-                <div class="detail-section">
-
-                  <ul class="detail-list">
-                    <li>
-                      <span class="dl-label">Total Aset</span>
-                      <span class="dl-value">{{ $approvedCount ?? 0 }} aset</span>
-                    </li>
-                    <li>
-                      <span class="dl-label">Nama Jenis</span>
-                      <span class="dl-value">{{ $jenis->nama ?? 'Tidak ada nama' }}</span>
-                    </li>
-                    <li>
-                      <span class="dl-label">Deskripsi</span>
-                      <span class="dl-value {{ !($jenis->deskripsi ?? null) ? 'empty' : '' }}">{{ $jenis->deskripsi ?? 'Tidak ada deskripsi' }}</span>
-                    </li>
-                    <li>
-                      <span class="dl-label">Dibuat Pada</span>
-                      <span class="dl-value">{{ $jenis->created_at ? $jenis->created_at->format('d M Y, H:i') . ' WITA' : '-' }}</span>
-                    </li>
-                    <li>
-                      <span class="dl-label">Diperbarui</span>
-                      <span class="dl-value">{{ $jenis->updated_at ? $jenis->updated_at->format('d M Y, H:i') . ' WITA' : '-' }}</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
+          <!-- Section: Pejabat yang Bertanda Tangan Default -->
+          <div class="portal-section" style="border-top: none; margin-top: 0; padding-top: 36px;">
+            <div class="portal-section-header">
+              <h2 class="portal-section-title">
+                <span>Pejabat Penandatangan Default ({{ $jenis->pejabatDefaults ? $jenis->pejabatDefaults->count() : 0 }})</span>
+              
+              </h2>
+              @if($jenis->pejabatDefaults && $jenis->pejabatDefaults->count() > 0)
+              <span style="font-size: 12px; color: var(--color-text-muted); font-weight: 500;">
+                Otomatis mengisi lembar cetak KIB/Laporan
+              </span>
+              @endif
             </div>
 
-            <!-- Pejabat Defaults -->
-            <div class="card mb-4">
-              <div class="card-header border-b border-gray-100">
-                <div class="flex items-center">
-                  <div class="card-header-icon">
-                    <i data-feather="users"></i>
-                  </div>
-                  <div>
-                    <h5 class="mb-0">Pejabat yang Bertanda Tangan</h5>
-                    <p class="text-muted text-sm mb-0">{{ $jenis->pejabatDefaults ? $jenis->pejabatDefaults->count() : 0 }} pejabat yang terdaftar untuk bertanda tangan</p>
+            @if($jenis->pejabatDefaults && $jenis->pejabatDefaults->count() > 0)
+              <div class="pejabat-grid">
+                @foreach(($jenis->pejabatDefaults ? $jenis->pejabatDefaults->sortBy('order') : collect()) as $default)
+                <div class="pejabat-card-item">
+                  <div class="pejabat-order-num">{{ $default->order }}</div>
+                  <div class="pejabat-item-details">
+                    <div class="pejabat-item-name">{{ optional($default->pejabat)->nama ?? 'Pejabat tidak ditemukan' }}</div>
+                    <div class="pejabat-item-sub">{{ optional($default->pejabat)->jabatan ?? '-' }}</div>
                   </div>
                 </div>
+                @endforeach
               </div>
+            @else
+              <div class="empty-state-sima">
+                <i data-feather="user-x" style="width: 42px; height: 42px; stroke-width: 1.5; color: var(--color-border-dark);"></i>
+                <p>Belum ada pejabat penandatangan default yang ditentukan untuk jenis ini.</p>
+              </div>
+            @endif
+          </div>
 
-              <div class="card-body">
-                @if($jenis->pejabatDefaults && $jenis->pejabatDefaults->count() > 0)
-                <div class="pejabat-list-container">
-                  @foreach(($jenis->pejabatDefaults ? $jenis->pejabatDefaults->sortBy('order') : collect()) as $default)
-                  <div class="pejabat-card">
-                    <div class="pejabat-order">{{ $default->order }}</div>
-                    <div class="pejabat-info">
-                      <div class="pejabat-nama">{{ optional($default->pejabat)->nama ?? 'Pejabat tidak ditemukan' }}</div>
-                      <div class="pejabat-jabatan">{{ optional($default->pejabat)->jabatan ?? '-' }}</div>
+          <!-- Section: Struktur Field Data Umum Inventaris -->
+          <div class="portal-section" style="border-top: none; margin-top: 0; padding-top: 36px;">
+            <div class="portal-section-header">
+              <h2 class="portal-section-title">
+                <span>Struktur Field Data Umum Inventaris</span>              
+              </h2>
+            </div>
+
+            @if((($fields ?? collect())->count() === 0 && ($isVirtual ?? false)))
+              <div class="empty-state-sima">
+                <i data-feather="inbox" style="width: 42px; height: 42px; stroke-width: 1.5; color: var(--color-border-dark);"></i>
+                <p>Belum ada field yang dikonfigurasi pada jenis inventaris ini.</p>
+              </div>
+            @else
+              <div style="display: flex; flex-direction: column; margin-top: 6px;">
+                @php
+                  $counter = 1;
+                @endphp
+                @foreach(($fields ?? collect())->sortBy('order') as $field)
+                <div style="display: flex; align-items: flex-start; font-size: 13.5px; line-height: 1.5; color: var(--color-text); padding: 12px 0; border-bottom: 1px dashed var(--color-border, #cfdcc8);">
+                  <span style="color: var(--color-text-muted); font-variant-numeric: tabular-nums; min-width: 24px; font-weight: 500; flex-shrink: 0;">
+                    {{ $counter++ }}.
+                  </span>
+                  <div style="min-width: 0;">
+                    <div>
+                      <span style="font-weight: 600; color: var(--color-text);">{{ $field->label_field }}</span>
+                      <span style="color: var(--color-text-muted); font-size: 13px; font-weight: 500; margin-left: 6px;">(Data umum)</span>
                     </div>
+                    @if(isset($field->description) && $field->description)
+                    <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 2px;">{{ $field->description }}</div>
+                    @endif
                   </div>
-                  @endforeach
                 </div>
-                @else
-                <div class="empty-state">
-                  <i data-feather="user-x"></i>
-                  <p>Belum ada pejabat default yang ditentukan</p>
+                @endforeach
+
+                @if(!($isVirtual ?? false))
+                <div style="display: flex; align-items: flex-start; font-size: 13.5px; line-height: 1.5; color: var(--color-text); padding: 12px 0; border-bottom: 1px dashed var(--color-border, #cfdcc8);">
+                  <span style="color: var(--color-text-muted); font-variant-numeric: tabular-nums; min-width: 24px; font-weight: 500; flex-shrink: 0;">
+                    {{ $counter++ }}.
+                  </span>
+                  <div style="min-width: 0;">
+                    <div>
+                      <span style="font-weight: 600; color: var(--color-text);">Asal Usul Barang</span>
+                      <span style="color: var(--color-text-muted); font-size: 13px; font-weight: 500; margin-left: 6px;">(Data khusus (template sistem))</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 2px;">APBDes / Perolehan Lain yang Sah / Kekayaan Asli Desa</div>
+                  </div>
+                </div>
+
+                <div style="display: flex; align-items: flex-start; font-size: 13.5px; line-height: 1.5; color: var(--color-text); padding: 12px 0; border-bottom: 1px dashed var(--color-border, #cfdcc8);">
+                  <span style="color: var(--color-text-muted); font-variant-numeric: tabular-nums; min-width: 24px; font-weight: 500; flex-shrink: 0;">
+                    {{ $counter++ }}.
+                  </span>
+                  <div style="min-width: 0;">
+                    <div>
+                      <span style="font-weight: 600; color: var(--color-text);">Pengguna</span>
+                      <span style="color: var(--color-text-muted); font-size: 13px; font-weight: 500; margin-left: 6px;">(Data khusus (template sistem))</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 2px;">Nama orang atau bidang yang menggunakan aset ini</div>
+                  </div>
+                </div>
+
+                <div style="display: flex; align-items: flex-start; font-size: 13.5px; line-height: 1.5; color: var(--color-text); padding: 12px 0; border-bottom: 1px dashed var(--color-border, #cfdcc8);">
+                  <span style="color: var(--color-text-muted); font-variant-numeric: tabular-nums; min-width: 24px; font-weight: 500; flex-shrink: 0;">
+                    {{ $counter++ }}.
+                  </span>
+                  <div style="min-width: 0;">
+                    <div>
+                      <span style="font-weight: 600; color: var(--color-text);">Satuan</span>
+                      <span style="color: var(--color-text-muted); font-size: 13px; font-weight: 500; margin-left: 6px;">(Data laporan aset pertahun)</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 2px;">Satuan pengukur barang (misal: Unit, Buah, Set, dll.)</div>
+                  </div>
                 </div>
                 @endif
               </div>
-            </div>
-
-            <!-- Data Umum Inventaris (Gabungan Fixed + Custom Fields) -->
-            <div class="card mb-4">
-              <div class="card-header border-b border-gray-100">
-                <div class="flex items-center">
-                  <div class="card-header-icon">
-                    <i data-feather="file-text"></i>
-                  </div>
-                  <div>
-                    <h5 class="mb-0">Data Umum Inventaris</h5>
-                    <p class="text-muted text-sm mb-0">Struktur data untuk inventaris jenis ini (terurut sesuai pengaturan)</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="card-body">
-                <table class="fields-table">
-                  <thead>
-                    <tr>
-                      <th style="width:80px;">URUTAN</th>
-                      <th>LABEL</th>
-                      <th style="width:180px;">KATEGORI</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @php
-                      $counter = 1;
-                    @endphp
-                    @foreach(($fields ?? collect())->sortBy('order') as $field)
-                    <tr>
-                      <td>{{ $counter++ }}</td>
-                      <td>
-                        <span style="font-weight:500;">{{ $field->label_field }}</span>
-                        @if(isset($field->description) && $field->description)
-                        <span style="display:block;font-size:11px;color:#6b7280;">{{ $field->description }}</span>
-                        @endif
-                      </td>
-                      <td class="text-muted">
-                        Data Umum
-                      </td>
-                    </tr>
-                    @endforeach
-
-                    @if(!($isVirtual ?? false))
-                    {{-- Append Buku Inventaris & Laporan fields to Data Umum --}}
-                    <tr>
-                      <td>{{ $counter++ }}</td>
-                      <td>
-                        <span style="font-weight:500;">Asal Usul Barang</span>
-                        <span style="display:block;font-size:11px;color:#6b7280;">APBDes / Perolehan Lain yang Sah / Kekayaan Asli Desa</span>
-                      </td>
-                      <td class="text-muted" style="font-size:13px;">Data Khusus (data template sistem)</td>
-                    </tr>
-                    <tr>
-                      <td>{{ $counter++ }}</td>
-                      <td>
-                        <span style="font-weight:500;">Pengguna</span>
-                        <span style="display:block;font-size:11px;color:#6b7280;">Nama orang atau bidang yang menggunakan aset ini</span>
-                      </td>
-                      <td class="text-muted" style="font-size:13px;">Data Khusus (data template sistem)</td>
-                    </tr>
-                    <tr>
-                      <td>{{ $counter++ }}</td>
-                      <td>
-                        <span style="font-weight:500;">Satuan</span>
-                        <span style="display:block;font-size:11px;color:#6b7280;">Satuan pengukur barang (misal: Unit, Buah, Set, dll.)</span>
-                      </td>
-                      <td class="text-muted" style="font-size:13px;">Data Laporan Aset Pertahun</td>
-                    </tr>
-                    @endif
-
-                    @if(($fields ?? collect())->count() === 0 && ($isVirtual ?? false))
-                    <tr>
-                      <td colspan="3" class="text-center py-4 text-muted">
-                        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;">
-                          <i data-feather="inbox" style="width:40px;height:40px;opacity:0.5;"></i>
-                          <p style="margin:0;">Belum ada field yang ditambahkan</p>
-                        </div>
-                      </td>
-                    </tr>
-                    @endif
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Data KIB (Kartu Inventaris Barang) — Khusus Jenis yang mendapatkan KIB saja -->
-            @if(!($isVirtual ?? false) && $jenis->kib_type && ($kibConfig = config('kib.' . $jenis->kib_type)))
-            <div class="card mb-4" style="border:1px solid #e2e8f0;">
-              <div class="card-header border-b border-gray-100">
-                <div class="flex items-center">
-                  <div class="card-header-icon" style="background:#519259;">
-                    <i data-feather="clipboard"></i>
-                  </div>
-                  <div>
-                    <h5 class="mb-0">Data KIB (KIB {{ $jenis->kib_type }} - {{ $kibConfig['nama'] }})</h5>
-                    <p class="text-muted text-sm mb-0">Struktur data Kartu Inventaris Barang untuk jenis inventaris ini</p>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body" style="padding-top:12px;">
-                <div style="background:#f4faf5;border:1px dashed #d1d5db;border-radius:8px;padding:10px 14px;display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;">
-                  <i data-feather="info" style="width:15px;height:15px;stroke:#6b7280;flex-shrink:0;margin-top:2px;"></i>
-                  <span style="font-size:12px;color:#374151;line-height:1.5;">Field di bawah ini adalah data wajib KIB yang otomatis dikelola sistem berdasarkan format standar Permendagri.</span>
-                </div>
-                <table class="fields-table">
-                  <thead>
-                    <tr>
-                      <th style="width:80px;">URUTAN</th>
-                      <th>LABEL</th>
-                      <th style="width:180px;">KATEGORI</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach(($kibConfig['fields'] ?? []) as $index => $kibField)
-                    <tr>
-                      <td>{{ $index + 1 }}</td>
-                      <td>
-                        <span style="font-weight:500;">{{ $kibField['label'] }}</span>
-                      </td>
-                      <td>
-                        <span style="font-size:13px;color:#374151;font-weight:500;">KIB {{ $jenis->kib_type }}</span>
-                      </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
-              </div>
-            </div>
             @endif
+          </div>
 
-            <!-- Data KIR (Kartu Inventaris Ruangan) — Khusus Jenis yang memerlukan Ruangan saja -->
-            @if($jenis->requires_ruangan)
-            <div class="card mb-4" style="border:1px solid #e2e8f0;">
-              <div class="card-header border-b border-gray-100">
-                <div class="flex items-center">
-                  <div class="card-header-icon" style="background:#519259;">
-                    <i data-feather="grid"></i>
-                  </div>
-                  <div>
-                    <h5 class="mb-0">Data KIR (Kartu Inventaris Ruangan)</h5>
-                    <p class="text-muted text-sm mb-0">Struktur data Kartu Inventaris Ruangan untuk jenis inventaris ini</p>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body" style="padding-top:12px;">
-                <div style="background:#f4faf5;border:1px dashed #d1d5db;border-radius:8px;padding:10px 14px;display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;">
-                  <i data-feather="info" style="width:15px;height:15px;stroke:#6b7280;flex-shrink:0;margin-top:2px;"></i>
-                  <span style="font-size:12px;color:#374151;line-height:1.5;">Field di bawah ini adalah data wajib KIR yang otomatis dikelola sistem.</span>
-                </div>
-                <table class="fields-table">
-                  <thead>
-                    <tr>
-                      <th style="width:80px;">URUTAN</th>
-                      <th>LABEL</th>
-                      <th style="width:180px;">KATEGORI</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @php
-                      $kirFieldsShow = [
-                        'Ruangan',
-                        'Konstruksi',
-                        'Luas',
-                        'Merk / Tipe',
-                        'Warna',
-                        'Judul',
-                        'Pencipta',
-                        'No. Polisi'
-                      ];
-                    @endphp
-                    @foreach($kirFieldsShow as $index => $label)
-                    <tr>
-                      <td>{{ $index + 1 }}</td>
-                      <td>
-                        <span style="font-weight:500;">{{ $label }}</span>
-                      </td>
-                      <td>
-                        <span style="font-size:13px;color:#374151;font-weight:500;">KIR</span>
-                      </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
+          <!-- Section: Data KIB (Kartu Inventaris Barang) -->
+          @if(!($isVirtual ?? false) && $jenis->kib_type && ($kibConfig = config('kib.' . $jenis->kib_type)))
+          <div class="portal-section" style="margin-top: 20px; padding-top: 0;">
+            <div class="portal-section-header">
+              <h2 class="portal-section-title">
+                <span>Data Kartu Inventaris Barang (KIB {{ $jenis->kib_type }} — {{ $kibConfig['nama'] ?? '' }})</span>
+              
+              </h2>
+            </div>
+            
+            <div class="info-box" style="margin-top: 0; margin-bottom: 16px;">
+              <i data-feather="info"></i>
+              <div class="info-box-text">
+                Atribut di bawah ini adalah kolom standar Permendagri yang dikelola secara otomatis oleh sistem untuk pembuatan format cetak KIB {{ $jenis->kib_type }}.
               </div>
             </div>
-            @endif
 
-            <!-- Delete Form (hidden) -->
-            @can('delete', $jenis)
-            @if(!($isVirtual ?? false))
-            <form id="deleteForm" action="{{ route('jenis-inventaris.destroy', $jenis->id) }}" method="POST" style="display:none;">
-              @csrf
-              @method('DELETE')
-            </form>
-            @endif
-            @endcan
+            <div style="display: flex; flex-direction: column; margin-top: 6px;">
+              @foreach(($kibConfig['fields'] ?? []) as $index => $kibField)
+              <div style="display: flex; align-items: center; font-size: 13.5px; line-height: 1.5; color: var(--color-text); padding: 12px 0; border-bottom: 1px dashed var(--color-border, #cfdcc8);">
+                <span style="color: var(--color-text-muted); font-variant-numeric: tabular-nums; min-width: 24px; font-weight: 500; flex-shrink: 0;">
+                  {{ $index + 1 }}.
+                </span>
+                <span style="font-weight: 600; color: var(--color-text);">
+                  {{ $kibField['label'] }}
+                </span>
+                <span style="color: var(--color-text-muted); font-size: 13px; font-weight: 500; margin-left: 6px;">
+                  (KIB {{ $jenis->kib_type }})
+                </span>
+              </div>
+              @endforeach
+            </div>
+          </div>
+          @endif
 
-          </div><!-- /.page-center -->
+          <!-- Section: Data KIR (Kartu Inventaris Ruangan) -->
+          @if($jenis->requires_ruangan)
+          <div class="portal-section" style="border-top: none; margin-top: 0; padding-top: 36px;">
+            <div class="portal-section-header">
+              <h2 class="portal-section-title">
+                <span>Data Kartu Inventaris Ruangan (KIR)</span>
+              </h2>
+            </div>
+
+            <div class="info-box" style="margin-top: 0; margin-bottom: 16px;">
+              <i data-feather="info"></i>
+              <div class="info-box-text">
+                Atribut di bawah ini wajib diisi saat input aset jenis ini agar dapat dialokasikan ke ruangan terkait dan dicetak pada lembar KIR.
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; margin-top: 6px;">
+              @php
+                $kirFieldsShow = [
+                  'Ruangan',
+                  'Konstruksi',
+                  'Luas',
+                  'Merk / Tipe',
+                  'Warna',
+                  'Judul',
+                  'Pencipta',
+                  'No. Polisi'
+                ];
+              @endphp
+              @foreach($kirFieldsShow as $index => $label)
+              <div style="display: flex; align-items: center; font-size: 13.5px; line-height: 1.5; color: var(--color-text); padding: 12px 0; border-bottom: 1px dashed var(--color-border, #cfdcc8);">
+                <span style="color: var(--color-text-muted); font-variant-numeric: tabular-nums; min-width: 24px; font-weight: 500; flex-shrink: 0;">
+                  {{ $index + 1 }}.
+                </span>
+                <span style="font-weight: 600; color: var(--color-text);">
+                  {{ $label }}
+                </span>
+                <span style="color: var(--color-text-muted); font-size: 13px; font-weight: 500; margin-left: 6px;">
+                  (KIR (Ruangan))
+                </span>
+              </div>
+              @endforeach
+            </div>
+          </div>
+          @endif
+
+          <!-- Section: Audit Data -->
+          <div class="portal-section" style="border-top: none; margin-top: 0; padding-top: 36px; margin-bottom: 32px;">
+            <div class="portal-section-header">
+              <h2 class="portal-section-title">
+                <span>Informasi Sistem & Audit Data</span>
+              </h2>
+            </div>
+            <div style="display: flex; justify-content: space-evenly; gap: 36px; font-size: 12.5px; flex-wrap: wrap;">
+              <div class="portal-kv-item" style="flex: 1; min-width: 180px;">
+                <span class="portal-kv-label">ID Jenis</span>
+                <span class="portal-kv-value" style="font-family: monospace;">#{{ $jenis->id }}</span>
+              </div>
+              <div class="portal-kv-item" style="flex: 1; min-width: 180px;">
+                <span class="portal-kv-label">Tanggal Dibuat</span>
+                <span class="portal-kv-value">{{ $jenis->created_at ? $jenis->created_at->format('d M Y, H:i') : '-' }}</span>
+              </div>
+              <div class="portal-kv-item" style="flex: 1; min-width: 180px;">
+                <span class="portal-kv-label">Terakhir Diperbarui</span>
+                <span class="portal-kv-value">{{ $jenis->updated_at ? $jenis->updated_at->format('d M Y, H:i') : '-' }}</span>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /.portal-card -->
+
+        <!-- Delete Form (hidden) -->
+        @can('delete', $jenis)
+        @if(!($isVirtual ?? false))
+        <form id="deleteForm" action="{{ route('jenis-inventaris.destroy', $jenis->id) }}" method="POST" style="display:none;">
+          @csrf
+          @method('DELETE')
+        </form>
+        @endif
+        @endcan
+
       </div>
     </div>
 
@@ -659,10 +388,11 @@
     <script>
       function confirmDelete() {
         if (!document.getElementById('deleteForm')) return;
-        if (confirm('Apakah Anda yakin ingin menghapus jenis inventaris "{{ $jenis->nama }}"?\n\nSemua data inventaris yang terkait akan ikut terhapus!')) {
+        AppModal.confirmDelete('jenis inventaris "{{ $jenis->nama }}" (semua data terkait akan ikut terhapus)', function() {
           document.getElementById('deleteForm').submit();
-        }
+        });
       }
+      try { sessionStorage.setItem('jenis_inventaris_returning', '1'); } catch(e) {}
     </script>
   </body>
 </html>

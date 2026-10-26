@@ -98,10 +98,17 @@ class Notification extends Model
 
     public function getIconAttribute(): string
     {
+        if (!empty($this->data['icon'])) {
+            return (string) $this->data['icon'];
+        }
+
         return match($this->type) {
             'jenis_inventaris_created' => 'layers',
             'inventaris_pending'        => 'clock',
-            default                    => 'bell',
+            'asset'                     => 'box',
+            'user'                      => 'user',
+            'system'                    => 'shield',
+            default                     => 'bell',
         };
     }
 

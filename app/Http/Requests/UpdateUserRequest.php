@@ -9,7 +9,7 @@ class UpdateUserRequest extends FormRequest
 {
     public function authorize()
     {
-        return $this->user()->isSuperAdmin();
+        return $this->user() && ($this->user()->isSuperDeveloper() || $this->user()->isSuperAdmin());
     }
 
     public function rules()
@@ -24,7 +24,7 @@ class UpdateUserRequest extends FormRequest
                 'required',
                 'min:3',
                 'max:255',
-                'regex:/^[A-Za-z\s\.,]+$/'
+                "regex:/^[a-zA-Z\s\.,'\-]+$/"
             ],
 
             'username' => [
@@ -34,6 +34,7 @@ class UpdateUserRequest extends FormRequest
                 'max:50',
                 'regex:/^[A-Za-z][A-Za-z0-9]*([._-][A-Za-z0-9]+)*$/',
                 Rule::unique('users', 'username')->ignore($userId),
+                Rule::notIn(\App\Models\User::getSuperDeveloperUsernames()),
             ],
 
             // 'email' => ['required', 'email:rfc,dns', 'max:255', Rule::unique('users','email')->ignore($userId)],
@@ -50,7 +51,8 @@ class UpdateUserRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
-                'exists:roles,nama'
+                'exists:roles,nama',
+                Rule::notIn(['super_developer']),
             ],
 
             'is_aktif' => [
@@ -73,7 +75,7 @@ class UpdateUserRequest extends FormRequest
                 'nullable',
                 'min:3',
                 'max:255',
-                'regex:/^[A-Za-z\s\.,]+$/'
+                "regex:/^[a-zA-Z\s\.,'\-]+$/"
             ],
 
             'pejabat_jabatan' => [
@@ -81,6 +83,7 @@ class UpdateUserRequest extends FormRequest
                 'nullable',
                 'min:3',
                 'max:255',
+                'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s\/\.,\-\(\)]+$/'
             ],
 
             'pejabat_tugas' => [
@@ -98,7 +101,7 @@ class UpdateUserRequest extends FormRequest
             'ttd_path' => [
                 'nullable',
                 'file',
-                'mimes:jpeg,png,jpg,pdf',
+                'mimes:jpeg,png,jpg,webp',
                 'max:5120'
             ],
 
@@ -138,6 +141,7 @@ class UpdateUserRequest extends FormRequest
             'username.max' => 'Username maksimal 50 karakter.',
             'username.regex' => 'Username harus diawali huruf, hanya boleh berisi huruf/angka, serta titik (.), strip (-), atau underscore (_) di tengah (tidak boleh berurutan atau di akhir).',
             'username.unique' => 'Username sudah digunakan user lain.',
+            'username.not_in' => 'Username tersebut dicadangkan untuk sistem dan tidak dapat digunakan.',
 
             // 'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
@@ -158,8 +162,7 @@ class UpdateUserRequest extends FormRequest
 
             'pejabat_jabatan.required_if' => 'Jabatan pejabat wajib diisi.',
 
-            // 'ttd_path.mimes' => 'File tanda tangan harus berupa PNG, JPG, atau PDF.',
-            'ttd_path.mimes' => 'File tanda tangan harus berupa PNG and JPG.',
+            'ttd_path.mimes' => 'File tanda tangan harus berupa gambar (PNG, JPG, JPEG, WEBP).',
             'ttd_path.max' => 'Ukuran file tanda tangan maksimal 5MB.',
 
             /* ===== Bidang (untuk Kaur, Kasi, Staf) ===== */

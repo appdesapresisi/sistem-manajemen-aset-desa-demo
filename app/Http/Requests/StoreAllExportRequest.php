@@ -16,9 +16,9 @@ class StoreAllExportRequest extends FormRequest
     {
         return [
             'format'             => ['required', 'string', 'in:excel,pdf'],
-            'tahun'              => ['nullable', 'string', 'regex:/^\d{4}$/'],
+            'tahun'              => ['nullable', 'string', 'regex:/^(\d{4}|all)$/i'],
             'signature_option'   => ['nullable', 'string', 'in:with,without'],
-            'paper_size'         => ['nullable', 'string', 'in:legal,letter,f4'],
+            'paper_size'         => ['nullable', 'string', 'in:legal,letter,f4,a4'],
             'tanggal_dokumen'    => ['nullable', 'date'],
             'keterangan_dokumen' => ['nullable', 'string', 'max:100', 'regex:/^[\pL\pN\s\.,&]+$/u'],
             'pejabat_override'   => ['nullable', 'array'],

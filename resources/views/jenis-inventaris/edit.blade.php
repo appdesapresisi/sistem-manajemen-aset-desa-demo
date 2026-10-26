@@ -4,25 +4,32 @@
     @include('layouts.head-page-meta', ['title' => 'Edit Jenis Inventaris'])
     @include('layouts.head-css')
     <style>
-      /* Form Styling */
+      /* Form Styling - SIMA Standard */
       .form-section {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 16px;
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin-bottom: 24px;
+      }
+      .form-section + .form-section {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--color-border);
       }
       .form-section-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #064635;
+        font-size: 14.5px;
+        font-weight: 700;
+        color: var(--color-primary);
         margin-bottom: 16px;
         display: flex;
         align-items: center;
         gap: 8px;
       }
-      .form-section-title i {
-        width: 18px;
-        height: 18px;
+      .form-section-title i,
+      .form-section-title svg {
+        color: var(--color-primary);
+        width: 16px;
+        height: 16px;
       }
       .form-grid {
         display: grid;
@@ -33,49 +40,78 @@
         margin-bottom: 0;
       }
       .form-label {
-        font-weight: 500;
-        font-size: 13px;
-        color: #374151;
-        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 13.5px;
+        color: var(--color-text);
+        margin-bottom: 8px;
         display: block;
       }
       .form-label .required {
-        color: #ef4444;
+        color: #D9383A;
+        font-weight: 700;
         margin-left: 2px;
       }
       .form-label .optional {
-        color: #9ca3af;
+        color: var(--color-text-muted);
         font-weight: 400;
-        font-size: 11px;
+        font-size: 12px;
         margin-left: 4px;
       }
-      .form-control, .form-select {
+      .form-control, textarea.form-control {
         width: 100%;
-        padding: 10px 14px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
+        height: 46px;
+        padding: 0 16px;
+        border: 1.5px solid var(--color-border);
+        border-radius: 10px;
         font-size: 14px;
-        transition: all 0.2s ease;
-        background: #fff;
+        transition: border-color 0.2s ease;
+        background: var(--color-surface);
+        color: var(--color-text);
+        box-shadow: none !important;
       }
-      .form-control:focus, .form-select:focus {
-        outline: none;
-        border-color: #064635;
-        box-shadow: 0 0 0 3px rgba(6, 70, 53, 0.1);
+      textarea.form-control {
+        height: auto;
+        min-height: 80px;
+        padding: 12px 16px;
       }
-      .form-control::placeholder {
-        color: #9ca3af;
+      .form-control:focus, textarea.form-control:focus {
+        outline: none !important;
+        border-color: var(--color-primary) !important;
+        box-shadow: none !important;
+      }
+      .form-control::placeholder, textarea.form-control::placeholder {
+        color: var(--color-text-muted);
+        opacity: 0.65;
       }
       .form-hint {
         font-size: 12px;
-        color: #6b7280;
-        margin-top: 4px;
+        color: var(--color-text-muted);
+        margin-top: 6px;
       }
       .form-full {
         grid-column: 1 / -1;
       }
 
       /* Card Header */
+      .card .card-header,
+      .card-header {
+        background-color: transparent !important;
+        padding: 32px 24px 0 24px !important;
+        border: none !important;
+        border-bottom: none !important;
+      }
+      .card .card-body,
+      .card-body {
+        padding-bottom: 0 !important;
+      }
+      .card .card-header > div,
+      .card-header > div,
+      .card-header-inner,
+      .card-header > .flex {
+        border-bottom: 1px dashed var(--color-border) !important;
+        padding-bottom: 20px !important;
+        width: 100% !important;
+      }
       .card-header-icon {
         display: flex;
         align-items: center;
@@ -83,9 +119,9 @@
         width: 44px;
         height: 44px;
         min-width: 44px;
-        border-radius: 10px;
-        background: #519259;
-        margin-right: 12px;
+        border-radius: 12px;
+        background: var(--color-primary);
+        margin-right: 14px;
         position: relative !important;
         flex-shrink: 0;
       }
@@ -93,67 +129,80 @@
       .card-header-icon i {
         color: #fff !important;
         stroke: #fff !important;
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
         position: relative !important;
-        top: auto !important;
-        left: auto !important;
+        top: unset !important;
+        left: unset !important;
       }
 
       /* Pejabat Multi-select */
       .pejabat-select-area {
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        background: #fff;
+        border: 1.5px solid var(--color-border);
+        border-radius: 12px;
+        background: var(--color-surface);
         overflow: hidden;
       }
       .pejabat-select-header {
-        background: #f4faf5;
-        padding: 12px 16px;
-        border-bottom: 1px solid #e2e8f0;
+        background: var(--color-surface);
+        padding: 14px 18px;
+        border-bottom: 1px dashed var(--color-border);
         display: flex;
         align-items: center;
         justify-content: space-between;
       }
       .pejabat-select-header-title {
-        font-size: 13px;
+        font-size: 13.5px;
         font-weight: 600;
-        color: #374151;
+        color: var(--color-text);
       }
       .pejabat-count {
         font-size: 12px;
-        background: #064635;
+        background: var(--color-primary);
         color: #fff;
-        padding: 2px 10px;
-        border-radius: 12px;
+        padding: 3px 10px;
+        border-radius: var(--radius-full);
+        font-weight: 600;
       }
       .pejabat-list {
         max-height: 240px;
         overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-border) transparent;
+      }
+      .pejabat-list::-webkit-scrollbar {
+        width: 5px;
+      }
+      .pejabat-list::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .pejabat-list::-webkit-scrollbar-thumb {
+        background-color: var(--color-border);
+        border-radius: var(--radius-full);
+      }
+      .pejabat-list::-webkit-scrollbar-thumb:hover {
+        background-color: var(--color-text-muted);
       }
       .pejabat-item {
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 12px 16px;
-        border-bottom: 1px solid #f1f5f9;
+        padding: 12px 18px;
+        border-bottom: 1px solid var(--color-border);
         cursor: pointer;
         transition: all 0.15s;
+        background: var(--color-surface);
       }
       .pejabat-item:last-child {
         border-bottom: none;
       }
       .pejabat-item:hover {
-        background: #f4faf5;
+        background: var(--color-row-hover);
       }
       .pejabat-item.selected {
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        border-left: 3px solid #3b82f6;
+        background: var(--color-primary-tint);
       }
       .pejabat-item input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: #064635;
         cursor: pointer;
       }
       .pejabat-info {
@@ -161,12 +210,12 @@
       }
       .pejabat-nama {
         font-size: 14px;
-        font-weight: 500;
-        color: #374151;
+        font-weight: 600;
+        color: var(--color-text);
       }
       .pejabat-jabatan {
         font-size: 12px;
-        color: #6b7280;
+        color: var(--color-text-muted);
       }
       .pejabat-order {
         display: none;
@@ -180,7 +229,7 @@
         width: 24px;
         height: 24px;
         border-radius: 6px;
-        background: #064635;
+        background: var(--color-primary);
         color: #fff;
         font-size: 12px;
         font-weight: 600;
@@ -194,72 +243,92 @@
         gap: 2px;
       }
       .order-btn {
-        width: 20px;
-        height: 16px;
-        border: none;
-        background: #e5e7eb;
-        border-radius: 3px;
+        width: 18px;
+        height: 14px;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.15s;
+        transition: color 0.15s ease, transform 0.15s ease;
       }
       .order-btn:hover {
-        background: #d1d5db;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        transform: scale(1.18);
       }
-      .order-btn i {
-        width: 12px;
-        height: 12px;
-        color: #374151;
+      .order-btn i,
+      .order-btn svg {
+        width: 13px;
+        height: 13px;
+        color: var(--color-text-muted);
+        stroke: var(--color-text-muted);
+        transition: color 0.15s ease, stroke 0.15s ease;
+      }
+      .order-btn:hover i,
+      .order-btn:hover svg {
+        color: var(--color-primary);
+        stroke: var(--color-primary);
       }
 
       /* Dynamic Fields Section */
       .fields-container {
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        background: #fff;
+        border: 1.5px solid var(--color-border);
+        border-radius: 12px;
+        background: var(--color-surface);
         overflow: hidden;
       }
       .fields-header {
-        background: linear-gradient(135deg, #064635 0%, #519259 100%);
-        padding: 12px 16px;
+        background: var(--color-surface);
+        border-bottom: 1px dashed var(--color-border);
+        padding: 14px 18px;
         display: flex;
         align-items: center;
         justify-content: space-between;
       }
       .fields-header-title {
-        font-size: 13px;
+        font-size: 13.5px;
         font-weight: 600;
-        color: #fff;
+        color: var(--color-text);
         display: flex;
         align-items: center;
         gap: 8px;
       }
-      .fields-header-title i {
+      .fields-header-title i,
+      .fields-header-title svg {
         width: 16px;
         height: 16px;
+        color: var(--color-primary);
+        stroke: var(--color-primary);
       }
       .btn-add-field {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 6px 12px;
-        background: rgba(255,255,255,0.2);
-        border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 6px;
+        padding: 8px 16px;
+        background: var(--color-primary);
+        border: none;
+        border-radius: var(--radius-full) !important;
         color: #fff;
-        font-size: 12px;
-        font-weight: 500;
+        font-size: 13px;
+        font-weight: 600;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
       }
       .btn-add-field:hover {
-        background: rgba(255,255,255,0.3);
+        background: var(--color-primary-hover);
+        color: #fff;
       }
-      .btn-add-field i {
+      .btn-add-field i,
+      .btn-add-field svg {
         width: 14px;
         height: 14px;
+        stroke: #fff;
+        color: #fff;
       }
       .fields-body {
         padding: 0;
@@ -271,13 +340,13 @@
         align-items: center;
         justify-content: center;
         text-align: center;
-        color: #9ca3af;
+        color: var(--color-text-muted);
       }
       .fields-empty-icon {
         width: 48px;
         height: 48px;
         margin-bottom: 12px;
-        background: #f1f5f9;
+        background: var(--color-primary-tint);
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -286,26 +355,29 @@
       .fields-empty-icon i {
         width: 24px;
         height: 24px;
-        color: #9ca3af;
+        color: var(--color-primary);
       }
       .fields-empty-text {
         font-size: 14px;
         margin-bottom: 4px;
+        font-weight: 600;
+        color: var(--color-text);
       }
       .fields-empty-hint {
         font-size: 12px;
+        color: var(--color-text-muted);
       }
       .field-item {
         display: flex;
         align-items: flex-start;
         gap: 8px;
-        padding: 16px 10px;
-        border-bottom: 1px solid #e5e7eb;
-        background: #fff;
+        padding: 16px 14px;
+        border-bottom: 1px solid var(--color-border);
+        background: var(--color-surface);
         transition: all 0.15s;
       }
       .field-item:hover {
-        background: #f4faf5;
+        background: var(--color-row-hover);
       }
       .field-item:last-child {
         border-bottom: none;
@@ -313,27 +385,23 @@
       .field-drag {
         display: none;
       }
-      .field-drag:active {
-        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><g fill="%2304A9F5"><circle cx="5" cy="7" r="1.2"/><circle cx="14" cy="5" r="1.2"/><circle cx="17" cy="11" r="1.2"/><circle cx="13" cy="17" r="1.2"/><circle cx="6" cy="17" r="1.2"/><circle cx="3" cy="11" r="1.2"/><path d="M 8 10 L 8 14 M 12 10 L 12 14 M 10 9 L 10 15" stroke="%2304A9F5" stroke-width="1.5" fill="%2304A9F5" stroke-linecap="round"/><path d="M 6 9 Q 4 9 4 11 L 4 17 Q 4 18 5 18 L 15 18 Q 16 18 16 17 L 16 10 Q 16 8 14 8" stroke="%2304A9F5" stroke-width="1.2" fill="none" stroke-linecap="round"/></g></svg>') 10 10, grabbing;
-      }
-      .field-drag i {
-        width: 16px;
-        height: 16px;
-      }
-      /* Nomor sejajar dengan baris atas (label+tipe) */
       .field-order-num {
         width: 24px;
-        height: 24px;
-        border-radius: 6px;
-        background: #e5e7eb;
-        color: #374151;
-        font-size: 11px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        margin-top: 8px;
+        min-width: 24px;
+        height: 42px;
+        background: transparent !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        color: var(--color-text-muted, #546958) !important;
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        margin-top: 0 !important;
+        user-select: none;
       }
       .field-inputs {
         flex: 1;
@@ -342,40 +410,77 @@
         gap: 6px;
         min-width: 0;
       }
-      /* Baris atas: label + tipe */
       .field-inputs-row {
-        display: grid;
-        grid-template-columns: 1fr 160px;
-        gap: 8px;
-        align-items: center;
-      }
-      /* Baris bawah: checkbox Wajib diisi + Masuk export */
-      .field-toggles {
         display: flex;
         flex-direction: row;
         gap: 8px;
         align-items: center;
+        width: 100%;
+        position: relative;
       }
-      .field-input {
-        padding: 8px 12px;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        font-size: 13px;
-        transition: all 0.15s;
+      .field-inputs-row .field-input:not(.field-select) {
+        flex: 1 1 auto !important;
+        min-width: 180px !important;
+        width: 100% !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        max-height: 42px !important;
+        padding: 0 14px !important;
+        border: 1px solid var(--color-border) !important;
+        border-radius: var(--radius-sm, 8px) !important;
+        font-size: 13.5px !important;
+        background: var(--color-surface) !important;
+        color: var(--color-text) !important;
+        box-sizing: border-box !important;
+        line-height: 40px !important;
+        transition: border-color 0.15s ease !important;
       }
-      .field-input:focus {
-        outline: none;
-        border-color: #064635;
-        box-shadow: 0 0 0 2px rgba(6, 70, 53, 0.1);
+      .field-inputs-row .field-input:not(.field-select):focus {
+        outline: none !important;
+        border-color: var(--color-primary) !important;
+        box-shadow: none !important;
       }
-      .field-input.field-select {
-        background: #fff;
-        cursor: pointer;
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
+      .field-inputs-row .field-select {
+        flex: 0 0 170px !important;
+        width: 170px !important;
+        min-width: 150px !important;
+        max-width: 180px !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        max-height: 42px !important;
+        padding: 0 32px 0 12px !important;
+        line-height: 40px !important;
+        font-size: 13px !important;
+        background-color: var(--color-surface) !important;
+        border: 1px solid var(--color-border) !important;
+        border-radius: var(--radius-sm, 8px) !important;
+        color: var(--color-text) !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235E6C5A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 12px center !important;
+        background-size: 14px 14px !important;
+        cursor: pointer !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        box-sizing: border-box !important;
+        transition: border-color 0.15s ease !important;
       }
-      /* Pakem: mengacu checkbox di section Dropdown */
+      .field-inputs-row .field-select:focus {
+        outline: none !important;
+        border-color: var(--color-primary) !important;
+        box-shadow: none !important;
+      }
+      .field-toggles {
+        display: flex;
+        flex-direction: row;
+        gap: 16px;
+        align-items: center;
+        justify-content: flex-end;
+        width: 100%;
+        margin-left: auto;
+        padding-top: 2px;
+      }
       .field-required-toggle,
       .field-export-toggle {
         display: flex;
@@ -383,6 +488,7 @@
         gap: 6px;
         font-size: 12px;
         font-weight: 500;
+        color: var(--color-text);
         cursor: pointer;
         user-select: none;
         white-space: nowrap;
@@ -392,31 +498,28 @@
         width: 14px;
         height: 14px;
         margin: 0;
-        accent-color: #064635;
+        accent-color: var(--color-primary);
         cursor: pointer;
       }
-      .field-required-toggle span,
-      .field-export-toggle span {
-        line-height: 1;
-      }
-      /* Tombol hapus sejajar atas dengan baris label */
       .field-actions {
         display: flex;
+        align-items: center;
         gap: 4px;
         flex-shrink: 0;
-        margin-top: 4px;
+        height: 42px;
+        margin-top: 0;
       }
       .field-action-btn {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         border: none;
+        border-radius: var(--radius-sm, 6px);
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.15s;
         background: transparent;
-        border-radius: 6px;
       }
       .field-action-btn i {
         width: 18px;
@@ -430,175 +533,167 @@
         color: #b91c1c;
       }
 
-      /* Info box */
+      /* Info & Warning box */
       .info-box {
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        border: 1px solid #93c5fd;
-        border-radius: 8px;
-        padding: 12px 16px;
         display: flex;
+        width: 100%;
+        box-sizing: border-box;
         align-items: center;
-        gap: 10px;
-        margin-top: 16px;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        background: var(--color-primary-tint);
+        border: 1px solid var(--color-border);
+        color: var(--color-text);
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.45;
+        margin-top: 14px;
       }
       .info-box i,
       .info-box svg {
-        color: #1e40af !important;
-        stroke: #1e40af !important;
+        color: var(--color-primary);
+        stroke: var(--color-primary);
         flex-shrink: 0;
-        width: 18px;
-        height: 18px;
+        width: 14px;
+        height: 14px;
+      }
+
+      /* Search box di form-section mengikuti ukuran standar index manajemen aset */
+      .form-section .topbar-search-box {
+        width: 280px !important;
+        max-width: 100% !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 14px !important;
+        margin-bottom: 14px;
+        box-sizing: border-box !important;
+      }
+      .form-section .topbar-search-box:focus-within {
+        width: 360px !important;
+        max-width: 100% !important;
+      }
+      .info-box-text {
+        font-size: 12px;
+        color: var(--color-text);
+        line-height: 1.45;
+        font-weight: 500;
+        flex: 1;
+      }
+      .info-box-text strong {
+        font-weight: 600;
+        color: var(--color-text);
       }
 
       /* Order Section */
       .order-section {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 16px;
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin-bottom: 24px;
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--color-border);
       }
       .order-section-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #064635;
-        margin-bottom: 12px;
+        font-size: 14.5px;
+        font-weight: 700;
+        color: var(--color-primary);
+        margin-bottom: 16px;
         display: flex;
         align-items: center;
         gap: 8px;
       }
-      .order-section-title i {
-        width: 18px;
-        height: 18px;
-      }
-      .order-hint {
-        font-size: 12px;
-        color: #92400e;
-        margin-bottom: 16px;
-        padding: 10px 12px;
-        background: #fef3c7;
-        border: 1px solid #fbbf24;
-        border-radius: 6px;
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
-      }
-      .order-hint i {
-        color: #d97706;
-        stroke: #d97706;
-        flex-shrink: 0;
-        margin-top: 2px;
+      .order-section-title i,
+      .order-section-title svg {
         width: 16px;
         height: 16px;
+        color: var(--color-primary);
+      }
+      .order-hint {
+        display: flex;
+        width: 100%;
+        box-sizing: border-box;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        background: var(--color-primary-tint);
+        border: 1px solid var(--color-border);
+        color: var(--color-text);
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.4;
+        margin-bottom: 16px;
+      }
+      .order-hint i,
+      .order-hint svg {
+        color: var(--color-primary);
+        stroke: var(--color-primary);
+        flex-shrink: 0;
+        width: 14px;
+        height: 14px;
+      }
+      .order-hint span {
+        font-size: 12px;
+        color: var(--color-text);
+        flex: 1;
       }
       .order-list {
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 12px;
-        min-height: 300px;
+        background: var(--color-surface);
+        border: 1.5px solid var(--color-border);
+        border-radius: 12px;
+        padding: 16px;
+        min-height: 240px;
       }
-      /* Wrapper untuk semua row — single column */
       .order-rows-wrapper {
         display: flex;
         flex-direction: column;
         gap: 8px;
-      }
-      /* Tiap row: nomor badge + field item berdampingan, stretch = tinggi sama */
-      .order-row {
-        display: flex;
-        align-items: stretch;
-        gap: 12px;
-      }
-      /* Nomor badge otomatis mengikuti tinggi field item */
-      .order-numbers-column {
-        border-right: 2px solid #e5e7eb;
-        padding-right: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        align-self: stretch;
-      }
-      .order-number-badge {
-        width: 56px;
-        flex-shrink: 0;
-        border-radius: 8px;
-        background: linear-gradient(135deg, #064635 0%, #519259 100%);
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 16px;
-        transition: all 0.2s;
-      }
-      .order-number-badge.disabled {
-        background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
-        opacity: 0.5;
-      }
-      .order-fields-column {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+        width: 100%;
       }
       .order-item {
-        flex: 1;
+        width: 100%;
         min-width: 0;
         display: flex;
         align-items: center;
         gap: 12px;
         padding: 12px 16px;
         padding-right: 52px;
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-left: 3px solid #e5e7eb;
+        background: var(--color-surface);
+        border: 1.5px solid var(--color-border);
         border-radius: 8px;
-        cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M18 11V8.5a1.5 1.5 0 0 0-3 0V11m0 0V7.5a1.5 1.5 0 0 0-3 0V11m0 0V8a1.5 1.5 0 0 0-3 0v7l-1.5-2.5a1.5 1.5 0 0 0-2.6 1.5L8 20a6 6 0 0 0 6 4h1a5 5 0 0 0 5-5v-8' stroke='%233f4d67' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") 12 4, grab;
+        color: var(--color-text);
         transition: all 0.2s;
-        min-height: 56px;
+        min-height: 52px;
         position: relative;
       }
-      .order-item:active {
-        cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M9 11V6a1.5 1.5 0 0 1 3 0v5m0 0V5.5a1.5 1.5 0 0 1 3 0V11m0 0V8a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-1a5 5 0 0 1-4.9-4l-1.1-4a1.5 1.5 0 0 1 2.6-1.5L9 16V11' stroke='%233f4d67' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") 12 4, grabbing;
+      .order-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        color: var(--color-text-muted);
+        font-size: 13px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        flex-shrink: 0;
       }
       .order-item:hover {
-        border-left-color: #064635;
+        background: var(--color-row-hover);
       }
       .order-item.highlighted {
-        border-left-color: #3b82f6;
-        border-left-width: 4px;
-        background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-      }
-      @keyframes pulse-highlight {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.9; }
-      }
-      .order-item.highlighted .order-item-actions {
-        display: flex;
-        opacity: 1;
+        border-color: var(--color-primary);
+        background: var(--color-primary-tint);
       }
       .order-item.sortable-ghost {
         opacity: 0.4;
-        background: #e5e7eb;
-      }
-      .order-item.sortable-drag {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        background: var(--color-row-hover);
       }
       .order-drag-handle {
-        color: #9ca3af;
-        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><g fill="%2304A9F5"><circle cx="5" cy="8" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="18" cy="12" r="1.5"/><circle cx="14" cy="18" r="1.5"/><circle cx="6" cy="18" r="1.5"/><circle cx="2" cy="12" r="1.5"/><path d="M 10 10 Q 5 8 5 8 Q 3 8 3 10 L 3 18 Q 3 19 4 19 L 16 19 Q 17 19 17 18 L 17 12 Q 17 10 15 10 Q 15 10 10 10" stroke="%2304A9F5" stroke-width="1.2" fill="none"/></g></svg>') 10 10, grab;
+        color: var(--color-text-muted);
         display: flex;
         align-items: center;
-      }
-      .order-drag-handle:active {
-        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><g fill="%2304A9F5"><circle cx="5" cy="7" r="1.2"/><circle cx="14" cy="5" r="1.2"/><circle cx="17" cy="11" r="1.2"/><circle cx="13" cy="17" r="1.2"/><circle cx="6" cy="17" r="1.2"/><circle cx="3" cy="11" r="1.2"/><path d="M 8 10 L 8 14 M 12 10 L 12 14 M 10 9 L 10 15" stroke="%2304A9F5" stroke-width="1.5" fill="%2304A9F5" stroke-linecap="round"/><path d="M 6 9 Q 4 9 4 11 L 4 17 Q 4 18 5 18 L 15 18 Q 16 18 16 17 L 17 10 Q 16 8 14 8" stroke="%2304A9F5" stroke-width="1.2" fill="none" stroke-linecap="round"/></g></svg>') 10 10, grabbing;
-      }
-      .order-drag-handle i {
-        width: 18px;
-        height: 18px;
-      }
-      .order-number {
-        display: none;
       }
       .order-item-content {
         flex: 1;
@@ -608,9 +703,9 @@
       }
       .order-item-label {
         flex: 1;
-        font-size: 14px;
-        font-weight: 500;
-        color: #374151;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--color-text);
       }
       .order-item-badge {
         padding: 4px 10px;
@@ -620,80 +715,59 @@
         flex-shrink: 0;
       }
       .order-item-badge.fixed {
-        background: #ecfdf5;
-        color: #047857;
-        border: 1px solid #a7f3d0;
+        background: var(--color-primary-tint);
+        color: var(--color-primary);
+        border: 1px solid var(--color-primary);
         display: flex;
         align-items: center;
         gap: 4px;
-      }
-      .order-item-badge.fixed i {
-        width: 12px;
-        height: 12px;
       }
       .order-item-badge.custom {
         background: #dbeafe;
         color: #1e40af;
         border: 1px solid #93c5fd;
-        white-space: nowrap;
       }
       .order-item.disabled {
         opacity: 0.5;
-        background: #f3f4f6;
+        background: var(--color-row-hover);
       }
       .order-item.disabled .order-item-label {
         text-decoration: line-through;
-        color: #9ca3af;
+        color: var(--color-text-muted);
       }
       .order-item-checkbox {
-        width: 20px;
-        height: 20px;
-        accent-color: #064635;
+        width: 18px;
+        height: 18px;
+        accent-color: var(--color-primary);
         cursor: pointer;
       }
-      .order-item-required {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 12px;
-        font-weight: 500;
-        color: #9ca3af;
-        white-space: nowrap;
-        cursor: pointer;
-        user-select: none;
-      }
-      .order-item-required input[type="checkbox"] {
-        width: 14px;
-        height: 14px;
-        accent-color: #064635;
-        cursor: pointer;
-        margin: 0;
-      }
-      /* Container untuk Wajib diisi + Masuk export di order list */
-      .order-item-flags {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        margin-right: 52px;
-        flex-shrink: 0;
-      }
+      .order-item-required,
       .order-item-export {
         display: flex;
         align-items: center;
         gap: 5px;
         font-size: 12px;
         font-weight: 500;
-        color: #9ca3af;
+        color: var(--color-text-muted);
         white-space: nowrap;
         cursor: pointer;
         user-select: none;
       }
+      .order-item-required input[type="checkbox"],
       .order-item-export input[type="checkbox"] {
         width: 14px;
         height: 14px;
-        accent-color: #064635;
+        accent-color: var(--color-primary);
         cursor: pointer;
         margin: 0;
+      }
+      .order-item-flags {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+        margin-right: 52px;
+        flex-shrink: 0;
       }
       .order-item-actions {
         position: absolute;
@@ -714,101 +788,119 @@
       .order-move-btns {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 2px;
       }
       .order-move-btn {
-        width: 28px;
-        height: 28px;
-        border: 1px solid #e5e7eb;
-        background: #fff;
-        border-radius: 6px;
+        width: 24px;
+        height: 20px;
+        border: none;
+        background: transparent;
+        border-radius: 4px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.15s;
+        transition: color 0.15s, transform 0.15s;
         flex-shrink: 0;
+        padding: 0;
+        color: var(--color-text-muted);
       }
-      .order-move-btn:hover {
-        background: #f3f4f6;
-        border-color: #064635;
+      .order-move-btn:hover:not(:disabled) {
+        background: transparent;
+        border: none;
+        color: var(--color-primary);
+        transform: scale(1.15);
       }
       .order-move-btn:disabled {
         cursor: not-allowed;
-        opacity: 0.3;
+        opacity: 0.25;
       }
       .order-move-btn i {
-        width: 14px;
-        height: 14px;
-        color: #374151;
+        width: 15px;
+        height: 15px;
+        color: currentColor;
       }
       .order-empty {
         text-align: center;
         padding: 60px 20px;
-        color: #9ca3af;
+        color: var(--color-text-muted);
       }
       .order-empty i {
         width: 48px;
         height: 48px;
         margin-bottom: 12px;
         opacity: 0.5;
+        color: var(--color-text-muted);
       }
       .order-empty-text {
         font-size: 14px;
         margin-bottom: 4px;
+        font-weight: 600;
+        color: var(--color-text);
       }
       .order-empty-hint {
         font-size: 12px;
+        color: var(--color-text-muted);
       }
-      .info-box-text {
-        font-size: 13px;
-        color: #1e40af;
-        line-height: 1.5;
-      }
-
       /* Buttons */
       .form-actions {
         display: flex;
         gap: 12px;
         justify-content: flex-end;
-        padding-top: 20px;
-        border-top: 1px solid #e5e7eb;
+        padding-top: 24px;
+        border-top: none;
         margin-top: 24px;
+        margin-bottom: 32px;
       }
       .btn-cancel {
-        padding: 10px 20px;
-        border: 1px solid #d1d5db;
-        background: #fff;
-        color: #374151;
-        border-radius: 8px;
+        height: 46px;
+        padding: 0 20px;
+        border: 1.5px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text);
+        border-radius: var(--radius-full);
         font-weight: 500;
+        font-size: 14px;
         cursor: pointer;
         transition: all 0.2s;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        box-shadow: none !important;
       }
       .btn-cancel:hover {
-        background: #f3f4f6;
+        background: var(--color-row-hover);
+        border-color: var(--color-border);
+        color: var(--color-text);
       }
       .btn-submit {
-        padding: 10px 24px;
+        height: 46px;
+        padding: 0 24px;
         border: none;
-        background: #064635;
+        background: var(--color-primary);
         color: #fff;
-        border-radius: 8px;
-        font-weight: 500;
+        border-radius: var(--radius-full);
+        font-weight: 600;
+        font-size: 14px;
         cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
+        box-shadow: none !important;
+        transition: background-color 0.2s ease;
+        display: inline-flex;
         align-items: center;
         gap: 8px;
       }
       .btn-submit:hover {
-        background: #1c5240;
+        background: var(--color-primary-hover);
+        color: #fff;
       }
-      .btn-submit i {
+      .btn-cancel i,
+      .btn-cancel svg {
+        width: 16px;
+        height: 16px;
+      }
+      .btn-submit i,
+      .btn-submit svg {
         width: 18px;
         height: 18px;
       }
@@ -827,8 +919,6 @@
 
       /* ===== MOBILE (≤480px) ===== */
       @media (max-width: 480px) {
-
-        /* Tombol Tambah Field stack ke bawah */
         .fields-header {
           flex-direction: column;
           align-items: flex-start;
@@ -838,8 +928,6 @@
           width: 100%;
           justify-content: center;
         }
-
-        /* Field item: label full, tipe full, wajib+delete 1 baris */
         .field-item {
           display: flex;
           flex-wrap: wrap;
@@ -853,19 +941,18 @@
         .field-order-num {
           display: none;
         }
-        .field-inputs {
-          display: contents;
+        .field-inputs-row {
+          flex-direction: column;
+          align-items: stretch;
         }
-        .field-inputs input[type="text"] {
-          flex: 1 1 100%;
-          width: 100%;
+        .field-inputs-row .field-input:not(.field-select) {
+          width: 100% !important;
+          flex: 1 1 100% !important;
         }
-        .field-inputs input[type="hidden"] {
-          display: none;
-        }
-        .field-inputs select.field-select {
-          flex: 1 1 100%;
-          width: 100%;
+        .field-inputs-row .field-select {
+          width: 100% !important;
+          max-width: 100% !important;
+          flex: 1 1 100% !important;
         }
         .field-required-toggle {
           flex: 1;
@@ -877,8 +964,6 @@
           flex-direction: row;
           display: flex;
         }
-
-        /* Order list: sembunyikan kolom angka, nomor inline */
         .order-list {
           grid-template-columns: 1fr;
           gap: 8px;
@@ -888,15 +973,14 @@
           display: none;
         }
         .order-number {
-          display: flex !important;
-          width: 28px;
-          height: 28px;
-          min-width: 28px;
-          border-radius: 6px;
-          background: linear-gradient(135deg, #064635 0%, #519259 100%);
-          color: #fff;
-          font-size: 12px;
+          display: inline-flex !important;
+          min-width: 20px;
+          background: transparent;
+          border: none;
+          color: var(--color-text-muted);
+          font-size: 13px;
           font-weight: 700;
+          font-variant-numeric: tabular-nums;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
@@ -915,7 +999,6 @@
           flex-direction: column;
           gap: 4px;
         }
-        /* Item Data Tambahan: grid 2 baris */
         .order-item:has(.order-item-badge.custom) {
           display: grid;
           grid-template-columns: auto auto 1fr auto;
@@ -950,25 +1033,24 @@
 
     <div class="pc-container">
       <div class="pc-content">
-        @include('layouts.breadcrumb', ['breadcrumbItemHome' => 'Master Data', 'breadcrumbItem' => 'Jenis Inventaris', 'breadcrumbItemUrl' => route('jenis-inventaris.index'), 'breadcrumbItemActive' => 'Edit Jenis'])
+        @include('layouts.breadcrumb', ['breadcrumbItemHome' => 'Master Data', 'breadcrumbItem' => 'Jenis Inventaris', 'breadcrumbItemUrl' => route('jenis-inventaris.index'), 'breadcrumbItemActive' => 'Edit Jenis Inventaris'])
 
         <div class="grid grid-cols-12 gap-x-6">
-          <div class="col-span-12 lg:col-span-10 lg:col-start-2">
+          <div class="col-span-12 w-full">
             <div class="card">
-              <div class="card-header border-b border-gray-100">
+              <div class="card-header">
                 <div class="flex items-center">
                   <div class="card-header-icon">
-                    <i data-feather="folder-plus"></i>
+                    <i data-feather="layers"></i>
                   </div>
                   <div>
-                    <h5 class="mb-1">Edit Jenis Inventaris</h5>
-                    <p class="text-muted text-sm mb-0">Perbarui informasi dan struktur jenis inventaris</p>
+                    <h5 class="mb-0">Edit Jenis Inventaris</h5>
                   </div>
                 </div>
               </div>
 
               <div class="card-body pt-4">
-                <form id="jenis-form" action="{{ route('jenis-inventaris.update', $jenis->id) }}" method="POST" class="no-loader">
+                <form id="jenis-form" action="{{ route('jenis-inventaris.update', $jenis->id) }}" method="POST" class="no-loader" novalidate>
                   @csrf
                   @method('PUT')
                   
@@ -976,23 +1058,26 @@
                   <div id="field-order-container"></div>
                   
                   @if($isVirtual ?? false)
-                  <div class="alert alert-info mb-4">
-                    <i data-feather="info" style="display: inline; width: 18px; height: 18px; margin-right: 8px; vertical-align: middle;"></i>
-                    <strong>Catatan:</strong> Nama dan deskripsi Buku Inventaris Aset Desa bersifat tetap dan tidak dapat diubah. Yang dapat diubah hanya pejabat yang bertanda tangan.
+                  <div class="info-box mb-4">
+                    <i data-feather="info"></i>
+                    <div class="info-box-text">
+                      <strong>Catatan:</strong> Nama dan deskripsi Buku Inventaris Aset Desa bersifat tetap dan tidak dapat diubah. Yang dapat diubah hanya pejabat yang bertanda tangan.
+                    </div>
                   </div>
                   @endif
 
                   @if($isTidakDitemukan ?? false)
-                  <div class="alert alert-info mb-4">
-                    <i data-feather="info" style="display: inline; width: 18px; height: 18px; margin-right: 8px; vertical-align: middle;"></i>
-                    <strong>Catatan:</strong> Ini adalah jenis template. Nama dan struktur field bersifat tetap. Yang dapat diubah hanya deskripsi, ikon, pejabat penandatangan, urutan field, dan status wajib field.
+                  <div class="info-box mb-4">
+                    <i data-feather="info"></i>
+                    <div class="info-box-text">
+                      <strong>Catatan:</strong> Ini adalah jenis template. Nama dan struktur field bersifat tetap. Yang dapat diubah hanya deskripsi, ikon, pejabat penandatangan, urutan field, dan status wajib field.
+                    </div>
                   </div>
                   @endif
                   
                   <!-- Informasi Dasar -->
                   <div class="form-section">
                     <div class="form-section-title">
-                      <i data-feather="info"></i>
                       Informasi Dasar
                     </div>
                     <div class="form-grid">
@@ -1006,7 +1091,7 @@
                       <input type="hidden" name="nama" value="{{ $jenis->nama }}">
                       @endif
                       
-                      <div class="form-group form-full">
+                      <div class="form-group {{ (!($isVirtual ?? false) && !($isTidakDitemukan ?? false)) ? '' : 'form-full' }}">
                         <label class="form-label" for="nama">
                           Nama Jenis Inventaris <span class="required">*</span>
                         </label>
@@ -1019,6 +1104,25 @@
                         @enderror
                         <p class="form-hint">Nama kategori yang akan muncul di menu dan form</p>
                       </div>
+                      <!-- Requires Ruangan -->
+                      @if(!($isVirtual ?? false) && !($isTidakDitemukan ?? false))
+                      <div class="form-group">
+                        @php
+                          $reqRuanganChecked = old('requires_ruangan', $jenis->requires_ruangan ?? 0);
+                        @endphp
+                        <label class="form-label">Konfigurasi Ruangan</label>
+                        <label style="display:flex;align-items:center;gap:12px;cursor:pointer;height:46px;box-sizing:border-box;padding:0 16px;background:{{ $reqRuanganChecked ? 'var(--color-primary-tint, #d5e4d7)' : 'var(--color-surface, #f8faf7)' }};border:1.5px solid {{ $reqRuanganChecked ? 'var(--color-primary, #1f3a2a)' : 'var(--color-border, #cfdcc8)' }};border-radius:10px;transition:background-color 0.15s ease, border-color 0.15s ease;color:var(--color-text, #16251b);margin:0;" id="requires-ruangan-label">
+                          <input type="checkbox" name="requires_ruangan" id="requires_ruangan" value="1"
+                                 {{ $reqRuanganChecked ? 'checked' : '' }}
+                                 style="width:18px;height:18px;accent-color:var(--color-primary, #1f3a2a);cursor:pointer;flex-shrink:0;margin:0;"
+                                 onchange="onRequiresRuanganChange(this.checked)">
+                          <div style="display:flex;flex-direction:column;justify-content:center;min-width:0;">
+                            <div style="font-size:13px;font-weight:600;color:var(--color-text, #16251b);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Membutuhkan Data Ruangan</div>
+                            <div style="font-size:11px;color:var(--color-text-muted, #546958);line-height:1.2;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Field Ruangan akan muncul saat input aset.</div>
+                          </div>
+                        </label>
+                      </div>
+                      @endif
                       <div class="form-group form-full">
                         <label class="form-label" for="deskripsi">
                           Deskripsi <span class="required">*</span>
@@ -1031,146 +1135,24 @@
                         @enderror
                         <p class="form-hint">Deskripsi singkat tentang jenis inventaris ini</p>
                       </div>
-                      <!-- Requires Ruangan -->
-                      @if(!($isVirtual ?? false) && !($isTidakDitemukan ?? false))
-                      <div class="form-group form-full">
-                        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;padding:14px 16px;background:{{ old('requires_ruangan', $jenis->requires_ruangan ?? 0) ? '#519259' : '#ffffff' }};border:1.5px solid {{ old('requires_ruangan', $jenis->requires_ruangan ?? 0) ? '#519259' : '#e5e7eb' }};border-radius:10px;transition:all 0.2s;{{ old('requires_ruangan', $jenis->requires_ruangan ?? 0) ? 'color:#fff;' : '' }}" id="requires-ruangan-label">
-                          <input type="checkbox" name="requires_ruangan" id="requires_ruangan" value="1"
-                                 {{ old('requires_ruangan', $jenis->requires_ruangan ?? 0) ? 'checked' : '' }}
-                                 style="width:18px;height:18px;accent-color:#064635;flex-shrink:0;margin-top:2px;"
-                                 onchange="onRequiresRuanganChange(this.checked)">
-                          <div>
-                            <div style="font-size:13px;font-weight:600;color:{{ old('requires_ruangan', $jenis->requires_ruangan ?? 0) ? '#fff' : '#374151' }};">Membutuhkan Data Ruangan</div>
-                            <div style="font-size:12px;color:{{ old('requires_ruangan', $jenis->requires_ruangan ?? 0) ? 'rgba(255,255,255,0.8)' : '#6b7280' }};margin-top:2px;">Jika dicentang, field Ruangan akan muncul saat input aset.</div>
-                          </div>
-                        </label>
-                      </div>
-                      @endif
                     </div>
                   </div>
 
-                  <!-- Default Pejabat Penandatangan -->
-                  <!-- Tampilan Ikon -->
-                  @if(!($isVirtual ?? false))
-                  <div class="form-section" id="icon-section">
-                    <div class="form-section-title">
-                      <i data-feather="image"></i>
-                      Tampilan Ikon
-                    </div>
-                    <p class="text-muted text-sm mb-4">Pilih mode tampilan ikon dan warna background untuk jenis inventaris ini.</p>
 
-                    @php
-                      $currentIconMode  = $jenis->icon_mode ?? 'auto';
-                      $currentIcon      = $jenis->custom_icon ?? '';
-                      $currentColor     = $jenis->custom_color ?? '#064635';
-                    @endphp
-
-                    <!-- Mode Toggle -->
-                    <div style="display:flex;gap:12px;margin-bottom:20px;">
-                      <label style="flex:1;cursor:pointer;">
-                        <input type="radio" name="icon_mode" value="auto" id="icon_mode_auto"
-                               {{ $currentIconMode === 'auto' ? 'checked' : '' }}
-                               style="display:none;" onchange="onIconModeChange(this.value)">
-                        <div class="icon-mode-card" id="card-auto"
-                             style="border:2px solid {{ $currentIconMode === 'auto' ? '#519259' : '#e5e7eb' }};
-                                    background:{{ $currentIconMode === 'auto' ? '#519259' : '#fff' }};
-                                    border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-                          <div style="width:36px;height:36px;border-radius:8px;background:{{ $currentIconMode === 'auto' ? 'rgba(255,255,255,0.2)' : '#e5e7eb' }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i data-feather="zap" style="width:18px;height:18px;color:{{ $currentIconMode === 'auto' ? '#fff' : '#6b7280' }};stroke:{{ $currentIconMode === 'auto' ? '#fff' : '#6b7280' }};"></i>
-                          </div>
-                          <div>
-                            <div style="font-size:13px;font-weight:600;color:{{ $currentIconMode === 'auto' ? '#fff' : '#374151' }};">Otomatis</div>
-                            <div style="font-size:11px;color:{{ $currentIconMode === 'auto' ? 'rgba(255,255,255,0.8)' : '#6b7280' }};">Icon & warna di-generate otomatis dari nama</div>
-                          </div>
-                        </div>
-                      </label>
-                      <label style="flex:1;cursor:pointer;">
-                        <input type="radio" name="icon_mode" value="manual" id="icon_mode_manual"
-                               {{ $currentIconMode === 'manual' ? 'checked' : '' }}
-                               style="display:none;" onchange="onIconModeChange(this.value)">
-                        <div class="icon-mode-card" id="card-manual"
-                             style="border:2px solid {{ $currentIconMode === 'manual' ? '#519259' : '#e5e7eb' }};
-                                    background:{{ $currentIconMode === 'manual' ? '#519259' : '#fff' }};
-                                    border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-                          <div style="width:36px;height:36px;border-radius:8px;background:{{ $currentIconMode === 'manual' ? 'rgba(255,255,255,0.2)' : '#e5e7eb' }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i data-feather="sliders" style="width:18px;height:18px;color:{{ $currentIconMode === 'manual' ? '#fff' : '#6b7280' }};stroke:{{ $currentIconMode === 'manual' ? '#fff' : '#6b7280' }};"></i>
-                          </div>
-                          <div>
-                            <div style="font-size:13px;font-weight:600;color:{{ $currentIconMode === 'manual' ? '#fff' : '#374151' }};">Manual</div>
-                            <div style="font-size:11px;color:{{ $currentIconMode === 'manual' ? 'rgba(255,255,255,0.8)' : '#6b7280' }};">Pilih icon & warna sendiri</div>
-                          </div>
-                        </div>
-                      </label>
-                    </div>
-
-                    <!-- Manual Options -->
-                    <div id="manual-icon-options" style="display:{{ $currentIconMode === 'manual' ? 'block' : 'none' }};">
-                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
-
-                        <!-- Icon Picker -->
-                        <div>
-                          <label class="form-label">Pilih Ikon</label>
-                          <input type="hidden" name="custom_icon" id="custom_icon_input" value="{{ $currentIcon }}">
-                          <div id="icon-picker-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;padding:12px;background:#f4faf5;border:1px solid #e5e7eb;border-radius:8px;max-height:220px;overflow-y:auto;">
-                            <!-- Rendered by JS -->
-                          </div>
-                          <p style="font-size:11px;color:#9ca3af;margin-top:6px;">Klik icon untuk memilih</p>
-                        </div>
-
-                        <!-- Color Picker -->
-                        <div>
-                          <label class="form-label">Pilih Warna Background</label>
-                          <input type="hidden" name="custom_color" id="custom_color_input" value="{{ $currentColor }}">
-                          <div id="color-preset-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:12px;background:#f4faf5;border:1px solid #e5e7eb;border-radius:8px;">
-                            <!-- Rendered by JS -->
-                          </div>
-                          <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
-                            <label style="font-size:12px;color:#374151;font-weight:500;white-space:nowrap;">Warna custom:</label>
-                            <input type="color" id="custom_color_picker" value="{{ $currentColor }}"
-                                   style="width:40px;height:32px;border:1px solid #d1d5db;border-radius:6px;cursor:pointer;padding:2px;"
-                                   oninput="onCustomColorInput(this.value)">
-                            <span id="custom_color_hex" style="font-size:12px;color:#6b7280;font-family:monospace;">{{ $currentColor }}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Live Preview -->
-                      <div style="margin-top:16px;padding:14px 16px;background:#f4faf5;border:1px solid #e5e7eb;border-radius:8px;display:flex;align-items:center;gap:14px;">
-                        <div id="icon-preview-box"
-                             style="width:48px;height:48px;border-radius:12px;background:{{ $currentColor ?: '#064635' }};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;">
-                          <i id="icon-preview-icon" data-feather="{{ $currentIcon ?: 'layers' }}"
-                             style="width:22px;height:22px;color:#fff;stroke:#fff;"></i>
-                        </div>
-                        <div>
-                          <div style="font-size:13px;font-weight:600;color:#1f2937;">Preview Tampilan</div>
-                          <div style="font-size:11px;color:#9ca3af;">Begini tampilan ikon di sistem</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  @endif
 
                   <!-- Default Pejabat Penandatangan -->
                   <div class="form-section">
                     <div class="form-section-title">
-                      <i data-feather="users"></i>
                       Pejabat yang bertanda tangan
                     </div>
                     <p class="text-muted text-sm mb-4">Pilih pejabat yang akan menjadi penandatangan default saat export inventaris jenis ini. Urutan menentukan posisi tanda tangan.</p>
 
-                    <!-- Search box pejabat -->
-                    <div style="display:flex;align-items:center;background:#ffffff;border-radius:12px;padding:0 16px;border:1px solid #d1d5db;transition:all 0.2s;margin-bottom:14px;"
-                         onfocusin="this.style.borderColor='#064635';this.style.boxShadow='0 0 0 3px rgba(6, 70, 53,0.1)'"
-                         onfocusout="this.style.borderColor='#d1d5db';this.style.boxShadow='none'">
-                      <input type="text" id="pejabat-search-input" placeholder="Cari pejabat..."
-                             style="border:none!important;box-shadow:none!important;background:transparent;padding:10px 0;font-size:13px;flex:1;outline:none;appearance:none;-webkit-appearance:none;"
-                             oninput="pejabatToggleSearchClear(this);filterPejabatList(this.value)" />
-                      <button type="button" id="pejabat-search-icon-btn" style="border:none;background:transparent;padding:0;cursor:pointer;color:#9ca3af;display:flex;align-items:center;" onclick="document.getElementById('pejabat-search-input').focus()">
-                        <i data-feather="search" style="width:16px;height:16px;"></i>
-                      </button>
-                      <button type="button" id="pejabat-search-clear" onclick="clearPejabatSearch()" style="border:none;background:transparent;padding:0;cursor:pointer;color:#ef4444;display:none;align-items:center;">
-                        <i data-feather="x" style="width:16px;height:16px;"></i>
-                      </button>
+                    <!-- Search box pejabat (SIMA Standard / Manajemen Aset UI) -->
+                    <div class="topbar-search-box">
+                      <i data-feather="search" style="width:15px;height:15px;color:var(--color-text-muted);flex-shrink:0;"></i>
+                      <input type="text" id="pejabat-search-input" class="topbar-search-input" placeholder="Cari pejabat..."
+                             oninput="pejabatToggleSearchClear(this);filterPejabatList(this.value)" autocomplete="off" />
+                      <span class="topbar-search-shortcut" id="pejabat-search-clear" onclick="clearPejabatSearch()" style="cursor:pointer;display:none;color:var(--color-danger);font-size:12px;font-weight:600;padding-left:6px;">Batal</span>
                     </div>
                     
                     <div class="pejabat-select-area">
@@ -1183,8 +1165,8 @@
                       </div>
                     </div>
 
-                    <div class="info-box">
-                      <i data-feather="info" style="color:#1e40af !important;stroke:#1e40af !important;width:18px;height:18px;flex-shrink:0;"></i>
+                    <div class="info-box" style="margin-top:14px;">
+                      <i data-feather="info" style="color:var(--color-primary, #1f3a2a);stroke:var(--color-primary, #1f3a2a);"></i>
                       <div class="info-box-text">
                         <strong>Catatan:</strong> Pejabat yang sudah dipilih disini bisa diubah lagi saat diperlukan. Urutan pejabat dipilih akan menentukan posisi tanda tangan pada dokumen export.
                       </div>
@@ -1195,7 +1177,6 @@
                   <!-- Data Dinamis -->
                   <div class="form-section">
                     <div class="form-section-title">
-                      <i data-feather="sliders"></i>
                       Pilih Data Tambahan
                     </div>
 
@@ -1204,7 +1185,6 @@
                     <div class="fields-container">
                       <div class="fields-header">
                         <span class="fields-header-title">
-                          <i data-feather="list"></i>
                           Data Tambahan
                         </span>
                         <button type="button" class="btn-add-field" onclick="addField()">
@@ -1229,58 +1209,42 @@
                   @if(!($isVirtual ?? false) && !($isTidakDitemukan ?? false))
                   <div class="form-section">
                     <div class="form-section-title">
-                      <i data-feather="list"></i>
                       Pilih Dropdown
                     </div>
 
                     <p class="text-muted text-sm mb-4">Pilih dropdown dari master data yang akan digunakan sebagai field pilihan pada jenis inventaris ini.</p>
 
-                    <div class="fields-container" id="dropdown-fields-section">
-                      <div class="fields-header">
-                        <span class="fields-header-title">
-                          <i data-feather="list"></i>
-                          Field Dropdown
-                        </span>
-                      </div>
-                      <div class="fields-body" style="padding:16px;background:#fff;">
+                    <div id="dropdown-fields-section">
                         @php
                           $existingDropdownFieldIds = $jenis->fields->where('tipe','dropdown')->pluck('dropdown_id')->filter()->toArray();
                           $existingDropdownRequired = $jenis->fields->where('tipe','dropdown')->pluck('is_required','dropdown_id')->toArray();
                           $hasDropdown = count($existingDropdownFieldIds) > 0;
                         @endphp
-                        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;padding:14px 16px;background:{{ $hasDropdown ? '#519259' : '#ffffff' }};border:1.5px solid {{ $hasDropdown ? '#519259' : '#e5e7eb' }};border-radius:10px;transition:all 0.2s;{{ $hasDropdown ? 'color:#fff;' : '' }}" id="needs-dropdown-label">
+                        <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:14px 16px;background:{{ $hasDropdown ? 'var(--color-primary-tint, #d5e4d7)' : 'var(--color-surface, #f8faf7)' }};border:1.5px solid {{ $hasDropdown ? 'var(--color-primary, #1f3a2a)' : 'var(--color-border, #cfdcc8)' }};border-radius:10px;transition:background-color 0.15s ease, border-color 0.15s ease;color:var(--color-text, #16251b);" id="needs-dropdown-label">
                           <input type="checkbox" name="needs_dropdown" id="needs_dropdown" value="1"
                                  {{ $hasDropdown ? 'checked' : '' }}
-                                 style="width:18px;height:18px;accent-color:#064635;flex-shrink:0;margin-top:2px;"
                                  onchange="onNeedsDropdownChange(this.checked)">
                           <div>
-                            <div style="font-size:13px;font-weight:600;color:{{ $hasDropdown ? '#fff' : '#374151' }};">Jenis inventaris ini membutuhkan field dropdown</div>
-                            <div style="font-size:12px;color:{{ $hasDropdown ? 'rgba(255,255,255,0.8)' : '#6b7280' }};margin-top:2px;">Jika dicentang, pilih dropdown dari master data yang akan digunakan sebagai field pilihan.</div>
+                            <div style="font-size:13px;font-weight:600;color:var(--color-text, #16251b);">Jenis inventaris ini membutuhkan field dropdown</div>
+                            <div style="font-size:12px;color:var(--color-text-muted, #546958);margin-top:2px;">Jika dicentang, pilih dropdown dari master data yang akan digunakan sebagai field pilihan.</div>
                           </div>
                         </label>
 
                         <div id="dropdown-list-wrapper" style="display:{{ $hasDropdown ? 'block' : 'none' }};margin-top:14px;">
                           @if($dropdownList->isEmpty())
-                            <div style="padding:16px;background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;font-size:13px;color:#92400e;">
-                              Belum ada dropdown di master data.
-                              <a href="{{ route('dropdown.create') }}" target="_blank" style="color:#064635;font-weight:600;margin-left:4px;">Buat sekarang →</a>
+                            <div class="warning-box" style="margin-bottom:12px;">
+                              <i data-feather="alert-triangle"></i>
+                              <span>Belum ada dropdown di master data. <a href="{{ route('dropdown.create') }}" target="_blank" style="color:var(--color-primary, #1f3a2a);font-weight:600;margin-left:4px;text-decoration:underline;text-underline-offset:3px;">Buat sekarang →</a></span>
                             </div>
                           @else
-                            <!-- Search box dropdown -->
-                            <div style="display:flex;align-items:center;background:#ffffff;border-radius:12px;padding:0 16px;border:1px solid #d1d5db;transition:all 0.2s;margin-bottom:10px;"
-                                 onfocusin="this.style.borderColor='#064635';this.style.boxShadow='0 0 0 3px rgba(6, 70, 53,0.1)'"
-                                 onfocusout="this.style.borderColor='#d1d5db';this.style.boxShadow='none'">
-                              <input type="text" id="dd-search-input" placeholder="Cari dropdown..."
-                                     style="border:none!important;box-shadow:none!important;background:transparent;padding:10px 0;font-size:13px;flex:1;outline:none;appearance:none;-webkit-appearance:none;"
-                                     oninput="ddToggleSearchClear(this);filterDropdownList(this.value)" />
-                              <button type="button" id="dd-search-icon-btn" style="border:none;background:transparent;padding:0;cursor:pointer;color:#9ca3af;display:flex;align-items:center;" onclick="document.getElementById('dd-search-input').focus()">
-                                <i data-feather="search" style="width:16px;height:16px;"></i>
-                              </button>
-                              <button type="button" id="dd-search-clear" onclick="clearDropdownSearch()" style="border:none;background:transparent;padding:0;cursor:pointer;color:#ef4444;display:none;align-items:center;">
-                                <i data-feather="x" style="width:16px;height:16px;"></i>
-                              </button>
+                            <!-- Search box dropdown (SIMA Standard / Manajemen Aset UI) -->
+                            <div class="topbar-search-box" style="margin-bottom:10px;">
+                              <i data-feather="search" style="width:15px;height:15px;color:var(--color-text-muted);flex-shrink:0;"></i>
+                              <input type="text" id="dd-search-input" class="topbar-search-input" placeholder="Cari dropdown..."
+                                     oninput="ddToggleSearchClear(this);filterDropdownList(this.value)" autocomplete="off" />
+                              <span class="topbar-search-shortcut" id="dd-search-clear" onclick="clearDropdownSearch()" style="cursor:pointer;display:none;color:var(--color-danger);font-size:12px;font-weight:600;padding-left:6px;">Batal</span>
                             </div>
-                            <p style="font-size:12px;color:#6b7280;margin-bottom:10px;">Centang dropdown yang ingin digunakan, lalu atur apakah wajib diisi atau tidak:</p>
+                            <p style="font-size:12px;color:var(--color-text-muted, #546958);margin-bottom:10px;">Centang dropdown yang ingin digunakan, lalu atur apakah wajib diisi atau tidak:</p>
                             <div style="display:flex;flex-direction:column;gap:8px;" id="dropdown-checklist">
                               @foreach($dropdownList as $ddIdx => $dd)
                               @php
@@ -1290,30 +1254,30 @@
                                 $isExport = $isChecked && ($existingField?->include_in_export ?? 1);
                                 $isHidden = $ddIdx >= 10 && !$isChecked;
                               @endphp
-                              <div style="display:{{ $isHidden ? 'none' : 'flex' }};align-items:center;gap:12px;padding:12px 16px;background:{{ $isChecked ? '#519259' : '#ffffff' }};border:1.5px solid {{ $isChecked ? '#519259' : '#e5e7eb' }};border-radius:10px;transition:all 0.2s;{{ $isChecked ? 'color:#fff;' : '' }}"
-                                    class="dd-item-label {{ $isHidden ? 'dd-item-hidden' : '' }}" data-id="{{ $dd->id }}" data-name="{{ strtolower($dd->nama) }}">
+                              <div style="display:{{ $isHidden ? 'none' : 'flex' }};align-items:center;gap:12px;padding:12px 16px;background:{{ $isChecked ? 'var(--color-primary-tint, #d5e4d7)' : 'var(--color-surface, #f8faf7)' }};border:1.5px solid {{ $isChecked ? 'var(--color-primary, #1f3a2a)' : 'var(--color-border, #cfdcc8)' }};border-radius:10px;transition:all 0.2s;"
+                                    class="dd-item-label {{ $isHidden ? 'dd-item-hidden' : '' }}" data-id="{{ $dd->id }}" data-label="{{ $dd->nama }}" data-name="{{ strtolower($dd->nama) }}">
                                  <input type="checkbox" name="selected_dropdowns[{{ $dd->id }}][enabled]" value="1"
                                         class="dd-checkbox" {{ $isChecked ? 'checked' : '' }}
-                                        style="width:18px;height:18px;accent-color:#064635;flex-shrink:0;cursor:pointer;"
-                                        onchange="onDropdownItemCheck(this, {{ $dd->id }})">
+                                        style="width:18px;height:18px;accent-color:var(--color-primary, #1f3a2a);flex-shrink:0;cursor:pointer;"
+                                        onchange="onDropdownItemCheck(this, {{ $dd->id }}, '{{ addslashes($dd->nama) }}')">
                                  <div style="flex:1;cursor:pointer;" onclick="this.previousElementSibling.click()">
-                                   <div style="font-size:13px;font-weight:600;color:{{ $isChecked ? '#ffffff' : '#374151' }};">{{ $dd->nama }}</div>
-                                   <div style="font-size:11px;color:{{ $isChecked ? 'rgba(255,255,255,0.8)' : '#9ca3af' }};margin-top:1px;">{{ $dd->items->pluck('label')->implode(', ') }}</div>
+                                   <div style="font-size:13px;font-weight:600;color:var(--color-text, #16251b);">{{ $dd->nama }}</div>
+                                   <div style="font-size:11px;color:var(--color-text-muted, #546958);margin-top:1px;">{{ $dd->items->pluck('label')->implode(', ') }}</div>
                                  </div>
-                                 <div id="dd-pills-{{ $dd->id }}" style="display:{{ $isChecked ? 'flex' : 'none' }};flex-direction:column;gap:4px;flex-shrink:0;min-width:90px;">
-                                   <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:{{ $isChecked ? '#ffffff' : '#374151' }};white-space:nowrap;">
+                                 <div id="dd-pills-{{ $dd->id }}" style="display:{{ $isChecked ? 'flex' : 'none' }};flex-direction:row;align-items:center;gap:16px;flex-shrink:0;">
+                                   <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--color-text, #16251b);white-space:nowrap;">
                                      <input type="checkbox" name="selected_dropdowns[{{ $dd->id }}][required]" value="1"
                                             class="dd-req-cb" {{ $isRequired ? 'checked' : '' }}
-                                            style="width:14px;height:14px;accent-color:#064635;cursor:pointer;margin:0;"
-                                            onchange="onPillChange(this, 'dd-pill-req-{{ $dd->id }}', '#064635')">
-                                     <span id="dd-pill-req-{{ $dd->id }}" style="font-weight:500;color:{{ $isRequired ? ($isChecked ? '#ffffff' : '#064635') : '#9ca3af' }};">Wajib diisi</span>
+                                            style="width:14px;height:14px;accent-color:var(--color-primary, #1f3a2a);cursor:pointer;margin:0;"
+                                            onchange="onPillChange(this, 'dd-pill-req-{{ $dd->id }}', 'var(--color-primary, #1f3a2a)')">
+                                     <span id="dd-pill-req-{{ $dd->id }}" style="font-weight:500;color:{{ $isRequired ? 'var(--color-primary, #1f3a2a)' : 'var(--color-text-muted, #546958)' }};">Wajib diisi</span>
                                    </label>
-                                   <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:{{ $isChecked ? '#ffffff' : '#374151' }};white-space:nowrap;">
+                                   <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--color-text, #16251b);white-space:nowrap;">
                                      <input type="checkbox" name="selected_dropdowns[{{ $dd->id }}][include_in_export]" value="1"
                                             class="dd-exp-cb" {{ $isExport ? 'checked' : '' }}
-                                            style="width:14px;height:14px;accent-color:#064635;cursor:pointer;margin:0;"
-                                            onchange="onPillChange(this, 'dd-pill-exp-{{ $dd->id }}', '#064635')">
-                                     <span id="dd-pill-exp-{{ $dd->id }}" style="font-weight:500;color:{{ $isExport ? ($isChecked ? '#ffffff' : '#064635') : '#9ca3af' }};">Masuk export</span>
+                                            style="width:14px;height:14px;accent-color:var(--color-primary, #1f3a2a);cursor:pointer;margin:0;"
+                                            onchange="onPillChange(this, 'dd-pill-exp-{{ $dd->id }}', 'var(--color-primary, #1f3a2a)')">
+                                     <span id="dd-pill-exp-{{ $dd->id }}" style="font-weight:500;color:{{ $isExport ? 'var(--color-primary, #1f3a2a)' : 'var(--color-text-muted, #546958)' }};">Masuk export</span>
                                    </label>
                                  </div>
                               </div>
@@ -1322,14 +1286,13 @@
                             @if($dropdownList->count() > 10)
                             <div id="dd-show-more-wrap" style="margin-top:8px;text-align:center;">
                               <button type="button" id="dd-show-more-btn" onclick="showMoreDropdowns()"
-                                      style="font-size:12px;color:#064635;font-weight:600;background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:8px;background:#f0f4f8;">
+                                      style="font-size:12px;color:var(--color-primary, #1f3a2a);font-weight:600;background:var(--color-primary-tint, #d5e4d7);border:1px solid var(--color-border, #cfdcc8);cursor:pointer;padding:6px 16px;border-radius:var(--radius-full);">
                                 Tampilkan {{ $dropdownList->count() - 10 }} lainnya ↓
                               </button>
                             </div>
                             @endif
                           @endif
                         </div>
-                      </div>
                     </div>
                   </div>
                   @endif
@@ -1339,20 +1302,20 @@
                   <!-- Urutan Field untuk Export (Buku Inventaris Aset Desa - read-only statis) -->
                   <div class="order-section">
                     <div class="order-section-title">
-                      <i data-feather="list"></i>
                       Urutan Data untuk Export
+                    
                     </div>
                     <div class="order-hint">
-                      <i data-feather="info" style="color:#d97706;stroke:#d97706;width:16px;height:16px;flex-shrink:0;margin-top:2px;"></i>
+                      <i data-feather="info"></i>
                       <span>Kolom export untuk Buku Inventaris Aset Desa bersifat tetap dan tidak dapat diubah.</span>
                     </div>
                     <div style="overflow-x:auto;margin-top:12px;">
-                      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                      <table style="width:100%;border-collapse:collapse;font-size:13px;border:1.5px solid var(--color-border, #cfdcc8);border-radius:10px;overflow:hidden;background:var(--color-surface, #f8faf7);">
                         <thead>
-                          <tr style="background:#f1f5f9;border-bottom:2px solid #e2e8f0;">
-                            <th style="padding:10px 14px;text-align:left;font-weight:600;color:#6b7280;width:80px;">URUTAN</th>
-                            <th style="padding:10px 14px;text-align:left;font-weight:600;color:#6b7280;">LABEL</th>
-                            <th style="padding:10px 14px;text-align:left;font-weight:600;color:#6b7280;width:140px;">KATEGORI</th>
+                          <tr style="background:var(--color-primary-tint, #d5e4d7);border-bottom:1.5px solid var(--color-border, #cfdcc8);">
+                            <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--color-text, #16251b);width:80px;">URUTAN</th>
+                            <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--color-text, #16251b);">LABEL</th>
+                            <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--color-text, #16251b);width:140px;">KATEGORI</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1369,15 +1332,15 @@
                             ];
                           @endphp
                           @foreach($bukuFields as $i => $field)
-                          <tr style="border-bottom:1px solid #e2e8f0;">
-                            <td style="padding:12px 14px;color:#374151;font-weight:500;">{{ $i + 1 }}</td>
+                          <tr style="border-bottom:1px solid var(--color-border, #cfdcc8);">
+                            <td style="padding:12px 14px;color:var(--color-text, #16251b);font-weight:500;">{{ $i + 1 }}</td>
                             <td style="padding:12px 14px;">
-                              <span style="font-weight:600;color:#1e293b;">{{ $field['label'] }}</span>
+                              <span style="font-weight:600;color:var(--color-text, #16251b);">{{ $field['label'] }}</span>
                               @if(!empty($field['sub']))
-                                <br><span style="font-size:11px;color:#6b7280;">{{ $field['sub'] }}</span>
+                                <br><span style="font-size:11px;color:var(--color-text-muted, #546958);">{{ $field['sub'] }}</span>
                               @endif
                             </td>
-                            <td style="padding:12px 14px;color:#3b82f6;font-size:12px;">Data Umum</td>
+                            <td style="padding:12px 14px;color:var(--color-primary, #1f3a2a);font-size:12px;font-weight:600;">Data Umum</td>
                           </tr>
                           @endforeach
                         </tbody>
@@ -1388,11 +1351,11 @@
                   <!-- Interactive Order section untuk jenis biasa DAN template (isTidakDitemukan) -->
                   <div class="order-section">
                     <div class="order-section-title">
-                      <i data-feather="list"></i>
                       Urutan Data untuk Export
+                    
                     </div>
                     <div class="order-hint">
-                      <i data-feather="info" style="color:#d97706;stroke:#d97706;width:16px;height:16px;flex-shrink:0;margin-top:2px;"></i>
+                      <i data-feather="info"></i>
                       <span>Atur urutan kolom yang akan muncul saat export Excel/PDF. Drag & drop untuk mengubah urutan{{ ($isTidakDitemukan ?? false) ? ' dan tandai field yang wajib diisi' : '' }}.</span>
                     </div>
                     <div class="order-list" id="order-list">
@@ -1407,7 +1370,7 @@
 
                   <!-- Form Actions -->
                   <div class="form-actions">
-                    <a href="{{ route('jenis-inventaris.index') }}" class="btn-cancel" onclick="return confirm('Apakah Anda yakin ingin membatalkan? Data yang sudah diisi tidak akan tersimpan.');">
+                    <a href="{{ route('jenis-inventaris.index') }}" class="btn-cancel" onclick="return confirmCancel(event, { returnKey: 'jenis_inventaris_returning', isEdit: true })">
                       <i data-feather="x"></i>
                       Batal
                     </a>
@@ -1436,6 +1399,9 @@
 
     <script>
       (function(){
+        // Raw dropdown data from database
+        const rawDropdownList = @json($dropdownList ?? []);
+
         // Real pejabat data from database
         const rawPejabatList = @json($pejabatsData ?? []);
         const pejabatList = (Array.isArray(rawPejabatList) ? rawPejabatList : Object.values(rawPejabatList || {})).map(p => ({
@@ -1470,7 +1436,7 @@
 
           if (filteredList.length === 0) {
             container.innerHTML = `
-              <div style="padding: 20px; text-align: center; color: #9ca3af; font-size: 13px;">
+              <div style="padding: 20px; text-align: center; color: var(--color-text-muted, #546958); font-size: 13.5px;">
                 Pejabat tidak ditemukan
               </div>
             `;
@@ -1514,15 +1480,8 @@
 
         window.pejabatToggleSearchClear = function(input) {
           const clearBtn = document.getElementById('pejabat-search-clear');
-          const searchIcon = document.getElementById('pejabat-search-icon-btn');
-          if (clearBtn && searchIcon) {
-            if (input.value.length > 0) {
-              clearBtn.style.display = 'flex';
-              searchIcon.style.display = 'none';
-            } else {
-              clearBtn.style.display = 'none';
-              searchIcon.style.display = 'flex';
-            }
+          if (clearBtn) {
+            clearBtn.style.display = input.value.trim().length > 0 ? 'inline-block' : 'none';
           }
         };
 
@@ -1607,13 +1566,8 @@
           const label   = document.getElementById('needs-dropdown-label');
           if (wrapper) wrapper.style.display = checked ? 'block' : 'none';
           if (label) {
-            label.style.borderColor = checked ? '#519259' : '#e5e7eb';
-            label.style.background = checked ? '#519259' : '#ffffff';
-            var allDivs = label.querySelectorAll('div');
-            allDivs.forEach(function(d) {
-              if (d.style.fontSize === '13px') d.style.color = checked ? '#fff' : '#374151';
-              if (d.style.fontSize === '12px') d.style.color = checked ? 'rgba(255,255,255,0.8)' : '#6b7280';
-            });
+            label.style.borderColor = checked ? 'var(--color-primary, #1f3a2a)' : 'var(--color-border, #cfdcc8)';
+            label.style.background  = checked ? 'var(--color-primary-tint, #d5e4d7)' : 'var(--color-surface, #f8faf7)';
           }
           if (!checked) {
             document.querySelectorAll('.dd-checkbox').forEach(cb => {
@@ -1624,80 +1578,83 @@
           }
         }
 
-        function onDropdownItemCheck(cb, ddId) {
+        function onDropdownItemCheck(cb, ddId, ddName) {
           const pills = document.getElementById('dd-pills-' + ddId);
           const row   = cb.closest('[data-id]');
+          const finalDdName = ddName || row?.getAttribute('data-label') || 'Dropdown';
+
           if (pills) pills.style.display = cb.checked ? 'flex' : 'none';
           if (row) {
-            row.style.borderColor = cb.checked ? '#519259' : '#e5e7eb';
-            row.style.background = cb.checked ? '#519259' : '#ffffff';
-            
-            var infoDiv = row.querySelector('div[style*="flex:1"]');
-            if (infoDiv) {
-              var titleDiv = infoDiv.children[0];
-              var descDiv = infoDiv.children[1];
-              if (titleDiv) titleDiv.style.color = cb.checked ? '#ffffff' : '#374151';
-              if (descDiv) descDiv.style.color = cb.checked ? 'rgba(255,255,255,0.8)' : '#9ca3af';
-            }
+            row.style.borderColor = cb.checked ? 'var(--color-primary, #1f3a2a)' : 'var(--color-border, #cfdcc8)';
+            row.style.background  = cb.checked ? 'var(--color-primary-tint, #d5e4d7)' : 'var(--color-surface, #f8faf7)';
             
             if (pills) {
-              var labels = pills.querySelectorAll('label');
-              labels.forEach(function(lbl) {
-                lbl.style.color = cb.checked ? '#ffffff' : '#374151';
-              });
               var reqSpan = document.getElementById('dd-pill-req-' + ddId);
               var expSpan = document.getElementById('dd-pill-exp-' + ddId);
               var reqCb = pills.querySelector('.dd-req-cb');
               var expCb = pills.querySelector('.dd-exp-cb');
-              if (reqSpan && reqCb) reqSpan.style.color = reqCb.checked ? '#ffffff' : '#9ca3af';
-              if (expSpan && expCb) expSpan.style.color = expCb.checked ? '#ffffff' : '#9ca3af';
+              
+              if (cb.checked) {
+                // Default Masuk export = true jika baru dicentang
+                if (expCb && !expCb.checked) {
+                  expCb.checked = true;
+                }
+              }
+              if (reqSpan && reqCb) {
+                reqSpan.style.color = reqCb.checked ? 'var(--color-primary, #1f3a2a)' : 'var(--color-text-muted, #546958)';
+                reqSpan.style.fontWeight = reqCb.checked ? '600' : '500';
+              }
+              if (expSpan && expCb) {
+                expSpan.style.color = expCb.checked ? 'var(--color-primary, #1f3a2a)' : 'var(--color-text-muted, #546958)';
+                expSpan.style.fontWeight = expCb.checked ? '600' : '500';
+              }
             }
           }
           if (!cb.checked && pills) {
             const reqCb = pills.querySelector('.dd-req-cb');
             const expCb = pills.querySelector('.dd-exp-cb');
-            if (reqCb) { reqCb.checked = false; onPillChange(reqCb, 'dd-pill-req-' + ddId, '#064635'); }
-            if (expCb) { expCb.checked = false; onPillChange(expCb, 'dd-pill-exp-' + ddId, '#064635'); }
+            if (reqCb) { reqCb.checked = false; }
+            if (expCb) { expCb.checked = false; }
             syncDropdownToOrderList(ddId, false, '');
           }
-          if (cb.checked && pills) {
-            const ddName = row?.querySelector('div[style*="font-weight:600"]')?.textContent?.trim() || 'Dropdown';
-            // Tambah ke order list, default tidak ada yang tercentang
-            syncDropdownToOrderList(ddId, true, ddName);
+          if (cb.checked) {
+            const reqCb = pills ? pills.querySelector('.dd-req-cb') : null;
+            const expCb = pills ? pills.querySelector('.dd-exp-cb') : null;
+            const isReq = reqCb ? reqCb.checked : false;
+            const isExp = expCb ? expCb.checked : true;
+            syncDropdownToOrderList(ddId, true, finalDdName, isReq, isExp);
           }
         }
 
         function onPillChange(cb, pillId, activeColor) {
           const span = document.getElementById(pillId);
           if (!span) return;
-          var ddId = pillId.replace('dd-pill-req-', '').replace('dd-pill-exp-', '');
-          var itemCb = document.querySelector('input[name="selected_dropdowns[' + ddId + '][enabled]"]');
-          var isRowChecked = itemCb && itemCb.checked;
-          span.style.color = cb.checked ? (isRowChecked ? '#ffffff' : activeColor) : '#9ca3af';
-          if (pillId?.startsWith('dd-pill-exp-')) {
-            const ddId = pillId.replace('dd-pill-exp-', '');
-            const row  = document.querySelector('[data-id="' + ddId + '"]');
-            const ddName = row?.querySelector('div[style*="font-weight:600"]')?.textContent?.trim() || 'Dropdown';
-            syncDropdownToOrderList(ddId, cb.checked, ddName);
+          span.style.color = cb.checked ? 'var(--color-primary, #1f3a2a)' : 'var(--color-text-muted, #546958)';
+          span.style.fontWeight = cb.checked ? '600' : '500';
+          if (pillId && pillId.startsWith('dd-pill-exp-')) {
+            var ddId = pillId.replace('dd-pill-exp-', '');
+            syncExportToOrderList(ddId, cb.checked);
           }
           // Sync "Wajib diisi" dari section dropdown → order list
-          if (pillId?.startsWith('dd-pill-req-')) {
-            const ddId = pillId.replace('dd-pill-req-', '');
+          if (pillId && pillId.startsWith('dd-pill-req-')) {
+            var ddId = pillId.replace('dd-pill-req-', '');
             syncRequiredToOrderList(ddId, cb.checked);
           }
         }
 
-        function syncDropdownToOrderList(ddId, include, label) {
+        function syncDropdownToOrderList(ddId, include, label, isReq, isExp) {
           if (!window.orderList) return;
           const orderId = 'dropdown_' + ddId;
           // Pertahankan is_required dan include_in_export yang sudah ada saat toggle ulang
           const existing = window.orderList.find(f => f.id === orderId);
-          const prevRequired = existing ? existing.is_required : false;
-          const prevExport = existing !== undefined ? existing.include_in_export : false; // default tidak masuk export
+          const prevRequired = isReq !== undefined ? isReq : (existing ? existing.is_required : false);
+          const prevExport = isExp !== undefined ? isExp : (existing !== undefined ? existing.include_in_export : true);
+          const finalLabel = label || (existing ? existing.label : 'Dropdown');
+
           window.orderList = window.orderList.filter(f => f.id !== orderId);
           if (include) {
             window.orderList.push({
-              id: orderId, label, type: 'custom', field_id: null, dropdown_id: ddId,
+              id: orderId, label: finalLabel, type: 'custom', field_id: null, dropdown_id: parseInt(ddId),
               enabled: true, is_required: prevRequired, include_in_export: prevExport
             });
           }
@@ -1732,7 +1689,10 @@
           const label = document.getElementById(labelId);
           if (label) {
             const span = label.querySelector('span');
-            if (span) span.style.color = cb.checked ? '#064635' : '#9ca3af';
+            if (span) {
+              span.style.color = cb.checked ? 'var(--color-primary, #1f3a2a)' : 'var(--color-text-muted, #546958)';
+              span.style.fontWeight = cb.checked ? '600' : '500';
+            }
           }
         };
 
@@ -1743,7 +1703,17 @@
         window.onPillChange          = onPillChange;
         window.syncDropdownToOrderList = syncDropdownToOrderList;
 
+        function adjustFieldSelectWidth(selectEl) {
+          if (!selectEl) return;
+          selectEl.style.width = '170px';
+          selectEl.style.minWidth = '150px';
+          selectEl.style.maxWidth = '180px';
+          selectEl.style.flex = '0 0 170px';
+        }
+        window.adjustFieldSelectWidth = adjustFieldSelectWidth;
+
         function onFieldTipeChange(selectEl, fieldId) {
+          adjustFieldSelectWidth(selectEl);
           const wrapper = document.getElementById('dropdown-select-' + fieldId);
           if (!wrapper) return;
           wrapper.style.display = selectEl.value === 'dropdown' ? 'block' : 'none';
@@ -1755,14 +1725,16 @@
         // ── Dropdown search & show more ──────────────────────────────────────
         let _ddSearchTimer = null;
         window.ddToggleSearchClear = function(input) {
-          const iconBtn = document.getElementById('dd-search-icon-btn');
           const clearBtn = document.getElementById('dd-search-clear');
-          if (iconBtn) iconBtn.style.display = input.value ? 'none' : 'flex';
-          if (clearBtn) clearBtn.style.display = input.value ? 'flex' : 'none';
+          if (clearBtn) {
+            clearBtn.style.display = input.value.trim().length > 0 ? 'inline-block' : 'none';
+          }
         };
 
         window.filterDropdownList = function(val) {
           const q = val.trim().toLowerCase();
+          const clearBtn = document.getElementById('dd-search-clear');
+          if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
 
           const items = document.querySelectorAll('#dropdown-checklist .dd-item-label');
           const showMoreWrap = document.getElementById('dd-show-more-wrap');
@@ -1820,8 +1792,8 @@
           const existingDropdownId = existingField ? (existingField.dropdown_id || '') : '';
           const showDropdownSelect = tipeValue === 'dropdown';
 
-          const reqColor = isRequired ? '#064635' : '#9ca3af';
-          const expColor = isExport ? '#064635' : '#9ca3af';
+          const reqColor = isRequired ? 'var(--color-primary, #1f3a2a)' : 'var(--color-text-muted, #546958)';
+          const expColor = isExport ? 'var(--color-primary, #1f3a2a)' : 'var(--color-text-muted, #546958)';
 
           const fieldHtml = `
             <div class="field-item" data-field-id="${displayCounter}" id="field-${displayCounter}">
@@ -1848,13 +1820,13 @@
                 <input type="hidden" name="fields[${displayCounter}][order]" class="field-order-input" value="${orderValue}" />
                 <div class="field-toggles">
                   <label class="field-required-toggle" id="req-label-edit-${displayCounter}"
-                         style="color:${reqColor}" title="Centang jika field ini wajib diisi">
+                         style="color:${reqColor}; font-weight:${isRequired ? '600' : '500'};" title="Centang jika field ini wajib diisi">
                     <input type="checkbox" name="fields[${displayCounter}][is_required]" value="1" ${isRequired ? 'checked' : ''}
                            onchange="onFieldToggleChange(this, 'req-label-edit-${displayCounter}')" />
                     <span>Wajib diisi</span>
                   </label>
                   <label class="field-export-toggle" id="exp-label-edit-${displayCounter}"
-                         style="color:${expColor}" title="Centang jika field ini masuk ke export">
+                         style="color:${expColor}; font-weight:${isExport ? '600' : '500'};" title="Centang jika field ini masuk ke export">
                     <input type="checkbox" name="fields[${displayCounter}][include_in_export]" value="1" ${isExport ? 'checked' : ''}
                            onchange="onFieldToggleChange(this, 'exp-label-edit-${displayCounter}')" />
                     <span>Masuk export</span>
@@ -1870,6 +1842,11 @@
           `;
           
           fieldsBody.insertAdjacentHTML('beforeend', fieldHtml);
+          const addedItem = document.getElementById(`field-${displayCounter}`);
+          if (addedItem) {
+            const sel = addedItem.querySelector('.field-select');
+            if (sel) adjustFieldSelectWidth(sel);
+          }
           feather.replace();
           updateFieldOrder();
         };
@@ -1999,9 +1976,16 @@
             // Custom field — handle dropdown field secara khusus
             const isDropdownField = field.tipe === 'dropdown' && field.dropdown_id;
             const orderId = isDropdownField ? 'dropdown_' + field.dropdown_id : 'custom_' + field.id;
+            let fieldLabel = field.label_field;
+            if (isDropdownField) {
+              const matchedDropdown = rawDropdownList.find(d => String(d.id) === String(field.dropdown_id));
+              if (matchedDropdown && matchedDropdown.nama) {
+                fieldLabel = matchedDropdown.nama;
+              }
+            }
             window.orderList.push({
               id: orderId,
-              label: field.label_field,
+              label: fieldLabel,
               type: 'custom',
               enabled: true,
               field_id: isDropdownField ? null : field.id,
@@ -2140,7 +2124,7 @@
               const reqCb = document.querySelector(`input[name="selected_dropdowns[${ddId}][required]"]`);
               if (reqCb) {
                 reqCb.checked = isRequired;
-                onPillChange(reqCb, 'dd-pill-req-' + ddId, '#064635');
+                onPillChange(reqCb, 'dd-pill-req-' + ddId, 'var(--color-primary, #1f3a2a)');
               }
             }
           }
@@ -2163,7 +2147,7 @@
               const expCb = document.querySelector(`input[name="selected_dropdowns[${ddId}][include_in_export]"]`);
               if (expCb) {
                 expCb.checked = includeInExport;
-                onPillChange(expCb, 'dd-pill-exp-' + ddId, '#064635');
+                onPillChange(expCb, 'dd-pill-exp-' + ddId, 'var(--color-primary, #1f3a2a)');
               }
             }
             // Re-render agar state checkbox di UI order list konsisten
@@ -2212,33 +2196,30 @@
             const badgeDisabledClass = isDisabled ? 'disabled' : '';
             
             return `
-              <div class="order-row">
-                <div class="order-number-badge ${badgeDisabledClass}">${idx + 1}</div>
-                <div class="order-item ${disabledClass}" data-order-id="${item.id}" draggable="${!isDisabled}">
-                  ${checkboxHtml}
-                  <div class="order-number">${idx + 1}</div>
-                  <div class="order-item-content">
-                    <div class="order-item-label">${item.label}</div>
-                  </div>
-                  <div class="order-item-flags" onclick="event.stopPropagation()">
-                    <label class="order-item-required" title="Centang jika field ini wajib diisi">
-                      <input type="checkbox" ${item.is_required ? 'checked' : ''} onchange="toggleRequiredField('${item.id}', this.checked)" onclick="event.stopPropagation()" />
-                      <span style="color:${item.is_required ? '#064635' : '#9ca3af'}">Wajib diisi</span>
-                    </label>
-                    <label class="order-item-export" title="Centang jika field ini masuk export">
-                      <input type="checkbox" ${isExport ? 'checked' : ''} onchange="toggleExportField('${item.id}', this.checked)" onclick="event.stopPropagation()" />
-                      <span style="color:${isExport ? '#064635' : '#9ca3af'}">Masuk export</span>
-                    </label>
-                  </div>
-                  <div class="order-item-actions">
-                    <div class="order-move-btns">
-                      <button type="button" class="order-move-btn" onclick="moveOrderItem('${item.id}', -1)" ${isFirst || isDisabled ? 'disabled' : ''} title="Pindah ke atas">
-                        <i data-feather="chevron-up"></i>
-                      </button>
-                      <button type="button" class="order-move-btn" onclick="moveOrderItem('${item.id}', 1)" ${isLast || isDisabled ? 'disabled' : ''} title="Pindah ke bawah">
-                        <i data-feather="chevron-down"></i>
-                      </button>
-                    </div>
+              <div class="order-item ${disabledClass}" data-order-id="${item.id}" draggable="${!isDisabled}">
+                ${checkboxHtml}
+                <div class="order-number">${idx + 1}</div>
+                <div class="order-item-content">
+                  <div class="order-item-label">${item.label}</div>
+                </div>
+                <div class="order-item-flags" onclick="event.stopPropagation()">
+                  <label class="order-item-required" title="Centang jika field ini wajib diisi">
+                    <input type="checkbox" ${item.is_required ? 'checked' : ''} onchange="toggleRequiredField('${item.id}', this.checked)" onclick="event.stopPropagation()" />
+                    <span style="color:${item.is_required ? 'var(--color-primary, #1f3a2a)' : 'var(--color-text-muted, #546958)'}; font-weight:${item.is_required ? '600' : '500'};">Wajib diisi</span>
+                  </label>
+                  <label class="order-item-export" title="Centang jika field ini masuk export">
+                    <input type="checkbox" ${isExport ? 'checked' : ''} onchange="toggleExportField('${item.id}', this.checked)" onclick="event.stopPropagation()" />
+                    <span style="color:${isExport ? 'var(--color-primary, #1f3a2a)' : 'var(--color-text-muted, #546958)'}; font-weight:${isExport ? '600' : '500'};">Masuk export</span>
+                  </label>
+                </div>
+                <div class="order-item-actions">
+                  <div class="order-move-btns">
+                    <button type="button" class="order-move-btn" onclick="moveOrderItem('${item.id}', -1)" ${isFirst || isDisabled ? 'disabled' : ''} title="Pindah ke atas">
+                      <i data-feather="chevron-up"></i>
+                    </button>
+                    <button type="button" class="order-move-btn" onclick="moveOrderItem('${item.id}', 1)" ${isLast || isDisabled ? 'disabled' : ''} title="Pindah ke bawah">
+                      <i data-feather="chevron-down"></i>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -2445,6 +2426,7 @@
             order: field.order
           });
         });
+        document.querySelectorAll('.field-inputs-row .field-select').forEach(sel => adjustFieldSelectWidth(sel));
         // console.log('[INIT] Custom fields populated successfully');
 
         // Add form submission handler to sync order before submit
@@ -2466,10 +2448,14 @@
       })();
 
       // Confirm Cancel
-      function confirmCancel() {
-        if (confirm('Apakah Anda yakin ingin membatalkan? Data yang sudah diisi tidak akan tersimpan.')) {
-          window.location.href = "{{ route('jenis-inventaris.index') }}";
-        }
+      function confirmCancel(e, extraOpts) {
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
+        AppModal.confirmCancel(Object.assign({
+          url: "{{ route('jenis-inventaris.index') }}",
+          returnKey: 'jenis_inventaris_returning',
+          isEdit: true
+        }, extraOpts || {}));
+        return false;
       }
 
       // Sync order list to hidden inputs before form submission
@@ -2576,21 +2562,39 @@
       function confirmSubmit() {
         const form = document.getElementById('jenis-form');
         
-        if (!form.checkValidity()) {
-          form.reportValidity();
+        if (typeof window.simaValidateForm === 'function') {
+          if (!window.simaValidateForm(form)) return;
+        } else if (!form.checkValidity()) {
+          const firstInvalid = form.querySelector(':invalid');
+          if (firstInvalid) {
+            const target = (firstInvalid.offsetParent !== null) ? firstInvalid : (firstInvalid.closest('.form-group') || firstInvalid);
+            if (target && typeof target.scrollIntoView === 'function') {
+              target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            if (typeof firstInvalid.focus === 'function') {
+              try { firstInvalid.focus(); } catch(err) {}
+            }
+          }
           return;
         }
 
-        const nama = document.getElementById('nama').value.trim();
+        const namaEl = document.getElementById('nama');
+        const nama = namaEl ? namaEl.value.trim() : '';
         if (!nama) {
-          alert('Nama jenis inventaris wajib diisi!');
+          if (namaEl) {
+            namaEl.style.borderColor = '#dc2626';
+            namaEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            namaEl.focus();
+          }
+          AppModal.error('Validasi Form', 'Nama jenis inventaris wajib diisi!');
           return;
         }
+        if (namaEl) namaEl.style.borderColor = '';
 
         // Tampilkan konfirmasi DULU, baru sync dan submit setelah user klik Ya
         AppModal.confirm(
-          'Konfirmasi Simpan Perubahan',
-          'Apakah Anda yakin ingin menyimpan perubahan jenis inventaris ini?',
+          'Update Jenis Inventaris',
+          'Apakah Anda yakin ingin update data jenis inventaris ini?',
           function() {
             // Sync order dan pejabat SETELAH user konfirmasi
             syncOrderToForm();
@@ -2622,13 +2626,8 @@
       window.onRequiresRuanganChange = function(checked) {
         const label = document.getElementById('requires-ruangan-label');
         if (label) {
-          label.style.borderColor = checked ? '#519259' : '#e5e7eb';
-          label.style.background  = checked ? '#519259' : '#fff';
-          var allDivs = label.querySelectorAll('div');
-          allDivs.forEach(function(d) {
-            if (d.style.fontSize === '13px') d.style.color = checked ? '#fff' : '#374151';
-            if (d.style.fontSize === '12px') d.style.color = checked ? 'rgba(255,255,255,0.8)' : '#6b7280';
-          });
+          label.style.borderColor = checked ? 'var(--color-primary, #1f3a2a)' : 'var(--color-border, #cfdcc8)';
+          label.style.background  = checked ? 'var(--color-primary-tint, #d5e4d7)' : 'var(--color-surface, #f8faf7)';
         }
       };
 
@@ -2638,183 +2637,9 @@
         if (cb) window.onRequiresRuanganChange(cb.checked);
       });
 
-      // ===== ICON & COLOR PICKER =====
-      (function() {
-        const ICONS = [
-          // Transportasi & Kendaraan
-          'truck','package','navigation','anchor','compass','send',
-          // Bangunan & Properti
-          'home','map','map-pin','globe','layout','grid',
-          // Alam & Lingkungan
-          'droplet','sun','cloud','wind','thermometer','umbrella',
-          // Peralatan & Mesin
-          'tool','settings','sliders','cpu','hard-drive','server',
-          // Elektronik & Teknologi
-          'monitor','smartphone','tablet','printer','camera','video',
-          // Listrik & Energi
-          'zap','battery','power','radio','wifi','bluetooth',
-          // Furnitur & Kantor
-          'sidebar','briefcase','inbox','archive','clipboard','folder',
-          // Dokumen & Data
-          'file-text','book-open','book','file','layers','database',
-          // Keuangan & Nilai
-          'dollar-sign','credit-card','trending-up','bar-chart-2','pie-chart','activity',
-          // Orang & Organisasi
-          'users','user','user-check','award','shield','key',
-          // Umum & Lainnya
-          'package','box','tag','grid','list','star',
-          'heart','flag','bell','clock','calendar','check-circle',
-          'alert-triangle','info','help-circle','eye','search','lock',
-          'trash-2','edit','plus-circle','minus-circle','refresh-cw','share-2',
-        ];
-
-        const COLOR_PRESETS = [
-          '#064635','#6366f1','#0ea5e9','#14b8a6','#10b981',
-          '#84cc16','#f59e0b','#f97316','#ef4444','#f43f5e',
-          '#ec4899','#a855f7','#8b5cf6','#06b6d4'
-        ];
-
-        // Load existing values from Blade
-        let selectedIcon  = document.getElementById('custom_icon_input')  ? document.getElementById('custom_icon_input').value  : '';
-        let selectedColor = document.getElementById('custom_color_input') ? document.getElementById('custom_color_input').value : '';
-
-        function renderIconGrid() {
-          const grid = document.getElementById('icon-picker-grid');
-          if (!grid) return;
-          grid.innerHTML = ICONS.map(icon => {
-            const isSelected = icon === selectedIcon;
-            return `
-              <button type="button" data-icon="${icon}"
-                onclick="selectIcon('${icon}')"
-                title="${icon}"
-                id="icon-btn-${icon}"
-                style="width:100%;aspect-ratio:1;border:2px solid ${isSelected ? '#064635' : '#e5e7eb'};
-                       border-radius:8px;background:${isSelected ? '#eff6ff' : '#fff'};
-                       display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;">
-                <i data-feather="${icon}" style="width:18px;height:18px;color:#374151;stroke:#374151;pointer-events:none;"></i>
-              </button>`;
-          }).join('');
-          if (typeof feather !== 'undefined') feather.replace();
-        }
-
-        function renderColorGrid() {
-          const grid = document.getElementById('color-preset-grid');
-          if (!grid) return;
-          grid.innerHTML = COLOR_PRESETS.map(color => {
-            const isSelected = color === selectedColor;
-            return `
-              <button type="button" data-color="${color}"
-                onclick="selectColor('${color}')"
-                title="${color}"
-                id="color-btn-${color.replace('#','')}"
-                style="width:100%;aspect-ratio:1;border-radius:8px;background:${color};
-                       border:3px solid ${isSelected ? '#1f2937' : 'transparent'};cursor:pointer;transition:all 0.15s;">
-              </button>`;
-          }).join('');
-        }
-
-        window.selectIcon = function(icon) {
-          selectedIcon = icon;
-          document.getElementById('custom_icon_input').value = icon;
-          document.querySelectorAll('#icon-picker-grid button').forEach(btn => {
-            const isSel = btn.dataset.icon === icon;
-            btn.style.borderColor = isSel ? '#064635' : '#e5e7eb';
-            btn.style.background  = isSel ? '#eff6ff' : '#fff';
-          });
-          updatePreview();
-        };
-
-        window.selectColor = function(color) {
-          selectedColor = color;
-          document.getElementById('custom_color_input').value = color;
-          const picker = document.getElementById('custom_color_picker');
-          if (picker) picker.value = color;
-          const hex = document.getElementById('custom_color_hex');
-          if (hex) hex.textContent = color;
-          document.querySelectorAll('#color-preset-grid button').forEach(btn => {
-            btn.style.borderColor = btn.dataset.color === color ? '#1f2937' : 'transparent';
-          });
-          updatePreview();
-        };
-
-        window.onCustomColorInput = function(color) {
-          selectedColor = color;
-          document.getElementById('custom_color_input').value = color;
-          const hex = document.getElementById('custom_color_hex');
-          if (hex) hex.textContent = color;
-          document.querySelectorAll('#color-preset-grid button').forEach(btn => {
-            btn.style.borderColor = 'transparent';
-          });
-          updatePreview();
-        };
-
-        function updatePreview() {
-          const box  = document.getElementById('icon-preview-box');
-          const icon = document.getElementById('icon-preview-icon');
-          if (box && selectedColor) box.style.background = selectedColor;
-          if (icon && selectedIcon) {
-            icon.setAttribute('data-feather', selectedIcon);
-            if (typeof feather !== 'undefined') feather.replace();
-          }
-        }
-
-        window.onIconModeChange = function(mode) {
-          const manualOpts = document.getElementById('manual-icon-options');
-          const cardAuto   = document.getElementById('card-auto');
-          const cardManual = document.getElementById('card-manual');
-          if (!manualOpts) return;
-
-          // Helper: style a card as active or inactive
-          function styleCard(card, isActive) {
-            card.style.borderColor = isActive ? '#519259' : '#e5e7eb';
-            card.style.background  = isActive ? '#519259' : '#fff';
-            // Icon box = first child div with border-radius
-            var iconBox = card.children[0];
-            if (iconBox && iconBox.tagName === 'DIV') {
-              iconBox.style.background = isActive ? 'rgba(255,255,255,0.2)' : '#e5e7eb';
-              // Icon inside (could be svg after feather.replace or i)
-              var svgEl = iconBox.querySelector('svg');
-              var iEl   = iconBox.querySelector('i');
-              var iconTarget = svgEl || iEl;
-              if (iconTarget) {
-                iconTarget.style.color  = isActive ? '#fff' : '#6b7280';
-                iconTarget.style.stroke = isActive ? '#fff' : '#6b7280';
-              }
-            }
-            // Text container = second child div
-            var textBox = card.children[1];
-            if (textBox && textBox.tagName === 'DIV') {
-              var title = textBox.children[0];
-              var desc  = textBox.children[1];
-              if (title) title.style.color = isActive ? '#fff' : '#374151';
-              if (desc)  desc.style.color  = isActive ? 'rgba(255,255,255,0.8)' : '#6b7280';
-            }
-          }
-
-          // Apply styles
-          styleCard(cardAuto, mode === 'auto');
-          styleCard(cardManual, mode === 'manual');
-
-          if (mode === 'manual') {
-            manualOpts.style.display = 'block';
-            if (!selectedIcon)  { window.selectIcon('layers'); }
-            if (!selectedColor) { window.selectColor('#064635'); }
-          } else {
-            manualOpts.style.display = 'none';
-            document.getElementById('custom_icon_input').value  = '';
-            document.getElementById('custom_color_input').value = '';
-          }
-        };
-
-        document.addEventListener('DOMContentLoaded', function() {
-          renderIconGrid();
-          renderColorGrid();
-          // If manual mode is active, ensure preview reflects existing values
-          if (selectedIcon || selectedColor) {
-            updatePreview();
-          }
-        });
-      })();
+      document.addEventListener('DOMContentLoaded', function() {
+        try { sessionStorage.setItem('jenis_inventaris_returning', '1'); } catch(e) {}
+      });
     </script>
   </body>
 </html>

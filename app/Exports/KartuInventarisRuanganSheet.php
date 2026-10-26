@@ -11,8 +11,17 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 
-class KartuInventarisRuanganSheet implements FromArray, WithTitle, WithStyles, WithColumnWidths, WithEvents
+class KartuInventarisRuanganSheet extends StringValueBinder implements
+    FromArray,
+    WithTitle,
+    WithStyles,
+    WithColumnWidths,
+    WithEvents,
+    WithCustomValueBinder
 {
     protected array $rows = [];
     protected int   $headerEndRow   = 0;
@@ -68,6 +77,8 @@ class KartuInventarisRuanganSheet implements FromArray, WithTitle, WithStyles, W
         $this->headerEndRow = count($rows);
         $this->dataStartRow = count($rows) + 1;
 
+        $this->totalNilai = 0.0;
+
         // Data rows
         foreach ($this->ruanganData as $rd) {
             $ruangan = $rd['ruangan'];
@@ -80,13 +91,16 @@ class KartuInventarisRuanganSheet implements FromArray, WithTitle, WithStyles, W
             $rows[] = ['Nama Ruangan : ' . $ruangan->kode . ' .' . $ruangan->nama, '', '', '', '', '', '', '', '', ''];
 
             foreach ($rdRows as $row) {
-                // Konversi harga dari string ke float agar Excel mengenali sebagai angka
-                $hargaValue = $row['harga'];
-                if (is_string($hargaValue) && $hargaValue !== '') {
-                    // Remove format: "1.000.000,00" → 1000000.00
-                    $hargaValue = str_replace(['.', ','], ['', '.'], $hargaValue);
-                    $hargaValue = is_numeric($hargaValue) ? (float)$hargaValue : '';
+                // Ambil nilai perolehan langsung dari objek inventaris jika tersedia, atau parse harga
+                $nilai = isset($row['inv_obj']) && isset($row['inv_obj']->nilai_perolehan)
+                    ? (float)$row['inv_obj']->nilai_perolehan
+                    : 0.0;
+                if ($nilai <= 0 && !empty($row['harga'])) {
+                    $cleaned = str_replace(['.', ','], ['', '.'], (string)$row['harga']);
+                    $nilai = is_numeric($cleaned) ? (float)$cleaned : 0.0;
                 }
+                $this->totalNilai += $nilai;
+                $hargaFormatted = $nilai > 0 ? number_format($nilai, fmod($nilai, 1) != 0 ? 2 : 0, ',', '.') : '';
                 
                 $rows[] = [
                     $row['no'],
@@ -97,7 +111,7 @@ class KartuInventarisRuanganSheet implements FromArray, WithTitle, WithStyles, W
                     $row['identitas'],
                     $row['no_pol'],
                     $row['asal_usul'],
-                    $hargaValue, // Simpan sebagai float, bukan string
+                    $hargaFormatted,
                     $row['keterangan'],
                 ];
             }
@@ -105,8 +119,7 @@ class KartuInventarisRuanganSheet implements FromArray, WithTitle, WithStyles, W
 
         // Baris JUMLAH HARGA
         $this->jumlahRow = count($rows) + 1;
-        // Simpan totalNilai sebagai float, bukan string dengan format
-        $rows[] = ['JUMLAH HARGA', '', '', '', '', '', '', '', $this->totalNilai, ''];
+        $rows[] = ['JUMLAH HARGA', '', '', '', '', '', '', '', number_format($this->totalNilai, fmod($this->totalNilai, 1) != 0 ? 2 : 0, ',', '.'), ''];
 
         // Baris kosong sebelum TTD
         $rows[] = ['', '', '', '', '', '', '', '', '', ''];
@@ -266,10 +279,10 @@ class KartuInventarisRuanganSheet implements FromArray, WithTitle, WithStyles, W
                         ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                     
                     // Format kolom HARGA sebagai NUMBER dengan format Indonesia (titik = ribuan, koma = desimal)
-                    // Format: #.##0,00 → 18.500.000,00
+                    // Format: #,##0 → 18.500.000
                     $sheet->getStyle('I' . $this->dataStartRow . ':I' . $this->jumlahRow)
                         ->getNumberFormat()
-                        ->setFormatCode('#,##0.00_);[Red](#,##0.00)');
+                        ->setFormatCode('#,##0_);[Red](#,##0)');
                 }
 
                 // Ruangan separator rows — abu-abu, bold, italic, merge A:J, LEFT alignment (sesuai PDF)

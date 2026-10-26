@@ -12,12 +12,20 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 
 /**
  * Export satu sheet KIB ke Excel.
  * Kolom dan format mengikuti standar Permendagri per KIB type.
  */
-class KibSheetExport implements FromCollection, WithTitle, WithColumnWidths, WithEvents
+class KibSheetExport extends StringValueBinder implements
+    FromCollection,
+    WithTitle,
+    WithColumnWidths,
+    WithEvents,
+    WithCustomValueBinder
 {
     protected string $kibType;
     protected array $kibConfig;
@@ -74,18 +82,18 @@ class KibSheetExport implements FromCollection, WithTitle, WithColumnWidths, Wit
             }
             return (string)$val;
         };
-        $kvNum = function(string $key) use ($inv): string {
+        $kvNum = function(string $key) use ($inv) {
             $v = $inv->getKibValue($key);
             if ($v === null || trim((string)$v) === '') {
                 return '-';
             }
-            return number_format((float)$v, 2, ',', '.');
+            return is_numeric($v) ? number_format((float)$v, fmod((float)$v, 1) != 0 ? 2 : 0, ',', '.') : (string)$v;
         };
         $kondisiMap = ['baik' => 'B', 'rusak_ringan' => 'RR', 'rusak_berat' => 'RB'];
         $kondisi = $kondisiMap[$inv->kondisi ?? ''] ?? '';
         $asalUsulMap = ['apbdes' => 'APBDesa', 'perolehan_lain' => 'Perolehan Lain', 'kekayaan_asli' => 'Kekayaan Asli'];
         $asalUsul = $asalUsulMap[$inv->asal_usul ?? ''] ?? ($inv->asal_usul ?? '');
-        $harga = $nilai > 0 ? number_format($nilai, 2, ',', '.') : '';
+        $harga = $nilai > 0 ? number_format($nilai, fmod($nilai, 1) != 0 ? 2 : 0, ',', '.') : '-';
 
         $base = [
             ++$this->rowCounter,
@@ -411,8 +419,8 @@ class KibSheetExport implements FromCollection, WithTitle, WithColumnWidths, Wit
                         $sheet->setCellValue("G{$numRow}", 5); $sheet->mergeCells("G{$numRow}:I{$numRow}");
                         $sheet->setCellValue("J{$numRow}", 6); $sheet->mergeCells("J{$numRow}:K{$numRow}");
                         $sheet->setCellValue("L{$numRow}", 7);
-                        $sheet->setCellValue("O{$numRow}", 8);
-                        $sheet->setCellValue("M{$numRow}", 9); $sheet->mergeCells("M{$numRow}:N{$numRow}");
+                        $sheet->setCellValue("M{$numRow}", 8); $sheet->mergeCells("M{$numRow}:N{$numRow}");
+                        $sheet->setCellValue("O{$numRow}", 9);
                         $sheet->setCellValue("P{$numRow}", 10);
                         $sheet->setCellValue("Q{$numRow}", 11);
                         break;
@@ -498,9 +506,15 @@ class KibSheetExport implements FromCollection, WithTitle, WithColumnWidths, Wit
                 $hargaColLetter = $this->numToColLetter($this->getHargaColIndex() + 1);
                 $mergeEndLetter = $this->numToColLetter($this->getHargaColIndex());
 
+                if ($actualLastRow >= $dataStart) {
+                    $sheet->getStyle("{$hargaColLetter}{$dataStart}:{$hargaColLetter}{$actualLastRow}")
+                        ->getNumberFormat()
+                        ->setFormatCode(NumberFormat::FORMAT_TEXT);
+                }
+
                 $sheet->mergeCells("A{$jumlahRow}:{$mergeEndLetter}{$jumlahRow}");
                 $sheet->setCellValue("A{$jumlahRow}", 'JUMLAH HARGA');
-                $sheet->setCellValue("{$hargaColLetter}{$jumlahRow}", number_format($this->totalHarga, 2, ',', '.'));
+                $sheet->setCellValue("{$hargaColLetter}{$jumlahRow}", number_format($this->totalHarga, fmod($this->totalHarga, 1) != 0 ? 2 : 0, ',', '.'));
 
                 $sheet->getStyle("A{$jumlahRow}:{$lastCol}{$jumlahRow}")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10],
@@ -509,9 +523,6 @@ class KibSheetExport implements FromCollection, WithTitle, WithColumnWidths, Wit
                 ]);
                 $sheet->getStyle("A{$jumlahRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 $sheet->getStyle("{$hargaColLetter}{$jumlahRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-                $sheet->getStyle("{$hargaColLetter}{$jumlahRow}")
-                    ->getNumberFormat()
-                    ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
                 $sheet->getRowDimension($jumlahRow)->setRowHeight(22);
 
                 // Signature block (Tim Inventarisasi / Pejabat)
@@ -527,15 +538,25 @@ class KibSheetExport implements FromCollection, WithTitle, WithColumnWidths, Wit
                     $kananStart = $this->numToColLetter($kananStartNum);
                     $kananEnd = $lastCol;
                     
-                    // Kiri: Sekretaris Desa
+                    // Kiri: Mengetahui (Sekretaris Desa / Perbekel / Custom)
+                    $kiriJabatan = strtoupper($this->pejabatKiri['jabatan'] ?? 'SEKRETARIS DESA');
+                    $kiriSub = '';
+                    if (str_contains($kiriJabatan, 'SEKRETARIS')) {
+                        $kiriSub = 'Selaku Pembantu Pengelola Barang Milik Desa';
+                    } elseif (str_contains($kiriJabatan, 'PERBEKEL') || str_contains($kiriJabatan, 'KEPALA')) {
+                        $kiriSub = 'Selaku Pemegang Kekuasaan Pengelolaan Barang Milik Desa';
+                    }
+                    
                     $sheet->setCellValue("{$kiriStart}{$ttdRow}", "MENGETAHUI");
                     $sheet->mergeCells("{$kiriStart}{$ttdRow}:{$kiriEnd}{$ttdRow}");
-                    $sheet->setCellValue("{$kiriStart}" . ($ttdRow + 1), "SEKRETARIS DESA");
+                    $sheet->setCellValue("{$kiriStart}" . ($ttdRow + 1), $kiriJabatan);
                     $sheet->mergeCells("{$kiriStart}" . ($ttdRow + 1) . ":{$kiriEnd}" . ($ttdRow + 1));
-                    $sheet->setCellValue("{$kiriStart}" . ($ttdRow + 2), "Selaku Pembantu Pengelola Barang Milik Desa");
-                    $sheet->mergeCells("{$kiriStart}" . ($ttdRow + 2) . ":{$kiriEnd}" . ($ttdRow + 2));
+                    if ($kiriSub) {
+                        $sheet->setCellValue("{$kiriStart}" . ($ttdRow + 2), $kiriSub);
+                        $sheet->mergeCells("{$kiriStart}" . ($ttdRow + 2) . ":{$kiriEnd}" . ($ttdRow + 2));
+                    }
                     
-                    // Kanan: Petugas Barang
+                    // Kanan: Petugas / Pengurus Barang
                     $bulan = [1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',
                               7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'];
                     $tglStr = '';
@@ -552,9 +573,11 @@ class KibSheetExport implements FromCollection, WithTitle, WithColumnWidths, Wit
                     $loc = $this->keteranganDokumen ?: (config('desa.nama_lokasi') ?? '');
                     $tanggalDisplay = ($loc ? $loc . ', ' : '') . $tglStr;
                     
+                    $kananJabatan = strtoupper($this->pejabatKanan['jabatan'] ?? 'PETUGAS / PENGURUS BARANG MILIK DESA');
+
                     $sheet->setCellValue("{$kananStart}{$ttdRow}", $tanggalDisplay);
                     $sheet->mergeCells("{$kananStart}{$ttdRow}:{$kananEnd}{$ttdRow}");
-                    $sheet->setCellValue("{$kananStart}" . ($ttdRow + 1), "PETUGAS / PENGURUS BARANG MILIK DESA");
+                    $sheet->setCellValue("{$kananStart}" . ($ttdRow + 1), $kananJabatan);
                     $sheet->mergeCells("{$kananStart}" . ($ttdRow + 1) . ":{$kananEnd}" . ($ttdRow + 1));
                     
                     $sheet->getStyle("{$kiriStart}{$ttdRow}:{$kananEnd}" . ($ttdRow + 2))->applyFromArray([

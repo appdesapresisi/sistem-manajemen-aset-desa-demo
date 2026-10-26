@@ -7,6 +7,7 @@ use App\Models\Pejabat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Services\PejabatService;
+use App\Services\ActivityLogger;
 use App\Http\Requests\StorePejabatRequest;
 use App\Http\Requests\UpdatePejabatRequest;
 
@@ -62,6 +63,7 @@ class PejabatApiController extends Controller
         }
         try {
             $pejabat = $this->service->create($data);
+            ActivityLogger::log('Pejabat', 'tambah', 'Menambahkan pejabat ' . ($pejabat->nama ?? '-'), $pejabat?->id, $pejabat->nama ?? null);
             return response()->json($pejabat, 201);
         } catch (\Exception $e) {
             Log::error('PejabatApiController::store error', ['error' => $e->getMessage()]);
@@ -89,6 +91,7 @@ class PejabatApiController extends Controller
             $this->authorize('update', $existing);
             $pejabat = $this->service->update($id, $data);
             if (!$pejabat) return response()->json(['message' => 'Pejabat tidak ditemukan'], 404);
+            ActivityLogger::log('Pejabat', 'ubah', 'Mengubah pejabat ' . ($pejabat->nama ?? '-'), (int) $id, $pejabat->nama ?? null);
             return response()->json($pejabat);
         } catch (\Exception $e) {
             Log::error('PejabatApiController::update error', ['error' => $e->getMessage()]);
@@ -101,9 +104,14 @@ class PejabatApiController extends Controller
         $existing = $this->service->getById($id);
         if (!$existing) return response()->json(['message' => 'Pejabat tidak ditemukan'], 404);
         $this->authorize('delete', $existing);
-        $deleted = $this->service->delete($id);
-        if (!$deleted) return response()->json(['message' => 'Pejabat tidak ditemukan'], 404);
-        return response()->json(['message' => 'Pejabat dihapus']);
+        try {
+            $deleted = $this->service->delete($id);
+            if (!$deleted) return response()->json(['message' => 'Pejabat tidak ditemukan'], 404);
+            ActivityLogger::log('Pejabat', 'hapus', 'Menghapus pejabat ' . ($existing->nama ?? '-'), (int) $id, $existing->nama ?? null);
+            return response()->json(['success' => true, 'message' => 'Pejabat dihapus']);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
     }
 }
 

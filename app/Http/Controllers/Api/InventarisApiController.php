@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Inventaris;
+use App\Models\InventarisFoto;
 use App\Models\InventarisValue;
 use App\Models\JenisInventarisData;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreInventarisRequest;
 use App\Http\Requests\UpdateInventarisRequest;
 
@@ -20,6 +24,7 @@ class InventarisApiController extends Controller
         $query = Inventaris::with([
             'jenis:id,nama',
             'values.field',
+            'laporanAsetValue',
         ]);
 
         if ($request->has('jenis_inventaris_id')) {
@@ -71,8 +76,14 @@ class InventarisApiController extends Controller
                 'nama_barang' => $data['nama_barang'] ?? null,
                 'kode_barang' => $data['kode_barang'] ?? null,
                 'nup' => $data['nup'] ?? null,
+                'satuan' => $data['satuan'] ?? null,
                 'tahun_perolehan' => $data['tahun_perolehan'] ?? null,
                 'nilai_perolehan' => $data['nilai_perolehan'] ?? null,
+                'asal_usul' => $data['asal_usul'] ?? 'apbdes',
+                'bukti_kepemilikan' => $data['bukti_kepemilikan'] ?? null,
+                'pengguna' => $data['pengguna'] ?? null,
+                'ruangan_id' => $data['ruangan_id'] ?? null,
+                'barcode' => !empty($data['barcode']) ? $data['barcode'] : Inventaris::generateBarcode(),
                 'keterangan' => $data['keterangan'] ?? null,
                 'kondisi' => $data['kondisi'] ?? null,
                 // created_by di-set otomatis oleh Inventaris::booted()
@@ -89,11 +100,53 @@ class InventarisApiController extends Controller
                 ]);
             }
 
+            // Simpan KIB values
+            $kibData = $request->input('kib', []);
+            if (!empty($kibData) && is_array($kibData)) {
+                foreach ($kibData as $key => $value) {
+                    if ($value === null || $value === '') continue;
+                    \App\Models\InventarisKibValue::updateOrCreate(
+                        ['inventaris_id' => $inventaris->id, 'kib_field_key' => $key],
+                        ['value' => $value]
+                    );
+                }
+            }
+
+            // Simpan KIR values
+            $kirData = $request->input('kir', []);
+            if (!empty($kirData) && is_array($kirData)) {
+                foreach ($kirData as $key => $value) {
+                    if ($value === null || $value === '') continue;
+                    \App\Models\InventarisKirValue::updateOrCreate(
+                        ['inventaris_id' => $inventaris->id, 'kir_field_key' => $key],
+                        ['value' => $value]
+                    );
+                }
+            }
+
+            // Simpan Laporan Aset values (bulan perolehan)
+            $bulanPerolehan = $request->input('bulan_perolehan');
+            if ($bulanPerolehan !== null && $bulanPerolehan !== '') {
+                \App\Models\InventarisLaporanAsetValue::updateOrCreate(
+                    ['inventaris_id' => $inventaris->id],
+                    ['bulan_perolehan' => (int)$bulanPerolehan]
+                );
+            }
+
             // DISABLED: approval records are not created when adding via API
             
             DB::commit();
 
-            $inventaris->load(['jenis:id,nama', 'values.field']);
+            Cache::forget('dashboard_kpi');
+            Cache::forget('dashboard_charts');
+
+            ActivityLogger::log('Inventaris', 'tambah',
+                'Menambahkan inventaris via API ' . ($inventaris->kode_barang ?? '') . ' - ' . ($inventaris->nama_barang ?? ''),
+                $inventaris->id,
+                $inventaris->nama_barang ?? $inventaris->kode_barang
+            );
+
+            $inventaris->load(['jenis:id,nama', 'values.field', 'laporanAsetValue']);
 
             return response()->json([
                 'success' => true,
@@ -103,9 +156,10 @@ class InventarisApiController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('InventarisApiController::store error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menambahkan inventaris.'
+                'message' => 'Gagal menambahkan inventaris: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -116,6 +170,7 @@ class InventarisApiController extends Controller
             'jenis:id,nama',
             'jenis.fields',
             'values.field',
+            'laporanAsetValue',
         ])->findOrFail($id);
 
         $this->authorize('view', $inventaris);
@@ -141,8 +196,14 @@ class InventarisApiController extends Controller
                 'nama_barang' => $data['nama_barang'] ?? null,
                 'kode_barang' => $data['kode_barang'] ?? null,
                 'nup' => $data['nup'] ?? null,
+                'satuan' => $data['satuan'] ?? $inventaris->satuan,
                 'tahun_perolehan' => $data['tahun_perolehan'] ?? null,
                 'nilai_perolehan' => $data['nilai_perolehan'] ?? null,
+                'asal_usul' => $data['asal_usul'] ?? $inventaris->asal_usul,
+                'bukti_kepemilikan' => array_key_exists('bukti_kepemilikan', $data) ? $data['bukti_kepemilikan'] : $inventaris->bukti_kepemilikan,
+                'pengguna' => array_key_exists('pengguna', $data) ? $data['pengguna'] : $inventaris->pengguna,
+                'ruangan_id' => array_key_exists('ruangan_id', $data) ? $data['ruangan_id'] : $inventaris->ruangan_id,
+                'barcode' => !empty($data['barcode']) ? $data['barcode'] : ($inventaris->barcode ?: Inventaris::generateBarcode()),
                 'keterangan' => $data['keterangan'] ?? null,
                 'kondisi' => $data['kondisi'] ?? null,
                 // updated_by di-set otomatis oleh Inventaris::booted()
@@ -157,13 +218,55 @@ class InventarisApiController extends Controller
                     ['value' => $value]
                 );
             }
+
+            // Update KIB values
+            $kibData = $request->input('kib', []);
+            if (!empty($kibData) && is_array($kibData)) {
+                foreach ($kibData as $key => $value) {
+                    if ($value === null || $value === '') continue;
+                    \App\Models\InventarisKibValue::updateOrCreate(
+                        ['inventaris_id' => $inventaris->id, 'kib_field_key' => $key],
+                        ['value' => $value]
+                    );
+                }
+            }
+
+            // Update KIR values
+            $kirData = $request->input('kir', []);
+            if (!empty($kirData) && is_array($kirData)) {
+                foreach ($kirData as $key => $value) {
+                    if ($value === null || $value === '') continue;
+                    \App\Models\InventarisKirValue::updateOrCreate(
+                        ['inventaris_id' => $inventaris->id, 'kir_field_key' => $key],
+                        ['value' => $value]
+                    );
+                }
+            }
+
+            // Update Laporan Aset values (bulan perolehan)
+            $bulanPerolehan = $request->input('bulan_perolehan');
+            if ($bulanPerolehan !== null && $bulanPerolehan !== '') {
+                \App\Models\InventarisLaporanAsetValue::updateOrCreate(
+                    ['inventaris_id' => $inventaris->id],
+                    ['bulan_perolehan' => (int)$bulanPerolehan]
+                );
+            }
             
             DB::commit();
+
+            Cache::forget('dashboard_kpi');
+            Cache::forget('dashboard_charts');
+
+            ActivityLogger::log('Inventaris', 'ubah',
+                'Mengubah inventaris via API ' . ($inventaris->kode_barang ?? '') . ' - ' . ($inventaris->nama_barang ?? ''),
+                $inventaris->id,
+                $inventaris->nama_barang ?? $inventaris->kode_barang
+            );
 
             return response()->json([
                 'success' => true,
                 'message' => 'Inventaris berhasil diupdate',
-                'data' => $this->serializeInventaris($inventaris->fresh(['jenis:id,nama', 'values.field'])),
+                'data' => $this->serializeInventaris($inventaris->fresh(['jenis:id,nama', 'values.field', 'laporanAsetValue'])),
             ]);
 
         } catch (\Exception $e) {
@@ -177,16 +280,42 @@ class InventarisApiController extends Controller
 
     public function destroy($id)
     {
-        $inventaris = Inventaris::findOrFail($id);
+        $inventaris = Inventaris::with('fotos')->findOrFail($id);
         $this->authorize('delete', $inventaris);
+
+        $kodeBarang = $inventaris->kode_barang;
+        $namaBarang = $inventaris->nama_barang;
 
         try {
             DB::beginTransaction();
             
             InventarisValue::where('inventaris_id', $id)->delete();
+            \App\Models\InventarisKibValue::where('inventaris_id', $id)->delete();
+            \App\Models\InventarisKirValue::where('inventaris_id', $id)->delete();
+            \App\Models\InventarisLaporanAsetValue::where('inventaris_id', $id)->delete();
+            \App\Models\ExportLog::where('inventaris_id', $id)->update(['inventaris_id' => null]);
+
+            foreach ($inventaris->fotos as $foto) {
+                Storage::disk('public')->delete($foto->path);
+            }
+            InventarisFoto::where('inventaris_id', $id)->delete();
+
+            $barcodePath = public_path('barcodes/barcode_' . $id . '.png');
+            if (file_exists($barcodePath)) {
+                @unlink($barcodePath);
+            }
+
             $inventaris->delete();
             
             DB::commit();
+
+            Cache::forget('dashboard_kpi');
+            Cache::forget('dashboard_charts');
+
+            ActivityLogger::log('Inventaris', 'hapus',
+                "Menghapus inventaris via API {$kodeBarang} - {$namaBarang} (Salah Input)",
+                $id, $namaBarang
+            );
 
             return response()->json([
                 'success' => true,
@@ -197,7 +326,7 @@ class InventarisApiController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus inventaris.'
+                'message' => 'Gagal menghapus inventaris: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -289,10 +418,17 @@ class InventarisApiController extends Controller
             'nup' => $inventaris->nup,
             'tahun_perolehan' => $inventaris->tahun_perolehan,
             'nilai_perolehan' => $inventaris->nilai_perolehan,
+            'satuan' => $inventaris->satuan,
+            'asal_usul' => $inventaris->asal_usul,
+            'bukti_kepemilikan' => $inventaris->bukti_kepemilikan,
+            'pengguna' => $inventaris->pengguna,
+            'ruangan_id' => $inventaris->ruangan_id,
+            'barcode' => $inventaris->barcode,
             'keterangan' => $inventaris->keterangan,
             'kondisi' => $inventaris->kondisi,
             'kondisi_label' => $inventaris->kondisi_label,
             'status' => $inventaris->status,
+            'bulan_perolehan' => $inventaris->laporanAsetValue?->bulan_perolehan,
             'created_by' => $inventaris->created_by,
             'updated_by' => $inventaris->updated_by,
             'dynamic_values' => $inventaris->values->map(function ($v) {

@@ -16,7 +16,13 @@ use Illuminate\Support\Facades\Storage;
 
 class ExportController extends Controller
 {
-    public function index()
+    public function __construct()
+    {
+        ini_set('memory_limit', '2048M');
+        set_time_limit(300);
+    }
+
+    public function index() 
     {
         $this->authorize('viewAny', ExportLog::class);
 
@@ -32,31 +38,38 @@ class ExportController extends Controller
         // Count total inventaris (untuk Buku Inventaris)
         $totalApprovedInventaris = \App\Models\Inventaris::count();
 
-        // Catatan: jenis "Inventaris yang tidak ditemukan" kini berupa jenis nyata (template LHI),
-        // sudah otomatis termasuk di $jenisInventaris. Konsep pseudo-orphan dihapus.
-
         // Load virtual jenis dari sistem (untuk future use)
         $virtualJenis = VirtualJenis::all();
 
         // Load pejabat untuk custom selection
         $pejabats = \App\Models\Pejabat::where('is_aktif', 1)->get();
 
-        // Tentukan pejabat "tetap" yang tidak boleh dipilih user di modal
         // Format 2 KIR: Perbekel adalah tetap
-        $perbekelPejabat = \App\Models\Pejabat::whereRaw("LOWER(jabatan) LIKE ?", ['%perbekel%'])->first();
+        $perbekelPejabat = \App\Models\Pejabat::where(function ($q) {
+            $q->whereRaw("LOWER(jabatan) LIKE ?", ['%perbekel%'])
+              ->orWhereRaw("LOWER(jabatan) LIKE ?", ['%kepala desa%']);
+        })->first();
 
-        // Format 1 KIR & KIB: Sekretaris Desa adalah tetap
-        // Sekretaris ditentukan dari user dengan role sekretaris yang punya pejabat
-        $sekretarisUser = \App\Models\User::with('pejabat')
-            ->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))
-            ->first();
-        $sekretarisPejabat = $sekretarisUser?->pejabat ?? null;
+        // Sekretaris ditentukan dari master Pejabat atau dari User role sekretaris yang punya pejabat
+        $sekretarisPejabat = \App\Models\Pejabat::where('is_aktif', 1)
+            ->where(function ($q) {
+                $q->whereRaw("LOWER(jabatan) LIKE ?", ['%sekretaris desa%'])
+                  ->orWhereRaw("LOWER(jabatan) LIKE ?", ['%sekdes%'])
+                  ->orWhereRaw("LOWER(jabatan) LIKE ?", ['%sekretaris%']);
+            })->first();
+
+        if (!$sekretarisPejabat) {
+            $sekretarisUser = \App\Models\User::with('pejabat')
+                ->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))
+                ->first();
+            $sekretarisPejabat = $sekretarisUser?->pejabat ?? null;
+        }
 
         // Kumpulkan ID pejabat tetap per konteks
         $fixedPejabatIds = [
             'kir_format1' => $sekretarisPejabat ? [$sekretarisPejabat->id] : [],   // Sekretaris Desa tetap di KIR Format 1
             'kir_format2' => $perbekelPejabat   ? [$perbekelPejabat->id]   : [],   // Perbekel tetap di KIR Format 2
-            'kib'         => $sekretarisPejabat ? [$sekretarisPejabat->id] : [],   // Sekretaris Desa tetap di KIB
+            'kib'         => [],                                                    // KIB bebas diganti keduanya oleh pengguna
         ];
 
         // Load ruangan untuk tab export ruangan
@@ -141,11 +154,12 @@ class ExportController extends Controller
                 'filename' => $result['filename'] ?? 'export',
                 'file_url' => route('export-data.download', ['filename' => $result['filename'] ?? 'export'], false),
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Export Error', ['message' => $e->getMessage(), 'exception' => $e]);
             return response()->json([
                 'success' => false,
-                'message' => 'Export gagal. Silakan coba lagi atau hubungi administrator.',
+                'message' => 'Export gagal: ' . $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -156,17 +170,18 @@ class ExportController extends Controller
 
         /** @var \App\Models\User|null $user */
         $user = $request->user();
-        $canDelete = $user && $user->isSuperAdmin();
+        $canDelete = $user && ($user->isSuperAdmin() || $user->isSuperDeveloper());
 
         $sort  = $request->input('sort', 'terbaru');
-        $query = \App\Models\ExportLog::with(['user', 'jenisInventaris', 'pejabat'])
+        $query = \App\Models\ExportLog::excludeSuperDevelopers()
+            ->with(['user', 'jenisInventaris', 'pejabat'])
             ->whereIn('tipe_export', ['excel', 'pdf']);
 
         match ($sort) {
-            'terlama'   => $query->orderBy('created_at', 'asc'),
-            'user_asc'  => $query->leftJoin('users', 'export_logs.user_id', '=', 'users.id')->orderBy('users.nama', 'asc')->select('export_logs.*'),
-            'user_desc' => $query->leftJoin('users', 'export_logs.user_id', '=', 'users.id')->orderBy('users.nama', 'desc')->select('export_logs.*'),
-            default     => $query->orderBy('created_at', 'desc'),
+            'terlama'   => $query->orderBy('export_logs.created_at', 'asc'),
+            'user_asc'  => $query->leftJoin('users', 'export_logs.user_id', '=', 'users.id')->orderBy('users.nama', 'asc')->orderBy('export_logs.id', 'desc')->select('export_logs.*'),
+            'user_desc' => $query->leftJoin('users', 'export_logs.user_id', '=', 'users.id')->orderBy('users.nama', 'desc')->orderBy('export_logs.id', 'desc')->select('export_logs.*'),
+            default     => $query->orderBy('export_logs.created_at', 'desc'),
         };
 
         // Search: by user name, jenis name, or filename
@@ -227,24 +242,23 @@ class ExportController extends Controller
             }
 
             if ($start) {
-                $query->whereBetween('created_at', [$start, $today]);
+                $query->whereBetween('export_logs.created_at', [$start, $today]);
             }
         }
 
         // Backward compatibility for old explicit date range params
         if ($request->filled('dari')) {
-            $query->whereDate('created_at', '>=', $request->dari);
+            $query->whereDate('export_logs.created_at', '>=', $request->dari);
         }
         if ($request->filled('sampai')) {
-            $query->whereDate('created_at', '<=', $request->sampai);
+            $query->whereDate('export_logs.created_at', '<=', $request->sampai);
         }
 
         $perPage = (int) $request->input('per_page', $request->input('limit', 10));
         if (!in_array($perPage, [10, 20, 50, 100])) {
             $perPage = 10;
         }
-
-        $logs      = $query->paginate($perPage)->withQueryString();
+        $logs = $query->paginate($perPage)->withQueryString();
         $jenisList = \App\Models\JenisInventaris::orderBy('nama')->get(['id', 'nama']);
 
         return view('export-data.history', compact('logs', 'jenisList', 'canDelete'));
@@ -279,7 +293,8 @@ class ExportController extends Controller
         $this->authorize('view', $log);
 
         $storage = Storage::disk('local');
-        $path = 'exports/' . $log->created_at->format('Y/m') . '/' . $filename;
+        $monthFolder = $log->created_at ? $log->created_at->format('Y/m') : date('Y/m');
+        $path = 'exports/' . $monthFolder . '/' . $filename;
 
         // Fallback search to handle files not found in expected month folder.
         if (!$storage->exists($path)) {
@@ -318,8 +333,11 @@ class ExportController extends Controller
         $kirFormat = $request->input('kir_format', 'standard');
 
         if ($kirFormat === 'custom') {
-            // Format 2 (Desa Demo): Perbekel + Kasi Kesejahteraan + Pengurus Barang
-            $perbekel = \App\Models\Pejabat::whereRaw("LOWER(jabatan) LIKE ?", ['%perbekel%'])->first();
+            // Format 2 (Format Khusus 3 TTD): Perbekel + Kasi Kesejahteraan + Pengurus Barang
+            $perbekel = \App\Models\Pejabat::where(function ($q) {
+                $q->whereRaw("LOWER(jabatan) LIKE ?", ['%perbekel%'])
+                  ->orWhereRaw("LOWER(jabatan) LIKE ?", ['%kepala desa%']);
+            })->first();
             $perbekelData = $perbekel ? ['nama' => $perbekel->nama, 'jabatan' => $perbekel->jabatan] : null;
 
             // Kasi Kesejahteraan — sama seperti resolveKasiKesejahteraan di ExportService
@@ -383,21 +401,34 @@ class ExportController extends Controller
         }
 
         // Format 1 (Standar Permendagri): Sekretaris Desa + Petugas Barang
-        $sekretarisUser = \App\Models\User::with(['role', 'pejabat'])
-            ->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))
-            ->first();
+        $sekretarisPejabat = \App\Models\Pejabat::where('is_aktif', 1)
+            ->where(function($q) {
+                $q->whereRaw("LOWER(jabatan) LIKE ?", ['%sekretaris desa%'])
+                  ->orWhereRaw("LOWER(jabatan) LIKE ?", ['%sekretaris%']);
+            })->first();
 
         $sekretaris = null;
-        if ($sekretarisUser && $sekretarisUser->pejabat) {
+        if ($sekretarisPejabat) {
             $sekretaris = [
-                'nama'    => $sekretarisUser->pejabat->nama,
-                'jabatan' => $sekretarisUser->pejabat->jabatan,
+                'nama'    => $sekretarisPejabat->nama,
+                'jabatan' => $sekretarisPejabat->jabatan,
             ];
-        } elseif ($sekretarisUser) {
-            $sekretaris = [
-                'nama'    => $sekretarisUser->nama,
-                'jabatan' => 'Sekretaris Desa',
-            ];
+        } else {
+            $sekretarisUser = \App\Models\User::with(['role', 'pejabat'])
+                ->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))
+                ->first();
+
+            if ($sekretarisUser && $sekretarisUser->pejabat) {
+                $sekretaris = [
+                    'nama'    => $sekretarisUser->pejabat->nama,
+                    'jabatan' => $sekretarisUser->pejabat->jabatan,
+                ];
+            } elseif ($sekretarisUser) {
+                $sekretaris = [
+                    'nama'    => $sekretarisUser->nama,
+                    'jabatan' => 'Sekretaris Desa',
+                ];
+            }
         }
 
         $petugasBarang = \App\Models\Pejabat::where('is_petugas_barang', 1)->first();
@@ -426,8 +457,30 @@ class ExportController extends Controller
             $query->where('ruangan_id', (int)$ruanganId);
         }
 
-        if ($tahun) {
-            $query->whereYear('created_at', $tahun);
+        if ($tahun && $tahun !== 'all') {
+            $query->where('tahun_perolehan', '<=', $tahun);
+        }
+
+        return response()->json(['count' => $query->count()]);
+    }
+
+    public function getKibCount(Request $request)
+    {
+        $this->authorize('viewAny', ExportLog::class);
+
+        $kibType = $request->input('kib_type');
+        $tahun   = $request->input('tahun');
+
+        $query = \App\Models\Inventaris::query();
+
+        if ($kibType && $kibType !== 'all') {
+            $query->whereHas('jenis', fn($q) => $q->where('kib_type', $kibType));
+        } else {
+            $query->whereHas('jenis', fn($q) => $q->whereNotNull('kib_type')->where('kib_type', '!=', ''));
+        }
+
+        if ($tahun && $tahun !== 'all') {
+            $query->where('tahun_perolehan', $tahun);
         }
 
         return response()->json(['count' => $query->count()]);
@@ -438,12 +491,13 @@ class ExportController extends Controller
         $this->authorize('viewAny', ExportLog::class);
 
         $jenisId = $request->input('jenis_inventaris_id');
+        $tahun   = $request->input('tahun');
 
         // 'all' = hitung total seluruh jenis
         if ($jenisId === 'all') {
             $query = \App\Models\Inventaris::query();
-            if ($request->filled('tahun')) {
-                $query->whereYear('created_at', $request->tahun);
+            if ($tahun && $tahun !== 'all') {
+                $query->where('tahun_perolehan', '<=', $tahun);
             }
             return response()->json(['count' => $query->count()]);
         }
@@ -457,15 +511,15 @@ class ExportController extends Controller
         $jenis = \App\Models\JenisInventaris::find($jenisId);
         if ($jenis && $jenis->isVirtual()) {
             $query = \App\Models\Inventaris::query();
-            if ($request->filled('tahun')) {
-                $query->whereYear('created_at', $request->tahun);
+            if ($tahun && $tahun !== 'all') {
+                $query->where('tahun_perolehan', '<=', $tahun);
             }
             return response()->json(['count' => $query->count()]);
         }
 
         $query = \App\Models\Inventaris::where('jenis_inventaris_id', $jenisId);
-        if ($request->filled('tahun')) {
-            $query->whereYear('created_at', $request->tahun);
+        if ($tahun && $tahun !== 'all') {
+            $query->where('tahun_perolehan', '<=', $tahun);
         }
         return response()->json(['count' => $query->count()]);
     }
@@ -475,7 +529,8 @@ class ExportController extends Controller
         $this->authorize('viewAny', ExportLog::class);
 
         $jenisId = $request->integer('jenis_inventaris_id');
-        $query = \App\Models\ExportLog::with(['user:id,nama', 'jenisInventaris:id,nama', 'pejabat:id,nama'])
+        $query = \App\Models\ExportLog::excludeSuperDevelopers()
+            ->with(['user:id,nama', 'jenisInventaris:id,nama', 'pejabat:id,nama'])
             ->whereIn('tipe_export', ['excel', 'pdf'])
             ->orderBy('created_at', 'desc')
             ->limit(5);
@@ -520,15 +575,15 @@ class ExportController extends Controller
                 $jumlahQuery->where('jenis_inventaris_id', $log->jenis_inventaris_id);
             }
             if (!empty($filters['tahun'])) {
-                $jumlahQuery->whereYear('created_at', $filters['tahun']);
+                $jumlahQuery->where('tahun_perolehan', $filters['tahun']);
             }
             $jumlah = $jumlahQuery->count();
 
             return [
                 'user'   => $userName,
                 'avatar' => $initial,
-                'date'   => $log->created_at->format('Y-m-d'),
-                'time'   => $log->created_at->format('H:i'),
+                'date'   => $log->created_at ? $log->created_at->format('Y-m-d') : '-',
+                'time'   => $log->created_at ? $log->created_at->format('H:i') : '-',
                 'format' => strtoupper($log->tipe_export ?? 'EXCEL'),
                 'ttd'    => $ttd,
                 'jumlah' => $jumlah,
@@ -554,6 +609,9 @@ class ExportController extends Controller
      */
     public function storeAll(StoreAllExportRequest $request)
     {
+        @ini_set('memory_limit', '-1');
+        @set_time_limit(300);
+
         $this->authorize('create', ExportLog::class);
 
         $data = $request->validated();
@@ -577,11 +635,12 @@ class ExportController extends Controller
                 'filename' => $result['filename'],
                 'file_url' => route('export-data.download', ['filename' => $result['filename']], false),
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Export All Error', ['message' => $e->getMessage(), 'exception' => $e]);
             return response()->json([
                 'success' => false,
-                'message' => 'Export gagal. Silakan coba lagi atau hubungi administrator.',
+                'message' => 'Export gagal: ' . $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -593,9 +652,9 @@ class ExportController extends Controller
         $request->validate([
             'ruangan_id'         => ['required'],
             'format'             => ['required', 'in:pdf,excel'],
-            'tahun'              => ['nullable', 'integer'],
+            'tahun'              => ['nullable'],
             'signature_option'   => ['nullable', 'in:with,without'],
-            'paper_size'         => ['nullable', 'in:legal,letter,f4'],
+            'paper_size'         => ['nullable', 'in:legal,letter,f4,a4'],
             'kir_format'         => ['nullable', 'in:standard,custom'],
             'tanggal_dokumen'    => ['nullable', 'date'],
             'keterangan_dokumen' => ['nullable', 'string', 'max:100'],
@@ -606,12 +665,19 @@ class ExportController extends Controller
         // Cek apakah ada Sekretaris Desa — hanya diperlukan untuk Format 1 (Standar)
         $kirFormat = $request->input('kir_format', 'standard');
         if ($kirFormat !== 'custom') {
-            $sekretarisExists = \App\Models\User::whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists();
+            $sekretarisExists = \App\Models\Pejabat::where('is_aktif', 1)
+                ->where(function ($q) {
+                    $q->whereRaw("LOWER(jabatan) LIKE ?", ['%sekretaris desa%'])
+                      ->orWhereRaw("LOWER(jabatan) LIKE ?", ['%sekdes%'])
+                      ->orWhereRaw("LOWER(jabatan) LIKE ?", ['%sekretaris%']);
+                })->exists()
+                || \App\Models\User::whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))->exists();
+
             if (!$sekretarisExists) {
                 return response()->json([
                     'success'          => false,
                     'no_sekretaris'    => true,
-                    'message'          => 'Belum ada user dengan role Sekretaris Desa. Silakan assign role Sekretaris Desa terlebih dahulu sebelum export Kartu Inventaris Ruangan.',
+                    'message'          => 'Belum ada data Sekretaris Desa pada Master Pejabat atau akun User. Silakan lengkapi data Sekretaris Desa terlebih dahulu sebelum export Kartu Inventaris Ruangan.',
                 ], 422);
             }
         }
@@ -646,11 +712,12 @@ class ExportController extends Controller
                 'filename' => $result['filename'],
                 'file_url' => route('export-data.download', ['filename' => $result['filename']], false),
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Export Ruangan Error', ['message' => $e->getMessage(), 'exception' => $e]);
             return response()->json([
                 'success' => false,
-                'message' => 'Export gagal. Silakan coba lagi atau hubungi administrator.',
+                'message' => 'Export gagal: ' . $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -660,7 +727,7 @@ class ExportController extends Controller
         /** @var \App\Models\User|null $user */
         $user = $request->user();
 
-        abort_unless($user && $user->isSuperAdmin(), 403);
+        abort_unless($user && ($user->isSuperAdmin() || $user->isSuperDeveloper()), 403);
     }
 
     /**
@@ -674,9 +741,9 @@ class ExportController extends Controller
         $request->validate([
             'kib_type'           => ['required', 'in:A,B,C,D,E,F,all'],
             'format'             => ['required', 'in:pdf,excel'],
-            'tahun'              => ['nullable', 'integer'],
+            'tahun'              => ['nullable'],
             'signature_option'   => ['nullable', 'in:with,without'],
-            'paper_size'         => ['nullable', 'in:legal,letter,f4'],
+            'paper_size'         => ['nullable', 'in:legal,letter,f4,a4'],
             'pejabat_kiri'       => ['nullable', 'integer', 'exists:pejabats,id'],
             'pejabat_kanan'      => ['nullable', 'integer', 'exists:pejabats,id'],
             'tanggal_dokumen'    => ['nullable', 'string'],
@@ -706,11 +773,11 @@ class ExportController extends Controller
                 'filename' => $result['filename'],
                 'file_url' => route('export-data.download', ['filename' => $result['filename']], false),
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Export KIB Error', ['message' => $e->getMessage(), 'exception' => $e]);
             return response()->json([
                 'success' => false,
-                'message' => 'Export KIB gagal. Silakan coba lagi.',
+                'message' => 'Export KIB gagal: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -723,7 +790,8 @@ class ExportController extends Controller
     {
         $this->authorize('viewAny', ExportLog::class);
 
-        $tahun   = (int) $request->input('tahun', date('Y'));
+        $tahunInput = $request->input('tahun');
+        $tahun   = ($tahunInput && $tahunInput !== 'all') ? (int) $tahunInput : (int) date('Y');
         $periode = $request->input('periode', 'tahunan');
 
         $service = app(\App\Services\LaporanAsetService::class);
@@ -741,15 +809,18 @@ class ExportController extends Controller
         $this->authorize('create', ExportLog::class);
 
         $request->validate([
-            'tahun'   => ['required', 'integer', 'min:2000', 'max:2100'],
+            'tahun'   => ['nullable'],
             'periode' => ['required', 'in:tahunan,semester,semester_1,semester_2'],
             'format'  => ['required', 'in:excel,pdf'],
         ]);
 
         try {
             $service = app(\App\Services\LaporanAsetService::class);
+            $tahunInput = $request->input('tahun');
+            $tahun = ($tahunInput && $tahunInput !== 'all') ? (int) $tahunInput : (int) date('Y');
+
             $result  = $service->export([
-                'tahun'   => (int) $request->input('tahun'),
+                'tahun'   => $tahun,
                 'periode' => $request->input('periode'),
                 'format'  => $request->input('format', 'excel'),
                 'user_id' => Auth::id(),
@@ -761,11 +832,12 @@ class ExportController extends Controller
                 'filename' => $result['filename'],
                 'file_url' => route('export-data.download', ['filename' => $result['filename']], false),
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Export Laporan Aset Error', ['message' => $e->getMessage(), 'exception' => $e]);
             return response()->json([
                 'success' => false,
-                'message' => 'Export Laporan Aset gagal. Silakan coba lagi.',
+                'message' => 'Export Laporan Aset gagal: ' . $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -779,15 +851,25 @@ class ExportController extends Controller
         $this->authorize('viewAny', ExportLog::class);
 
         // Sekretaris Desa (kiri)
-        $sekretarisUser = \App\Models\User::with(['role', 'pejabat'])
-            ->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))
-            ->first();
+        $sekretarisPejabat = \App\Models\Pejabat::where('is_aktif', 1)
+            ->where(function($q) {
+                $q->whereRaw("LOWER(jabatan) LIKE ?", ['%sekretaris desa%'])
+                  ->orWhereRaw("LOWER(jabatan) LIKE ?", ['%sekretaris%']);
+            })->first();
 
         $sekretaris = null;
-        if ($sekretarisUser?->pejabat) {
-            $sekretaris = ['id' => $sekretarisUser->pejabat->id, 'nama' => $sekretarisUser->pejabat->nama, 'jabatan' => $sekretarisUser->pejabat->jabatan];
-        } elseif ($sekretarisUser) {
-            $sekretaris = ['id' => null, 'nama' => $sekretarisUser->nama, 'jabatan' => 'Sekretaris Desa'];
+        if ($sekretarisPejabat) {
+            $sekretaris = ['id' => $sekretarisPejabat->id, 'nama' => $sekretarisPejabat->nama, 'jabatan' => $sekretarisPejabat->jabatan];
+        } else {
+            $sekretarisUser = \App\Models\User::with(['role', 'pejabat'])
+                ->whereHas('role', fn($q) => $q->where('nama', 'like', '%sekretaris%'))
+                ->first();
+
+            if ($sekretarisUser?->pejabat) {
+                $sekretaris = ['id' => $sekretarisUser->pejabat->id, 'nama' => $sekretarisUser->pejabat->nama, 'jabatan' => $sekretarisUser->pejabat->jabatan];
+            } elseif ($sekretarisUser) {
+                $sekretaris = ['id' => null, 'nama' => $sekretarisUser->nama, 'jabatan' => 'Sekretaris Desa'];
+            }
         }
 
         // Petugas Barang (kanan)
@@ -800,6 +882,72 @@ class ExportController extends Controller
             'sekretaris' => $sekretaris,
             'petugas'    => $petugas,
         ]);
+    }
+
+    /**
+     * Hitung jumlah baris data yang akan muncul di Buku Inventaris Aset Desa.
+     * GET /export-data/buku-inventaris-count?tahun=2025&periode=tahunan
+     */
+    public function getBukuInventarisCount(Request $request)
+    {
+        $this->authorize('viewAny', ExportLog::class);
+
+        $tahunInput = $request->input('tahun');
+        $tahun   = ($tahunInput && $tahunInput !== 'all') ? (int) $tahunInput : (int) date('Y');
+        $periode = $request->input('periode', 'tahunan');
+
+        $service = app(\App\Services\BukuInventarisAsetService::class);
+        $rows = $service->buildRows($tahun, $periode);
+
+        return response()->json(['count' => count($rows)]);
+    }
+
+    /**
+     * Export Buku Inventaris Aset Desa (Rekapitulasi Seluruh Aset).
+     * POST /export-data/store-buku-inventaris-aset
+     */
+    public function storeBukuInventarisAset(Request $request)
+    {
+        $this->authorize('create', ExportLog::class);
+
+        $request->validate([
+            'tahun'            => ['nullable'],
+            'periode'          => ['required', 'in:tahunan,semester,semester_1,semester_2'],
+            'format'           => ['required', 'in:excel,pdf'],
+            'paper_size'       => ['nullable', 'in:legal,letter,f4,a4'],
+            'signature_option' => ['nullable', 'in:with,without'],
+            'tanggal_dokumen'  => ['nullable', 'string'],
+        ]);
+
+        try {
+            $service = app(\App\Services\BukuInventarisAsetService::class);
+            $tahunInput = $request->input('tahun');
+            $tahun = ($tahunInput && $tahunInput !== 'all') ? (int) $tahunInput : (int) date('Y');
+
+            $result = $service->export([
+                'tahun'            => $tahun,
+                'periode'          => $request->input('periode'),
+                'format'           => $request->input('format', 'excel'),
+                'paper_size'       => $request->input('paper_size', 'legal'),
+                'signature_option' => $request->input('signature_option', 'with'),
+                'tanggal_dokumen'  => $request->input('tanggal_dokumen', ''),
+                'user_id'          => Auth::id(),
+            ]);
+
+            return response()->json([
+                'success'  => true,
+                'message'  => 'Export Buku Inventaris Aset Desa berhasil',
+                'filename' => $result['filename'],
+                'file_url' => route('export-data.download', ['filename' => $result['filename']], false),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Export Buku Inventaris Aset Error', ['message' => $e->getMessage(), 'exception' => $e]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Export Buku Inventaris Aset Desa gagal: ' . $e->getMessage(),
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
     }
 
 }

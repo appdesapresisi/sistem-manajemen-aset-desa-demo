@@ -11,6 +11,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(DemoDataSeeder::class);
+        $this->call([
+            DemoDataSeeder::class,
+            NotificationSeeder::class,
+            KondisiAsetDemoSeeder::class,
+            RuanganInventarisDemoSeeder::class,
+            ActivityLogSeeder::class,
+            ExportLogSeeder::class,
+        ]);
     }
 }

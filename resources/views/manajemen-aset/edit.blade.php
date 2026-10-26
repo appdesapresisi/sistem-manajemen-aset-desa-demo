@@ -5,26 +5,32 @@
     @include('layouts.head-css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
+        /* Form Styling - SIMA Standard */
         .form-section {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid #e2e8f0;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            margin-bottom: 24px;
+        }
+        .form-section + .form-section {
+            padding-top: 24px;
+            border-top: 1px dashed var(--color-border);
         }
         .form-section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #064635;
-            margin-bottom: 16px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 18px;
             display: flex;
             align-items: flex-start;
-            gap: 8px;
+            gap: 10px;
         }
         .form-section-title i,
         .form-section-title svg {
             width: 18px;
             height: 18px;
+            color: var(--color-primary);
             flex-shrink: 0;
             margin-top: 1px;
         }
@@ -33,18 +39,71 @@
             flex-direction: column;
         }
         .form-section-desc {
-            font-size: 11px;
-            color: #6b7280;
+            font-size: 12px;
+            color: var(--color-text-muted);
             margin-top: 2px;
             font-weight: 400;
             line-height: 1.4;
         }
         .form-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px 24px;
+        }
+        .form-full,
+        .form-group.form-full,
+        .col-span-2 {
+            grid-column: 1 / -1;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .form-full,
+            .form-group.form-full,
+            .col-span-2 {
+                grid-column: auto;
+            }
+        }
+        .form-control.is-invalid, textarea.form-control.is-invalid, .form-select.is-invalid {
+            border-color: #E53935 !important;
+            box-shadow: none !important;
+        }
+        .invalid-feedback-custom {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #D9383A;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+        .invalid-feedback-custom svg {
+            width: 13px;
+            height: 13px;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
         /* Card Header */
+        .card .card-header,
+        .card-header {
+            background-color: transparent !important;
+            padding: 32px 24px 0 24px !important;
+            border: none !important;
+            border-bottom: none !important;
+        }
+        .card .card-body,
+        .card-body {
+            padding-bottom: 0 !important;
+        }
+        .card .card-header-inner,
+        .card-header-inner {
+            border-bottom: 1px dashed var(--color-border) !important;
+            padding-bottom: 20px !important;
+            width: 100% !important;
+        }
         .card-header-icon {
             display: flex;
             align-items: center;
@@ -53,7 +112,7 @@
             height: 44px;
             min-width: 44px;
             border-radius: 12px;
-            background: #519259;
+            background: var(--color-primary);
             margin-right: 14px;
             flex-shrink: 0;
             position: relative !important;
@@ -72,39 +131,45 @@
             margin-bottom: 0;
         }
         .form-label {
-            font-weight: 500;
-            font-size: 13px;
-            color: #374151;
-            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 13.5px;
+            color: var(--color-text);
+            margin-bottom: 8px;
             display: block;
         }
         .form-label .required {
-            color: #ef4444;
+            color: #D9383A;
+            font-weight: 700;
             margin-left: 2px;
         }
         .form-label .optional {
-            color: #9ca3af;
+            color: var(--color-text-muted);
             font-weight: 400;
-            font-size: 11px;
+            font-size: 12px;
             margin-left: 4px;
         }
-        .form-control, .form-select {
+        .form-control {
             width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+            height: 46px;
+            padding: 0 16px;
+            border: 1.5px solid var(--color-border);
+            border-radius: 10px;
             font-size: 14px;
-            transition: all 0.2s ease;
-            background: #fff;
+            transition: border-color 0.2s ease;
+            background: var(--color-surface);
+            color: var(--color-text);
+            box-shadow: none !important;
         }
-        .form-control:focus, .form-select:focus {
-            outline: none;
-            border-color: #064635;
-            box-shadow: 0 0 0 3px rgba(6, 70, 53, 0.1);
+        .form-control:focus {
+            outline: none !important;
+            border-color: var(--color-primary) !important;
+            box-shadow: none !important;
         }
         .currency-input-wrapper,
         .unit-suffix-input-wrapper {
             position: relative;
+            width: 100%;
+            display: block;
         }
         .currency-prefix {
             position: absolute;
@@ -112,29 +177,40 @@
             top: 50%;
             transform: translateY(-50%);
             font-size: 14px;
-            color: #6b7280;
-            font-weight: 500;
+            color: var(--color-text-muted, #6b7280);
+            font-weight: 600;
+            pointer-events: none;
+            user-select: none;
+            z-index: 2;
+            white-space: nowrap;
         }
-        .currency-input-wrapper .form-control {
-            padding-left: 42px;
+        .currency-input-wrapper .form-control,
+        .currency-input-wrapper input.form-control,
+        .currency-input-wrapper .currency-rupiah-input,
+        input.currency-rupiah-input {
+            padding-left: 44px !important;
         }
         .unit-suffix {
             position: absolute;
-            right: 12px;
+            right: 14px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 12px;
-            color: #6b7280;
+            font-size: 13px;
+            color: var(--color-text-muted, #6b7280);
             font-weight: 600;
             pointer-events: none;
+            user-select: none;
+            z-index: 2;
+            white-space: nowrap;
         }
-        .unit-suffix-input-wrapper .form-control {
-            padding-right: 52px;
+        .unit-suffix-input-wrapper .form-control,
+        .unit-suffix-input-wrapper input.form-control {
+            padding-right: 48px !important;
         }
         .flatpickr-calendar {
             border: 1px solid #e5e7eb;
             border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+            box-shadow: none;
             font-family: 'Open Sans', sans-serif;
         }
         .flatpickr-calendar .flatpickr-months {
@@ -193,15 +269,15 @@
         .flatpickr-calendar.month-grid-picker .month-picker-year {
             font-size: 12px;
             font-weight: 700;
-            color: #1f2937;
+            color: var(--color-primary, #1f3a2a);
         }
         .flatpickr-calendar.month-grid-picker .month-picker-nav {
             width: 26px;
             height: 26px;
-            border-radius: 7px;
-            border: 1px solid #d1d5db;
-            background: #fff;
-            color: #374151;
+            border-radius: var(--radius-sm, 6px);
+            border: none;
+            background: transparent;
+            color: var(--color-text, #16251b);
             font-size: 16px;
             line-height: 1;
             display: inline-flex;
@@ -210,7 +286,7 @@
             cursor: pointer;
         }
         .flatpickr-calendar.month-grid-picker .month-picker-nav:hover:not(:disabled) {
-            background: #f3f4f6;
+            background: var(--color-row-hover, #eff5ed);
         }
         .flatpickr-calendar.month-grid-picker .month-picker-nav:disabled {
             opacity: .45;
@@ -222,29 +298,32 @@
             gap: 8px;
         }
         .flatpickr-calendar.month-grid-picker .month-picker-option {
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            background: #fff;
-            color: #374151;
+            border: 1px solid var(--color-border, #cfdcc8);
+            border-radius: var(--radius-sm, 8px);
+            background: var(--color-surface, #f8faf7);
+            color: var(--color-text, #16251b);
             font-size: 12px;
             font-weight: 600;
             padding: 8px 0;
             cursor: pointer;
+            transition: all 0.15s ease;
         }
         .flatpickr-calendar.month-grid-picker .month-picker-option:hover {
-            background: #f3f4f6;
+            background: var(--color-row-hover, #eff5ed);
+            border-color: var(--color-primary, #1f3a2a);
+            color: var(--color-primary, #1f3a2a);
         }
         .flatpickr-calendar.month-grid-picker .month-picker-option.active {
-            background: #1f2937;
-            border-color: #1f2937;
-            color: #fff;
+            background: var(--color-primary, #1f3a2a);
+            border-color: var(--color-primary, #1f3a2a);
+            color: #f8faf7;
         }
         .flatpickr-calendar.date-clean-picker .flatpickr-months {
             padding: 8px 10px 0;
         }
         .flatpickr-calendar.date-clean-picker .flatpickr-prev-month,
         .flatpickr-calendar.date-clean-picker .flatpickr-next-month {
-            border-radius: 7px;
+            border-radius: var(--radius-sm, 6px);
         }
         .flatpickr-calendar.date-clean-picker .flatpickr-day {
             border-radius: 8px;
@@ -253,12 +332,13 @@
         .flatpickr-calendar.date-clean-picker .flatpickr-day.selected,
         .flatpickr-calendar.date-clean-picker .flatpickr-day.startRange,
         .flatpickr-calendar.date-clean-picker .flatpickr-day.endRange {
-            background: #1f2937;
-            border-color: #1f2937;
-            color: #fff;
+            background: var(--color-primary, #1f3a2a);
+            border-color: var(--color-primary, #1f3a2a);
+            color: #f8faf7;
         }
         .flatpickr-calendar.date-clean-picker .flatpickr-day:hover {
-            background: #f3f4f6;
+            background: var(--color-row-hover, #eff5ed);
+            color: var(--color-primary, #1f3a2a);
         }
         /* Modern date picker: header bulan & tahun bisa diklik */
         .flatpickr-calendar.date-clean-picker .flatpickr-months {
@@ -269,15 +349,16 @@
             position: static !important; flex-shrink: 0;
             display: flex !important; align-items: center !important; justify-content: center !important;
             top: unset !important; padding: 0 !important; width: 28px !important; height: 28px !important;
-            border: 1px solid #e5e7eb !important; border-radius: 6px !important;
-            background: #fff !important; color: #374151 !important; transition: background 0.15s !important;
+            border: none !important; border-radius: var(--radius-sm, 6px) !important;
+            background: transparent !important; color: var(--color-text, #16251b) !important; transition: background 0.15s !important;
+            box-shadow: none !important;
         }
         .flatpickr-calendar.date-clean-picker .flatpickr-prev-month:hover,
-        .flatpickr-calendar.date-clean-picker .flatpickr-next-month:hover { background: #f3f4f6 !important; }
+        .flatpickr-calendar.date-clean-picker .flatpickr-next-month:hover { background: var(--color-row-hover, #eff5ed) !important; }
         .flatpickr-calendar.date-clean-picker .flatpickr-prev-month svg,
-        .flatpickr-calendar.date-clean-picker .flatpickr-next-month svg { fill: #374151 !important; width: 12px !important; height: 12px !important; }
+        .flatpickr-calendar.date-clean-picker .flatpickr-next-month svg { fill: var(--color-text, #16251b) !important; width: 12px !important; height: 12px !important; }
         /* Warna teks nama hari */
-        .flatpickr-calendar.date-clean-picker .flatpickr-weekday { color: #064635 !important; font-weight: 600 !important; }
+        .flatpickr-calendar.date-clean-picker .flatpickr-weekday { color: var(--color-primary, #1f3a2a) !important; font-weight: 600 !important; }
         /* Sembunyikan tanggal bulan lain */
         .flatpickr-calendar.date-clean-picker .flatpickr-day.prevMonthDay,
         .flatpickr-calendar.date-clean-picker .flatpickr-day.nextMonthDay {
@@ -295,34 +376,46 @@
         .flatpickr-calendar.date-clean-picker .flatpickr-current-month .numInputWrapper { display: none !important; }
         .flatpickr-calendar.date-clean-picker .fp-cur-year {
             cursor: pointer; padding: 2px 8px; border-radius: 6px; font-weight: 700;
-            font-size: 14px; color: #1f2937; user-select: none; transition: background 0.15s;
+            font-size: 14px; color: var(--color-primary, #1f3a2a); user-select: none; transition: background 0.15s;
         }
-        .flatpickr-calendar.date-clean-picker .fp-cur-year:hover { background: #f3f4f6; }
+        .flatpickr-calendar.date-clean-picker .fp-cur-year:hover { background: var(--color-row-hover, #eff5ed); }
         .fp-month-panel, .fp-year-panel {
             display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: #fff; border-radius: inherit; padding: 10px; z-index: 10;
+            background: var(--color-surface, #f8faf7); border-radius: inherit; padding: 10px; z-index: 10;
             flex-direction: column; gap: 8px; box-sizing: border-box;
         }
         .fp-month-panel.show, .fp-year-panel.show { display: flex; }
         .fp-panel-header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-        .fp-panel-title { font-size: 12px; font-weight: 700; color: #1f2937; }
+        .fp-panel-title { font-size: 12px; font-weight: 700; color: var(--color-primary, #1f3a2a); }
         .fp-panel-close, .fp-panel-nav {
-            width: 26px; height: 26px; border: 1px solid #e5e7eb; background: #fff; font-size: 13px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; color: #374151; border-radius: 6px; transition: background 0.15s;
+            width: 26px; height: 26px; border: none; background: transparent; font-size: 13px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; color: var(--color-text, #16251b); border-radius: var(--radius-sm, 6px); transition: background 0.15s;
         }
-        .fp-panel-close:hover, .fp-panel-nav:hover:not(:disabled) { background: #f3f4f6; }
+        .fp-panel-close:hover, .fp-panel-nav:hover:not(:disabled) { background: var(--color-row-hover, #eff5ed); }
         .fp-panel-nav:disabled { opacity: 0.45; cursor: not-allowed; }
         .fp-month-grid, .fp-year-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 8px; flex: 1; }
         .fp-month-btn, .fp-year-btn {
-            border-radius: 8px; border: 1px solid #d1d5db; background: #fff;
-            font-size: 12px; font-weight: 600; color: #374151; cursor: pointer; text-align: center; transition: all 0.15s;
+            border-radius: var(--radius-sm, 8px); border: 1px solid var(--color-border, #cfdcc8); background: var(--color-surface, #f8faf7);
+            font-size: 12px; font-weight: 600; color: var(--color-text, #16251b); cursor: pointer; text-align: center; transition: all 0.15s;
             display: flex; align-items: center; justify-content: center; padding: 0;
         }
-        .fp-month-btn:hover, .fp-year-btn:hover { background: #f3f4f6; }
-        .fp-month-btn.active, .fp-year-btn.active { background: #1f2937; border-color: #1f2937; color: #fff; }
+        .fp-month-btn:hover, .fp-year-btn:hover {
+            background: var(--color-row-hover, #eff5ed);
+            border-color: var(--color-primary, #1f3a2a);
+            color: var(--color-primary, #1f3a2a);
+        }
+        .fp-month-btn.active, .fp-year-btn.active {
+            background: var(--color-primary, #1f3a2a);
+            border-color: var(--color-primary, #1f3a2a);
+            color: #f8faf7;
+        }
         .flatpickr-calendar.year-only-picker {
             width: 236px;
             min-width: 236px;
+            background: var(--color-surface, #f8faf7) !important;
+            border: 1.5px solid var(--color-border, #cfdcc8) !important;
+            border-radius: 14px !important;
+            box-shadow: none !important;
         }
         .flatpickr-calendar.year-only-picker .flatpickr-innerContainer,
         .flatpickr-calendar.year-only-picker .flatpickr-weekdays,
@@ -346,15 +439,15 @@
         .flatpickr-calendar.year-only-picker .year-picker-range {
             font-size: 12px;
             font-weight: 700;
-            color: #1f2937;
+            color: var(--color-primary, #1f3a2a);
         }
         .flatpickr-calendar.year-only-picker .year-picker-nav {
             width: 26px;
             height: 26px;
-            border-radius: 7px;
-            border: 1px solid #d1d5db;
-            background: #fff;
-            color: #374151;
+            border-radius: var(--radius-sm, 6px);
+            border: none;
+            background: transparent;
+            color: var(--color-text, #16251b);
             font-size: 16px;
             line-height: 1;
             display: inline-flex;
@@ -363,7 +456,7 @@
             cursor: pointer;
         }
         .flatpickr-calendar.year-only-picker .year-picker-nav:hover:not(:disabled) {
-            background: #f3f4f6;
+            background: var(--color-row-hover, #eff5ed);
         }
         .flatpickr-calendar.year-only-picker .year-picker-nav:disabled {
             opacity: .45;
@@ -375,57 +468,112 @@
             gap: 8px;
         }
         .flatpickr-calendar.year-only-picker .year-picker-option {
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            background: #fff;
-            color: #374151;
+            border: 1px solid var(--color-border, #cfdcc8);
+            border-radius: var(--radius-sm, 8px);
+            background: var(--color-surface, #f8faf7);
+            color: var(--color-text, #16251b);
             font-size: 12px;
             font-weight: 600;
             padding: 8px 0;
             cursor: pointer;
+            transition: all 0.15s ease;
         }
         .flatpickr-calendar.year-only-picker .year-picker-option:hover {
-            background: #f3f4f6;
+            background: var(--color-row-hover, #eff5ed);
+            border-color: var(--color-primary, #1f3a2a);
+            color: var(--color-primary, #1f3a2a);
         }
         .flatpickr-calendar.year-only-picker .year-picker-option.active {
-            background: #1f2937;
-            border-color: #1f2937;
-            color: #fff;
+            background: var(--color-primary, #1f3a2a);
+            border-color: var(--color-primary, #1f3a2a);
+            color: #f8faf7;
         }
+
+        /* Month Only Picker (Grid 3x4 Khusus Bulan Saja) */
+        .flatpickr-calendar.month-only-picker {
+            width: 250px !important;
+            background: var(--color-surface, #f8faf7) !important;
+            border-radius: 14px;
+            box-shadow: none !important;
+            border: 1.5px solid var(--color-border, #cfdcc8) !important;
+            overflow: hidden;
+            z-index: 1060 !important;
+        }
+        .flatpickr-calendar.month-only-picker .flatpickr-innerContainer,
+        .flatpickr-calendar.month-only-picker .flatpickr-weekdays,
+        .flatpickr-calendar.month-only-picker .flatpickr-days,
+        .flatpickr-calendar.month-only-picker .flatpickr-monthDropdown-months,
+        .flatpickr-calendar.month-only-picker .flatpickr-prev-month,
+        .flatpickr-calendar.month-only-picker .flatpickr-next-month,
+        .flatpickr-calendar.month-only-picker .flatpickr-months {
+            display: none !important;
+        }
+        .flatpickr-calendar.month-only-picker .month-only-panel {
+            padding: 12px;
+        }
+        .flatpickr-calendar.month-only-picker .month-only-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--color-border, #cfdcc8);
+        }
+        .flatpickr-calendar.month-only-picker .month-only-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-primary);
+            letter-spacing: 0.3px;
+        }
+        .flatpickr-calendar.month-only-picker .month-only-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .flatpickr-calendar.month-only-picker .month-only-option {
+            border: 1.5px solid var(--color-border, #cfdcc8);
+            border-radius: 8px;
+            background: var(--color-surface, #f8faf7);
+            color: var(--color-text, #16251b);
+            font-size: 12.5px;
+            font-weight: 600;
+            padding: 8px 0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .flatpickr-calendar.month-only-picker .month-only-option:hover {
+            background: var(--color-row-hover, #eff5ed);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+        .flatpickr-calendar.month-only-picker .month-only-option.active {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: none;
+        }
+
         .form-full {
             grid-column: 1 / -1;
         }
         /* Buku Inventaris Aset Desa Section */
         .buku-inventaris-section {
-            background: #f8f9fa;
-            border: 1.5px solid #d1d5db;
-            border-radius: 10px;
-            padding: 16px;
-            margin-top: 16px;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            margin-top: 0;
+        }
+        .buku-inventaris-section + .buku-inventaris-section,
+        #kir-section-wrapper {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px dashed var(--color-border);
         }
         .buku-inventaris-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-        .buku-inventaris-header-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 7px;
-            background: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-        .buku-inventaris-header-icon i,
-        .buku-inventaris-header-icon svg {
-            width: 18px;
-            height: 18px;
-            stroke: #064635;
-            color: #064635;
+            margin-bottom: 16px;
         }
         .buku-inventaris-header-content {
             display: flex;
@@ -433,16 +581,27 @@
             justify-content: center;
         }
         .buku-inventaris-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #064635;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-text);
             line-height: 1.4;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .buku-inventaris-title i,
+        .buku-inventaris-title svg {
+            width: 17px;
+            height: 17px;
+            color: var(--color-primary);
+            stroke: var(--color-primary);
+            flex-shrink: 0;
         }
         .buku-inventaris-desc {
-            font-size: 11px;
-            color: #6b7280;
-            margin: 2px 0 0 0;
-            line-height: 1.4;
+            font-size: 12.5px;
+            color: var(--color-text-muted);
+            margin: 3px 0 0 0;
+            line-height: 1.45;
         }
         .asal-usul-group {
             display: flex;
@@ -476,24 +635,24 @@
             align-items: center;
             justify-content: center;
             padding: 10px 14px;
-            background: #fff;
-            border: 2px solid #d1d5db;
-            border-radius: 8px;
+            background: var(--color-surface);
+            border: 1.5px solid var(--color-border);
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
-            color: #374151;
+            color: var(--color-text);
             text-align: center;
             line-height: 1.4;
         }
         .asal-usul-option label:hover {
-            border-color: #064635;
-            background: #f4faf5;
+            border-color: var(--color-primary);
+            background: var(--color-bg);
         }
         .asal-usul-option input:checked + label {
-            background: #064635;
-            border-color: #064635;
+            background: var(--color-primary);
+            border-color: var(--color-primary);
             color: #fff;
             font-weight: 600;
         }
@@ -502,13 +661,15 @@
             display: flex;
             gap: 12px;
             justify-content: flex-end;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
+            padding-top: 24px;
+            border-top: none;
             margin-top: 24px;
+            margin-bottom: 32px;
         }
         .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
+            height: 46px;
+            padding: 0 20px;
+            border-radius: var(--radius-full);
             font-weight: 500;
             font-size: 14px;
             display: inline-flex;
@@ -517,81 +678,100 @@
             cursor: pointer;
             transition: all 0.2s;
             text-decoration: none;
+            box-shadow: none !important;
         }
-        .btn i {
+        .btn i, .btn svg {
             width: 16px;
             height: 16px;
         }
         .btn-secondary {
-            background: #f3f4f6;
-            color: #374151;
-            border: 1px solid #d1d5db;
+            background: var(--color-surface);
+            color: var(--color-text);
+            border: 1.5px solid var(--color-border);
         }
         .btn-secondary:hover {
-            background: #e5e7eb;
+            background: var(--color-bg);
+            border-color: var(--color-border);
+            color: var(--color-text);
         }
         .btn-primary {
-            background: #064635;
+            background: var(--color-primary);
             color: #fff;
             border: none;
+            box-shadow: none !important;
+            transition: background-color 0.2s ease;
         }
         .btn-primary:hover {
-            background: #1c5240;
+            background: var(--color-primary-hover, #3A5C39);
+            color: #fff;
         }
-        /* File upload (seragam) */
+        /* File upload (Dribbble dropzone standard) */
         .file-upload-area {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            padding: 30px 20px;
-            background: #fff;
-            border: 2px dashed #d1d5db;
+            padding: 28px 20px;
+            background: var(--color-surface);
+            border: 2px dashed var(--color-border);
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             text-align: center;
         }
-        .file-upload-area:hover { border-color: #064635; background: #f4faf5; }
-        .file-upload-area.has-file { border-color: #22c55e; background: #f0fdf4; }
+        .file-upload-area:hover { border-color: var(--color-primary); background: var(--color-bg); }
+        .file-upload-area.has-file { border-color: var(--color-primary); background: var(--color-surface); }
         .file-upload-icon {
-            width: 48px; height: 48px; border-radius: 12px;
-            background: linear-gradient(135deg, #064635 0%, #519259 100%);
-            display: flex; align-items: center; justify-content: center;
+            background: transparent !important;
+            width: auto !important;
+            height: auto !important;
+            display: block !important;
+            margin: 0 auto 8px auto !important;
         }
-        .file-upload-icon i, .file-upload-icon svg { width: 24px; height: 24px; color: #fff !important; stroke: #fff !important; }
-        .file-upload-text { font-size: 14px; color: #374151; font-weight: 500; }
-        .file-upload-hint { font-size: 12px; color: #9ca3af; }
+        .file-upload-icon i, .file-upload-icon svg { width: 28px !important; height: 28px !important; stroke-width: 1.5 !important; color: var(--color-text-muted) !important; stroke: var(--color-text-muted) !important; }
+        .file-upload-text { font-size: 14px; color: var(--color-text); font-weight: 600; }
+        .file-upload-hint { font-size: 12px; color: var(--color-text-muted); }
         .foto-preview-thumb {
             position: relative; width: 90px; height: 90px;
             border-radius: 10px; overflow: hidden;
-            border: 1px solid #e5e7eb; flex-shrink: 0;
+            border: 1px solid var(--color-border); flex-shrink: 0;
         }
         .foto-preview-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .foto-preview-thumb .remove-btn {
             position: absolute; top: 3px; right: 3px;
             width: 20px; height: 20px; border-radius: 50%;
-            background: rgba(220,38,38,.8); color: #fff;
+            background: rgba(220,38,38,.85); color: #fff;
             border: none; font-size: 13px; line-height: 1;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
         .info-box {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border: 1px solid #93c5fd;
-            border-radius: 8px;
-            padding: 12px 16px;
+            background: var(--color-primary-tint);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            padding: 8px 14px;
             display: flex;
+            width: 100%;
+            box-sizing: border-box;
             align-items: center;
-            gap: 10px;
-            margin-top: 16px;
+            gap: 8px;
+            margin-top: 14px;
+            color: var(--color-text);
         }
-        .info-box i {
-            color: #1e40af;
-            stroke: #1e40af;
+        .info-box i,
+        .info-box svg {
+            color: var(--color-primary);
+            stroke: var(--color-primary);
             flex-shrink: 0;
-            width: 18px;
-            height: 18px;
+            width: 14px;
+            height: 14px;
+        }
+        .info-box-text {
+            font-size: 11.5px;
+            color: var(--color-text);
+            line-height: 1.45;
+            font-weight: 500;
+            flex: 1;
         }
         @media (max-width: 768px) {
             .form-grid { grid-template-columns: 1fr; }
@@ -610,55 +790,80 @@
             .card-jenis-mobile { display: flex; align-items: center; gap: 0.5rem; margin-top: 4px; }
             .card-jenis-desktop { display: none; }
         }
-      .searchable-select { position: relative; width: 100%; }
-      .ss-trigger { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; color: #374151; transition: all 0.2s; }
-      .ss-trigger:hover { border-color: #d1d5db; }
-      .ss-trigger.ss-open { border-color: #064635; box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1); }
-      .ss-value-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .ss-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); z-index: 1000; max-height: 280px; display: flex; flex-direction: column; }
-      .ss-search-wrap { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; flex-shrink: 0; }
-      .ss-search { width: 100%; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; outline: none; }
-      .ss-search:focus { border-color: #064635; box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1); }
-      .ss-options { overflow-y: auto; max-height: 200px; }
-      .ss-option { padding: 9px 14px; font-size: 13px; color: #374151; cursor: pointer; transition: background 0.15s; }
-      .ss-option:hover { background: #f4faf5; }
-      .ss-option.ss-selected { background: #f0f4f8; font-weight: 600; color: #064635; }
-      .ss-option.ss-hidden { display: none; }
-      .ss-empty { padding: 16px; text-align: center; color: #9ca3af; font-size: 13px; }
+        /* Searchable Select Component */
+        .searchable-select { position: relative; width: 100%; }
+        .ss-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 48px;
+            padding: 12px 18px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm, 8px);
+            background: var(--color-surface);
+            cursor: pointer;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--color-text);
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+        .ss-trigger:hover, .ss-trigger.ss-open { border-color: var(--color-primary); background-color: var(--color-row-hover); box-shadow: none; }
+        .ss-value-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ss-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: var(--color-surface);
+            border: 1.5px solid var(--color-border);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            z-index: 1000;
+            max-height: 280px;
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+        }
+        .ss-search-wrap { padding: 4px 4px 8px 4px; border-bottom: 1px solid var(--color-border); flex-shrink: 0; }
+        .ss-search {
+            width: 100%;
+            height: 38px;
+            padding: 0 12px;
+            border: 1.5px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            background: var(--color-surface);
+            color: var(--color-text);
+        }
+        .ss-search:focus { border-color: var(--color-primary); box-shadow: none; }
+        .ss-options { overflow-y: auto; max-height: 200px; padding: 4px 0 0 0; }
+        .ss-option { padding: 9px 12px; font-size: 13px; font-weight: 500; color: var(--color-text); border-radius: 6px; cursor: pointer; transition: all 0.15s ease; }
+        .ss-option:hover { background: var(--color-surface); color: var(--color-primary); }
+        .ss-option.ss-selected { background: var(--color-surface); font-weight: 700; color: var(--color-primary); }
+        .ss-option.ss-hidden { display: none; }
+        .ss-empty { padding: 16px; text-align: center; color: var(--color-text-muted); font-size: 13px; }
 
-      /* Searchable Select Component */
-      .searchable-select { position: relative; width: 100%; }
-      .ss-trigger { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; color: #374151; transition: all 0.2s; }
-      .ss-trigger:hover { border-color: #d1d5db; }
-      .ss-trigger.ss-open { border-color: #064635; box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1); }
-      .ss-value-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .ss-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); z-index: 1000; max-height: 280px; display: flex; flex-direction: column; }
-      .ss-search-wrap { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; flex-shrink: 0; }
-      .ss-search { width: 100%; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; outline: none; }
-      .ss-search:focus { border-color: #064635; box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1); }
-      .ss-options { overflow-y: auto; max-height: 200px; }
-      .ss-option { padding: 9px 14px; font-size: 13px; color: #374151; cursor: pointer; transition: background 0.15s; }
-      .ss-option:hover { background: #f4faf5; }
-      .ss-option.ss-selected { background: #f0f4f8; font-weight: 600; color: #064635; }
-      .ss-option.ss-hidden { display: none; }
-      .ss-empty { padding: 16px; text-align: center; color: #9ca3af; font-size: 13px; }
-
-      /* Searchable Select Component */
-      .searchable-select { position: relative; width: 100%; }
-      .ss-trigger { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; color: #374151; transition: all 0.2s; }
-      .ss-trigger:hover { border-color: #d1d5db; }
-      .ss-trigger.ss-open { border-color: #064635; box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1); }
-      .ss-value-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .ss-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); z-index: 1000; max-height: 280px; display: flex; flex-direction: column; }
-      .ss-search-wrap { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; flex-shrink: 0; }
-      .ss-search { width: 100%; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; outline: none; }
-      .ss-search:focus { border-color: #064635; box-shadow: 0 0 0 3px rgba(6, 70, 53,0.1); }
-      .ss-options { overflow-y: auto; max-height: 200px; }
-      .ss-option { padding: 9px 14px; font-size: 13px; color: #374151; cursor: pointer; transition: background 0.15s; }
-      .ss-option:hover { background: #f4faf5; }
-      .ss-option.ss-selected { background: #f0f4f8; font-weight: 600; color: #064635; }
-      .ss-option.ss-hidden { display: none; }
-      .ss-empty { padding: 16px; text-align: center; color: #9ca3af; font-size: 13px; }
+        .sync-field-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--color-primary);
+            background: transparent;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+        .sync-field-indicator svg.feather,
+        .sync-field-indicator i {
+            width: 13px !important;
+            height: 13px !important;
+            stroke: var(--color-primary) !important;
+            stroke-width: 2.2 !important;
+            flex-shrink: 0;
+        }
 
     </style>
 </head>
@@ -669,12 +874,14 @@
     <div class="pc-container">
         <div class="pc-content">
             @include('layouts.breadcrumb', [
-                'breadcrumbItemHome' => 'Inventaris',
-                'breadcrumbItem' => 'Manajemen Aset',
+                'breadcrumbItemHome' => 'Inventaris Desa',
+                'breadcrumbItem' => 'Buku Inventaris',
                 'breadcrumbItemUrl' => route('manajemen-aset.index'),
                 'breadcrumbItemActive' => 'Edit Inventaris'
             ])
 
+        <div class="grid grid-cols-12 gap-x-6">
+          <div class="col-span-12 w-full">
             @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i data-feather="check-circle" style="width:18px;height:18px;"></i>
@@ -691,63 +898,46 @@
             </div>
             @endif
 
-            @if($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <div class="flex items-center gap-2 mb-2">
-                    <i data-feather="alert-circle" style="width:18px;height:18px;"></i>
-                    <strong>Terdapat kesalahan pada input:</strong>
-                </div>
-                <ul class="list-disc ml-6 mb-0">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
             <div class="card">
-                <div class="card-header border-b border-gray-100">
+                <div class="card-header">
                     <div class="card-header-inner">
                         <div class="flex items-center">
                             <div class="card-header-icon">
-                                <i data-feather="edit-2"></i>
+                                <i data-feather="book"></i>
                             </div>
                             <div>
-                                <h5 class="mb-1">Edit Inventaris</h5>
-                                <p class="text-muted text-sm mb-0">Perbarui detail informasi barang inventaris</p>
+                                <h5 class="mb-0">Edit Inventaris</h5>
                                 <div class="items-center gap-2 card-jenis-mobile" style="margin-top:2px;">
                                     <span class="text-xs text-muted">Jenis:</span>
-                                    <span class="text-xs font-semibold" style="color:#064635;font-weight:600;">{{ $inventaris->jenis->nama ?? '-' }}</span>
+                                    <span class="text-xs font-semibold" style="color:#1f3a2a;font-weight:600;">{{ $inventaris->jenis->nama ?? '-' }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="items-center gap-2 card-jenis-desktop">
                             <span class="text-sm text-muted">Jenis:</span>
-                            <span class="text-sm font-semibold" style="color:#064635;font-weight:600;">{{ $inventaris->jenis->nama ?? '-' }}</span>
+                            <span class="text-sm font-semibold" style="color:#1f3a2a;font-weight:600;">{{ $inventaris->jenis->nama ?? '-' }}</span>
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <form id="edit-aset-form" action="{{ route('manajemen-aset.update', $inventaris->id) }}" method="POST" enctype="multipart/form-data">
+                <div class="card-body" style="padding-top: 14px !important;">
+                    <form id="edit-aset-form" action="{{ route('manajemen-aset.update', $inventaris->id) }}" method="POST" enctype="multipart/form-data" novalidate>
                         @csrf
                         @method('PUT')
 
                         <!-- Info Alert -->
-                        <div style="background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 8px; padding:12px 16px; margin-bottom:20px; font-size:13px; color:#1e40af;">
-                            <i data-feather="info" style="width:16px;height:16px; display:inline-block; margin-right:8px; vertical-align:middle; color:#1e40af; stroke:#1e40af;"></i>
-                            <strong>Informasi:</strong> Jenis Inventaris tidak dapat diubah. Anda dapat mengubah semua data termasuk kode barang.
+                        <div class="info-box" style="margin-top: 0 !important; margin-bottom: 20px;">
+                            <i data-feather="info"></i>
+                            <div class="info-box-text">
+                                <strong>Informasi:</strong> Jenis Inventaris tidak dapat diubah. Anda dapat mengubah semua data termasuk kode barang.
+                            </div>
                         </div>
 
                         <!-- Data Umum & Custom Fields (Urut sesuai Order) -->
                         @if($fieldsWithData && $fieldsWithData->count() > 0)
                             <div class="buku-inventaris-section">
                                 <div class="buku-inventaris-header" style="margin-bottom: 16px;">
-                                    <div class="buku-inventaris-header-icon">
-                                        <i data-feather="file-text"></i>
-                                    </div>
                                     <div class="buku-inventaris-header-content">
                                         <span class="buku-inventaris-title">Data Inventaris</span>
-                                        <p class="buku-inventaris-desc">Field ini digunakan untuk mengisi informasi utama dan data umum dari inventaris.</p>
                                     </div>
                                 </div>
                                 <div class="form-grid">
@@ -777,7 +967,7 @@
                                                 : "fields[{$field->id}]";
                                             $isFixedYearField = $fieldType === 'fixed' && (($field->fixed_field_name ?? null) === 'tahun_perolehan' || ($field->nama_field ?? null) === 'tahun_perolehan');
                                             $effectiveInputType = $isFixedYearField ? 'year' : ($field->tipe ?? 'text');
-                                            $isFullWidth = in_array($effectiveInputType, ['textarea']);
+                                            $isFullWidth = in_array($effectiveInputType, ['textarea']) || in_array($field->nama_field ?? '', ['keterangan', 'alamat', 'lokasi', 'catatan']);
 
                                             // Ganti label nama_barang menjadi "Jenis Barang / Nama Barang"
                                             $displayLabel = ($fieldType === 'fixed' && ($field->fixed_field_name ?? null) === 'nama_barang') || ($field->nama_field ?? null) === 'nama_barang'
@@ -804,7 +994,18 @@
                                                 if ($isCurrencyField) {
                                                     $rawNilai = old($oldKey, $value);
                                                     if ($rawNilai !== '' && $rawNilai !== null) {
-                                                        $fNilai = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,.]/', '', $rawNilai));
+                                                        if (is_numeric($rawNilai)) {
+                                                            $fNilai = (float) $rawNilai;
+                                                        } else {
+                                                            $clean = preg_replace('/[^0-9,.]/', '', (string) $rawNilai);
+                                                            if (str_contains($clean, ',') && str_contains($clean, '.')) {
+                                                                $clean = str_replace('.', '', $clean);
+                                                                $clean = str_replace(',', '.', $clean);
+                                                            } elseif (str_contains($clean, ',')) {
+                                                                $clean = str_replace(',', '.', $clean);
+                                                            }
+                                                            $fNilai = (float) $clean;
+                                                        }
                                                         $npDec = fmod($fNilai, 1) != 0 ? 2 : 0;
                                                         $displayNilai = number_format($fNilai, $npDec, ',', '.');
                                                     } else {
@@ -836,7 +1037,7 @@
                                             @else
                                             @switch($effectiveInputType)
                                                 @case('textarea')
-                                                    <textarea name="{{ $formName }}" id="{{ $field->nama_field }}" class="form-control" rows="2" {{ $req }}>{{ old($oldKey, $value) }}</textarea>
+                                                    <textarea name="{{ $formName }}" id="{{ $field->nama_field }}" class="form-control" rows="4" placeholder="Masukkan {{ strtolower($displayLabel) }}..." {{ $req }}>{{ old($oldKey, $value) }}</textarea>
                                                     @break
 
                                                 @case('select')
@@ -844,7 +1045,7 @@
                                                         $selectedVal = old($oldKey, $value);
                                                     @endphp
                                                     <select name="{{ $formName }}" id="{{ $field->nama_field }}" class="form-control form-select" {{ $req }}>
-                                                        <option value="" disabled hidden {{ $selectedVal ? '' : 'selected' }}>-- Pilih --</option>
+                                                        <option value="" disabled hidden {{ $selectedVal ? '' : 'selected' }}>Pilih</option>
                                                     @if($field->nama_field === 'kondisi')
                                                             <option value="baik" {{ $selectedVal === 'baik' ? 'selected' : '' }}>Baik</option>
                                                             <option value="rusak_ringan" {{ $selectedVal === 'rusak_ringan' ? 'selected' : '' }}>Rusak Ringan</option>
@@ -920,7 +1121,7 @@
                                                             $selectedDd = old($oldKey, $value);
                                                         @endphp
                                                         <select name="{{ $formName }}" id="{{ $field->nama_field }}" class="form-control form-select" {{ $req }}>
-                                                            <option value="" disabled hidden {{ $selectedDd ? '' : 'selected' }}>-- Pilih {{ $field->label_field }} --</option>
+                                                            <option value="" disabled hidden {{ $selectedDd ? '' : 'selected' }}>Pilih {{ $field->label_field }}</option>
                                                             @foreach($ddItems as $ddItem)
                                                                 <option value="{{ $ddItem->label }}" {{ $selectedDd === $ddItem->label ? 'selected' : '' }}>{{ $ddItem->label }}</option>
                                                             @endforeach
@@ -937,29 +1138,43 @@
                                                                 <input type="text" id="kode_barang_edit" name="{{ $formName }}"
                                                                     class="form-control"
                                                                     readonly
-                                                                    style="flex:1;background:#ffffff;cursor:pointer;"
+                                                                    placeholder="Pilih kode barang..."
+                                                                    style="flex:1;background:var(--color-surface);cursor:pointer;"
                                                                     onclick="openKodeBarangSearchEdit()"
                                                                     value="{{ old($oldKey, $value) }}">
                                                                 <button type="button" onclick="openKodeBarangSearchEdit()"
-                                                                    style="padding:10px 14px;background:linear-gradient(135deg,#064635,#1c5240);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;">
-                                                                    Cari
+                                                                    title="Cari Kode Barang" aria-label="Cari Kode Barang"
+                                                                    style="width:46px;height:46px;min-width:46px;flex-shrink:0;background:var(--color-primary);color:#fff;border:none;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:none;transition:background-color 0.2s ease;">
+                                                                    <i data-feather="search" style="width:16px;height:16px;stroke:#fff;"></i>
                                                                 </button>
                                                             </div>
-                                                            <div id="kode-barang-selected-info-edit" style="{{ $kbInfo ? '' : 'display:none;' }}margin-top:6px;padding:8px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;font-size:12px;color:#166534;">
+                                                            <div id="kode-barang-selected-info-edit" style="{{ $kbInfo ? '' : 'display:none;' }}margin-top:6px;padding-left:14px;font-size:12px;font-weight:500;color:#166534;line-height:1.4;">
                                                                 {{ $kbInfo ? $kbInfo->kode_lengkap . ' — ' . $kbInfo->uraian : '' }}
                                                             </div>
                                                         </div>
                                                     @else
                                                         @if($field->field_type === 'fixed' && ($field->fixed_field_name ?? null) === 'nup')
-                                                            {{-- NUP: hanya angka --}}
-                                                            <input type="text" name="{{ $formName }}" id="{{ $field->nama_field }}" class="form-control numeric-only-input"
-                                                                   value="{{ old($oldKey, $value) }}"
-                                                                   inputmode="numeric" pattern="[0-9]*"
-                                                                   placeholder="NUP"
-                                                                   {{ $req }} />
+                                                            {{-- NUP: hanya angka, default readonly, bisa diedit via konfirmasi --}}
+                                                            <div style="position:relative;">
+                                                                <input type="text" name="{{ $formName }}" id="{{ $field->nama_field }}" class="form-control numeric-only-input"
+                                                                       value="{{ old($oldKey, $value) }}"
+                                                                       inputmode="numeric" pattern="[0-9]*"
+                                                                       placeholder="NUP"
+                                                                       readonly style="background:var(--color-bg);cursor:not-allowed;"
+                                                                       {{ $req }} />
+                                                                <div id="nup-info-wrap-edit" style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                                                                    <span id="nup-history-hint-edit" style="font-size:12px;color:var(--color-text-muted);line-height:1.4;">
+                                                                        NUP terdaftar saat ini: <strong>{{ $value ?? '-' }}</strong>
+                                                                    </span>
+                                                                    <button type="button" id="btn-unlock-nup-edit" onclick="confirmUnlockNupEdit()" style="background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--color-primary);text-decoration:underline;text-underline-offset:3px;cursor:pointer;">
+                                                                        Edit NUP ini
+                                                                    </button>
+                                                                </div>
+                                                            </div>
                                                         @else
                                                             <input type="text" name="{{ $formName }}" id="{{ $field->nama_field }}" class="form-control"
                                                                    value="{{ old($oldKey, $value) }}"
+                                                                   placeholder="Masukkan {{ strtolower($displayLabel) }}..."
                                                                    {{ $req }} />
                                                         @endif
                                                     @endif
@@ -972,13 +1187,11 @@
                                         </div>
                                     @endforeach
 
-                                    <!-- Field Ruangan dipindahkan ke KIR section di luar -->
-
-                                    <!-- Asal Usul Barang & Pengguna — selalu ada di section Data Inventaris -->
-                                    <div class="form-group form-full" style="margin-top:4px;">
-                                        <label class="form-label">Asal Usul Barang <span class="required">*</span></label>
+                                    <!-- Asal Usul Barang & Pengguna & Bukti Kepemilikan -->
+                                    <div class="form-group">
+                                        <label class="form-label" for="asal_usul">Asal Usul Barang <span class="required">*</span></label>
                                         <select name="asal_usul" id="asal_usul" class="form-control form-select" required>
-                                            <option value="" disabled hidden {{ old('asal_usul', $inventaris->asal_usul) ? '' : 'selected' }}>-- Pilih Asal Usul Barang --</option>
+                                            <option value="" disabled hidden {{ old('asal_usul', $inventaris->asal_usul) ? '' : 'selected' }}>Pilih Asal Usul Barang</option>
                                             <option value="apbdes" {{ old('asal_usul', $inventaris->asal_usul) === 'apbdes' ? 'selected' : '' }}>APBDes</option>
                                             <option value="perolehan_lain" {{ old('asal_usul', $inventaris->asal_usul) === 'perolehan_lain' ? 'selected' : '' }}>Perolehan Lain yang Sah</option>
                                             <option value="kekayaan_asli" {{ old('asal_usul', $inventaris->asal_usul) === 'kekayaan_asli' ? 'selected' : '' }}>Kekayaan Asli Desa</option>
@@ -987,38 +1200,54 @@
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                    <div class="form-group form-full" style="margin-top:4px;">
-                                        <label class="form-label" for="pengguna">Pengguna <span class="required">*</span></label>
-                                        <input type="hidden" name="pengguna" id="pengguna" value="{{ old('pengguna', $inventaris->pengguna) }}">
-                                        <div class="searchable-select" id="ss-pengguna">
-                                          <div class="ss-trigger" onclick="ssToggle('ss-pengguna')">
-                                            <span class="ss-value-text" id="ss-pengguna-text">{{ old('pengguna', $inventaris->pengguna) ?: '-- Pilih Pengguna --' }}</span>
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                                          </div>
-                                          <div class="ss-dropdown" style="display:none;">
-                                            <div class="ss-search-wrap">
-                                              <input type="text" class="ss-search" placeholder="Cari pengguna..." oninput="ssFilter('ss-pengguna', this.value)">
-                                            </div>
-                                            <div class="ss-options">
-                                              @forelse($userList as $user)
-                                                @php
-                                                  $roleLabel = $user->role_name_display ?? '';
-                                                  $label = $user->nama . ($roleLabel ? ' ('.$roleLabel.')' : '');
-                                                  $isSelected = old('pengguna', $inventaris->pengguna) === $user->nama;
-                                                @endphp
-                                                <div class="ss-option {{ $isSelected ? 'ss-selected' : '' }}" data-value="{{ $user->nama }}" data-search="{{ strtolower($label) }}" onclick="ssSelect('ss-pengguna', '{{ addslashes($user->nama) }}', '{{ addslashes($label) }}')">
-                                                  {{ $label }}
-                                                </div>
-                                              @empty
-                                                <div class="ss-empty">Belum ada data</div>
-                                              @endforelse
-                                            </div>
-                                          </div>
-                                        </div>
-                                        @error('pengguna')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                    </div>
+                                    <div class="form-group">
+                                         <label class="form-label" for="pengguna">Pengguna <span class="optional">(Opsional)</span></label>
+                                         <input type="hidden" name="pengguna" id="pengguna" value="{{ old('pengguna', $inventaris->pengguna) }}">
+                                         <div class="searchable-select" id="ss-pengguna">
+                                           <div class="ss-trigger" onclick="ssToggle('ss-pengguna')">
+                                             <span class="ss-value-text" id="ss-pengguna-text">{{ old('pengguna', $inventaris->pengguna) ?: 'Pilih Pengguna (Opsional)' }}</span>
+                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                           </div>
+                                           <div class="ss-dropdown" style="display:none;">
+                                             <div class="ss-search-wrap">
+                                               <input type="text" class="ss-search" placeholder="Cari pengguna..." oninput="ssFilter('ss-pengguna', this.value)">
+                                             </div>
+                                             <div class="ss-options">
+                                               <div class="ss-option {{ !old('pengguna', $inventaris->pengguna) ? 'ss-selected' : '' }}" data-value="" data-search="tidak ada pengguna tanpa kosongkan" onclick="ssSelect('ss-pengguna', '', 'Pilih Pengguna (Opsional)')">
+                                                 <span style="color:#6b7280;font-style:italic;">Tanpa Pengguna (Kosongkan)</span>
+                                               </div>
+                                               @forelse($userList as $user)
+                                                 @php
+                                                   $roleLabel = $user->role_name_display ?? '';
+                                                   $label = $user->nama . ($roleLabel ? ' ('.$roleLabel.')' : '');
+                                                   $isSelected = old('pengguna', $inventaris->pengguna) === $user->nama;
+                                                 @endphp
+                                                 <div class="ss-option {{ $isSelected ? 'ss-selected' : '' }}" data-value="{{ $user->nama }}" data-search="{{ strtolower($label) }}" onclick="ssSelect('ss-pengguna', '{{ addslashes($user->nama) }}', '{{ addslashes($label) }}')">
+                                                   {{ $label }}
+                                                 </div>
+                                               @empty
+                                                 <div class="ss-empty">Belum ada data</div>
+                                               @endforelse
+                                             </div>
+                                           </div>
+                                         </div>
+                                         @error('pengguna')
+                                             <small class="text-danger">{{ $message }}</small>
+                                         @enderror
+                                     </div>
+                                     <div class="form-group">
+                                         <label class="form-label" for="bukti_kepemilikan">Bukti Kepemilikan <span class="optional">(Opsional)</span></label>
+                                         <select name="bukti_kepemilikan" id="bukti_kepemilikan" class="form-control form-select">
+                                             <option value="" {{ old('bukti_kepemilikan', $inventaris->bukti_kepemilikan) ? '' : 'selected' }}>Pilih Bukti Kepemilikan (Opsional)</option>
+                                             <option value="BPKB & STNK" {{ old('bukti_kepemilikan', $inventaris->bukti_kepemilikan) === 'BPKB & STNK' ? 'selected' : '' }}>BPKB & STNK</option>
+                                             <option value="BAST" {{ old('bukti_kepemilikan', $inventaris->bukti_kepemilikan) === 'BAST' ? 'selected' : '' }}>BAST</option>
+                                             <option value="KWITANSI" {{ old('bukti_kepemilikan', $inventaris->bukti_kepemilikan) === 'KWITANSI' ? 'selected' : '' }}>KWITANSI</option>
+                                             <option value="SERTIFIKAT" {{ old('bukti_kepemilikan', $inventaris->bukti_kepemilikan) === 'SERTIFIKAT' ? 'selected' : '' }}>SERTIFIKAT</option>
+                                         </select>
+                                         @error('bukti_kepemilikan')
+                                             <small class="text-danger">{{ $message }}</small>
+                                         @enderror
+                                     </div>
 
                                 </div>
                             </div>
@@ -1028,15 +1257,11 @@
                         @if(!empty($kibConfig['fields']))
                         <div class="buku-inventaris-section">
                           <div class="buku-inventaris-header">
-                            <div class="buku-inventaris-header-icon">
-                              <i data-feather="book-open"></i>
-                            </div>
                             <div class="buku-inventaris-header-content">
-                              <span class="buku-inventaris-title">Data Buku Inventaris Aset Desa{{ !empty($kibConfig['nama']) ? ' — ' . $kibConfig['nama'] : '' }}</span>
-                              <p class="buku-inventaris-desc">Field ini digunakan untuk mengisi data Buku Inventaris Aset Desa (KIB) sesuai format standar. Semua field bersifat opsional.</p>
+                              <span class="buku-inventaris-title">Data Kartu Inventaris Barang (KIB){{ !empty($kibConfig['nama']) ? ' — ' . $kibConfig['nama'] : '' }}</span>
                             </div>
                           </div>
-                          <div style="display:grid;grid-template-columns:1fr;gap:16px;">
+                          <div class="form-grid">
                             @foreach($kibConfig['fields'] as $kibField)
                             @php
                               $kibKey = $kibField['key'];
@@ -1044,8 +1269,8 @@
                               
                               $normKey = strtolower(trim($kibKey));
                               $normLabel = strtolower(trim(str_replace(['*', '(', ')'], '', $kibLabel)));
-                              $dataUmumKeys = ['nama_barang', 'jenis_barang', 'kode_barang', 'nup', 'tahun_perolehan', 'nilai_perolehan', 'keterangan', 'asal_usul', 'pengguna', 'kondisi', 'satuan'];
-                              $dataUmumLabels = ['nama barang', 'jenis barang / nama barang', 'jenis barang', 'kode barang', 'nup', 'tahun perolehan', 'nilai perolehan', 'keterangan', 'asal usul', 'asal usul barang', 'pengguna', 'kondisi', 'satuan'];
+                              $dataUmumKeys = ['nama_barang', 'jenis_barang', 'kode_barang', 'nup', 'tahun_perolehan', 'nilai_perolehan', 'keterangan', 'asal_usul', 'bukti_kepemilikan', 'pengguna', 'kondisi', 'satuan'];
+                              $dataUmumLabels = ['nama barang', 'jenis barang / nama barang', 'jenis barang', 'kode barang', 'nup', 'tahun perolehan', 'nilai perolehan', 'keterangan', 'asal usul', 'asal usul barang', 'bukti kepemilikan', 'pengguna', 'kondisi', 'satuan'];
                               
                               if (in_array($normKey, $dataUmumKeys) || in_array($normLabel, $dataUmumLabels)) {
                                   continue;
@@ -1053,18 +1278,19 @@
                               
                               $kibType = $kibField['type'];
                               $kibOldVal = old('kib.' . $kibKey, $kibValues[$kibKey] ?? '');
+                              $isKibFullWidth = in_array($kibType, ['textarea']) || in_array($kibKey, ['keterangan', 'alamat', 'lokasi', 'catatan']);
                             @endphp
-                              <div class="form-group">
+                              <div class="form-group{{ $isKibFullWidth ? ' form-full' : '' }}">
                                 <label class="form-label" for="kib_{{ $kibKey }}">{{ $kibLabel }}</label>
                                 @if($kibType === 'select')
                                   <select id="kib_{{ $kibKey }}" name="kib[{{ $kibKey }}]" class="form-control form-select">
-                                    <option value="" disabled hidden selected>-- Pilih --</option>
+                                    <option value="" disabled hidden selected>Pilih</option>
                                     @foreach($kibField['options'] as $opt)
                                       <option value="{{ $opt }}" {{ $kibOldVal === $opt ? 'selected' : '' }}>{{ $opt }}</option>
                                     @endforeach
                                   </select>
                                 @elseif($kibType === 'textarea')
-                                  <textarea id="kib_{{ $kibKey }}" name="kib[{{ $kibKey }}]" class="form-control" rows="2" placeholder="{{ $kibLabel }}">{{ $kibOldVal }}</textarea>
+                                  <textarea id="kib_{{ $kibKey }}" name="kib[{{ $kibKey }}]" class="form-control" rows="4" placeholder="Masukkan {{ strtolower($kibLabel) }}...">{{ $kibOldVal }}</textarea>
                                 @elseif($kibType === 'decimal')
                                   @php
                                     $dRaw = $kibOldVal;
@@ -1086,11 +1312,11 @@
                                   </div>
                                 @elseif($kibType === 'year')
                                   <input type="text" id="kib_{{ $kibKey }}" name="kib[{{ $kibKey }}]"
-                                         class="form-control year-picker"
-                                         value="{{ $kibOldVal }}"
-                                         inputmode="numeric" maxlength="4"
-                                         data-min-year="1900" data-max-year="{{ now()->year + 1 }}"
-                                         placeholder="Pilih tahun" />
+                                           class="form-control year-picker"
+                                           value="{{ $kibOldVal }}"
+                                           inputmode="numeric" maxlength="4"
+                                           data-min-year="1900" data-max-year="{{ now()->year + 1 }}"
+                                           placeholder="Pilih tahun" />
                                 @elseif($kibType === 'date')
                                   <input type="text" id="kib_{{ $kibKey }}" name="kib[{{ $kibKey }}]"
                                          class="form-control date-picker"
@@ -1100,7 +1326,7 @@
                                   <input type="text" id="kib_{{ $kibKey }}" name="kib[{{ $kibKey }}]"
                                          class="form-control"
                                          value="{{ $kibOldVal }}"
-                                         placeholder="{{ $kibLabel }}" />
+                                         placeholder="Masukkan {{ strtolower($kibLabel) }}..." />
                                 @endif
                               </div>
                             @endforeach
@@ -1111,44 +1337,43 @@
                         <!-- Data Laporan Aset — field satuan untuk export laporan per semester/tahunan -->
                         <div class="buku-inventaris-section" style="margin-top:16px;">
                           <div class="buku-inventaris-header">
-                            <div class="buku-inventaris-header-icon">
-                              <i data-feather="bar-chart-2"></i>
-                            </div>
                             <div class="buku-inventaris-header-content">
                               <span class="buku-inventaris-title">Data Laporan Aset</span>
-                              <p class="buku-inventaris-desc">Field ini digunakan untuk export Laporan Aset Per Semester dan Per Tahun.</p>
                             </div>
                           </div>
                           <div class="form-grid" style="margin-top:12px;">
                             <div class="form-group">
                               <label class="form-label" for="satuan">Satuan <span class="required">*</span></label>
                               <input type="text" id="satuan" name="satuan" class="form-control"
-                                placeholder="Contoh: Unit, Buah, M², Meter, dll."
+                                placeholder="Contoh: Unit, Buah, Set, M2"
                                 value="{{ old('satuan', $inventaris->satuan ?? '') }}"
-                                style="width:100%;">
+                                style="width:100%;"
+                                required>
                               @error('satuan')
                                 <div class="invalid-feedback" style="display:block;">{{ $message }}</div>
                               @enderror
                             </div>
                             
+                            @php
+                              $bulanNames = [
+                                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                              ];
+                              $currBulan = old('bulan_perolehan', $inventaris->getBulanPerolehan());
+                            @endphp
                             <div class="form-group">
-                              <label class="form-label" for="bulan_perolehan">Bulan Perolehan <span class="required">*</span></label>
-                              <select id="bulan_perolehan" name="bulan_perolehan" class="form-control form-select" required>
-                                <option value="" disabled hidden {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) ? '' : 'selected' }}>-- Pilih Bulan --</option>
-                                <option value="1" {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) == '1' ? 'selected' : '' }}>Januari</option>
-                                <option value="2" {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) == '2' ? 'selected' : '' }}>Februari</option>
-                                <option value="3" {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) == '3' ? 'selected' : '' }}>Maret</option>
-                                <option value="4" {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) == '4' ? 'selected' : '' }}>April</option>
-                                <option value="5" {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) == '5' ? 'selected' : '' }}>Mei</option>
-                                <option value="6" {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) == '6' ? 'selected' : '' }}>Juni</option>
-                                <option value="7" {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) == '7' ? 'selected' : '' }}>Juli</option>
-                                <option value="8" {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) == '8' ? 'selected' : '' }}>Agustus</option>
-                                <option value="9" {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) == '9' ? 'selected' : '' }}>September</option>
-                                <option value="10" {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) == '10' ? 'selected' : '' }}>Oktober</option>
-                                <option value="11" {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) == '11' ? 'selected' : '' }}>November</option>
-                                <option value="12" {{ old('bulan_perolehan', $inventaris->getBulanPerolehan()) == '12' ? 'selected' : '' }}>Desember</option>
-                              </select>
-                              <small class="form-hint">Untuk identifikasi aset masuk ke Semester 1 atau 2.</small>
+                              <label class="form-label" for="bulan_perolehan_display">Bulan Perolehan <span class="required">*</span></label>
+                              <div style="position: relative;">
+                                <input type="text" id="bulan_perolehan_display" class="form-control month-only-picker-input @error('bulan_perolehan') is-invalid @enderror"
+                                  placeholder="Pilih Bulan"
+                                  readonly
+                                  style="background: var(--color-surface); cursor: pointer; padding-right: 36px;"
+                                  value="{{ $currBulan ? ($bulanNames[(int)$currBulan] ?? '') : '' }}"
+                                  required>
+                                <input type="hidden" id="bulan_perolehan" name="bulan_perolehan" value="{{ $currBulan }}">
+                                <i data-feather="calendar" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #9ca3af; pointer-events: none;"></i>
+                              </div>
                               @error('bulan_perolehan')
                                 <div class="invalid-feedback" style="display:block;">{{ $message }}</div>
                               @enderror
@@ -1160,22 +1385,18 @@
                         @if($inventaris->jenis && $inventaris->jenis->requires_ruangan)
                         <div id="kir-section-wrapper" class="buku-inventaris-section" style="margin-top:16px;">
                           <div class="buku-inventaris-header">
-                            <div class="buku-inventaris-header-icon">
-                              <i data-feather="grid"></i>
-                            </div>
                             <div class="buku-inventaris-header-content">
                               <span class="buku-inventaris-title">Data Kartu Inventaris Ruangan (KIR)</span>
-                              <p class="buku-inventaris-desc">Field ini digunakan untuk mengisi informasi tambahan yang akan ditampilkan pada hasil export Kartu Inventaris Ruangan (KIR).</p>
                             </div>
                           </div>
-                          <div class="form-grid" style="grid-template-columns:1fr;margin-top:12px;">
+                          <div class="form-grid" style="margin-top:12px;">
                             <div class="form-group">
                               <label class="form-label" for="ruangan_id">Ruangan <span class="required">*</span></label>
                               <select name="ruangan_id" id="ruangan_id" class="form-control form-select" required>
-                                <option value="" disabled hidden {{ old('ruangan_id', $inventaris->ruangan_id) ? '' : 'selected' }}>-- Pilih Ruangan --</option>
+                                <option value="" disabled hidden {{ old('ruangan_id', $inventaris->ruangan_id) ? '' : 'selected' }}>Pilih Ruangan</option>
                                 @foreach($ruanganList as $ruangan)
                                   <option value="{{ $ruangan->id }}" {{ old('ruangan_id', $inventaris->ruangan_id) == $ruangan->id ? 'selected' : '' }}>
-                                    {{ $ruangan->nama }}{{ $ruangan->kode ? ' ('.$ruangan->kode.')' : '' }}
+                                    {{ $ruangan->nama }}{{ $ruangan->kode ? ' (Kode: '.$ruangan->kode.')' : '' }}
                                   </option>
                                 @endforeach
                               </select>
@@ -1186,28 +1407,28 @@
                             
                         @php
                           $kirFields = [
-                            ['key' => 'kir_konstruksi',    'label' => 'Konstruksi',     'placeholder' => 'Masukkan Konstruksi',     'type' => 'text'],
-                            ['key' => 'kir_luas',          'label' => 'Luas',            'placeholder' => 'Masukkan Luas',           'type' => 'text'],
-                            ['key' => 'kir_merk_tipe',     'label' => 'Merk / Tipe',     'placeholder' => 'Masukkan Merk / Tipe',    'type' => 'text'],
-                            ['key' => 'kir_warna',         'label' => 'Warna',           'placeholder' => 'Masukkan Warna',          'type' => 'text'],
-                            ['key' => 'kir_judul',         'label' => 'Judul',           'placeholder' => 'Masukkan Judul',          'type' => 'text'],
-                            ['key' => 'kir_pencipta',      'label' => 'Pencipta',        'placeholder' => 'Masukkan Pencipta',       'type' => 'text'],
-                            ['key' => 'kir_no_pol',        'label' => 'No. Polisi',      'placeholder' => 'Masukkan No. Polisi',     'type' => 'text'],
-                            // Field tambahan untuk Format 2 (Desa Demo)
-                            ['key' => 'kir_no_seri_pabrik','label' => 'No. Seri Pabrik', 'placeholder' => 'Masukkan No. Seri Pabrik','type' => 'text'],
-                            ['key' => 'kir_panjang',       'label' => 'Panjang (P)',     'placeholder' => 'Contoh: 70cm',            'type' => 'text'],
-                            ['key' => 'kir_lebar',         'label' => 'Lebar (L)',       'placeholder' => 'Contoh: 20cm',            'type' => 'text'],
-                            ['key' => 'kir_tinggi',        'label' => 'Tinggi (T)',      'placeholder' => 'Contoh: 100cm',           'type' => 'text'],
-                            ['key' => 'kir_bahan',         'label' => 'Bahan',           'placeholder' => 'Contoh: Kayu, Besi, Plastik', 'type' => 'text'],
-                            ['key' => 'kir_kondisi',       'label' => 'Kondisi Aset',    'placeholder' => '',                        'type' => 'select'],
+                            ['key' => 'kir_konstruksi',    'label' => 'Konstruksi',     'placeholder' => 'Contoh: Beton, Kayu, Baja', 'type' => 'text'],
+                            ['key' => 'kir_luas',          'label' => 'Luas',            'placeholder' => 'Contoh: 120 m²', 'type' => 'text'],
+                            ['key' => 'kir_merk_tipe',     'label' => 'Merk / Tipe',     'placeholder' => 'Contoh: Honda Vario, Asus ZenBook', 'type' => 'text'],
+                            ['key' => 'kir_warna',         'label' => 'Warna',           'placeholder' => 'Contoh: Hitam, Putih, Abu-abu', 'type' => 'text'],
+                            ['key' => 'kir_judul',         'label' => 'Judul',           'placeholder' => 'Contoh: Buku Administrasi Desa', 'type' => 'text'],
+                            ['key' => 'kir_pencipta',      'label' => 'Pencipta',        'placeholder' => 'Contoh: Kemendagri, Pemerintah Desa', 'type' => 'text'],
+                            ['key' => 'kir_no_pol',        'label' => 'No. Polisi',      'placeholder' => 'Contoh: DK 1234 AB', 'type' => 'text'],
+                            // Field tambahan untuk Format 2 (Format Khusus 3 TTD)
+                            ['key' => 'kir_no_seri_pabrik','label' => 'No. Seri Pabrik', 'placeholder' => 'Contoh: SN-88392019', 'type' => 'text'],
+                            ['key' => 'kir_panjang',       'label' => 'Panjang (P)',     'placeholder' => 'Contoh: 12 m', 'type' => 'text'],
+                            ['key' => 'kir_lebar',         'label' => 'Lebar (L)',       'placeholder' => 'Contoh: 8 m', 'type' => 'text'],
+                            ['key' => 'kir_tinggi',        'label' => 'Tinggi (T)',      'placeholder' => 'Contoh: 4 m', 'type' => 'text'],
+                            ['key' => 'kir_bahan',         'label' => 'Bahan',           'placeholder' => 'Contoh: Kayu Jati, Besi Hollow', 'type' => 'text'],
+                            ['key' => 'kir_kondisi',       'label' => 'Kondisi Aset',    'placeholder' => '', 'type' => 'select'],
                           ];
                         @endphp
                         @foreach($kirFields as $kf)
                           @php
                             $normKey = strtolower(trim($kf['key']));
                             $normLabel = strtolower(trim(str_replace(['*', '(', ')', '/'], '', $kf['label'])));
-                            $dataUmumKeys = ['nama_barang', 'jenis_barang', 'kode_barang', 'nup', 'tahun_perolehan', 'nilai_perolehan', 'keterangan', 'asal_usul', 'pengguna', 'satuan'];
-                            $dataUmumLabels = ['nama barang', 'jenis barang / nama barang', 'jenis barang', 'kode barang', 'nup', 'tahun perolehan', 'nilai perolehan', 'keterangan', 'asal usul', 'asal usul barang', 'pengguna', 'satuan'];
+                            $dataUmumKeys = ['nama_barang', 'jenis_barang', 'kode_barang', 'nup', 'tahun_perolehan', 'nilai_perolehan', 'keterangan', 'asal_usul', 'bukti_kepemilikan', 'pengguna', 'satuan'];
+                            $dataUmumLabels = ['nama barang', 'jenis barang / nama barang', 'jenis barang', 'kode barang', 'nup', 'tahun perolehan', 'nilai perolehan', 'keterangan', 'asal usul', 'asal usul barang', 'bukti kepemilikan', 'pengguna', 'satuan'];
                             
                             if (in_array($normKey, $dataUmumKeys) || in_array($normLabel, $dataUmumLabels)) {
                                 continue;
@@ -1215,13 +1436,15 @@
                             $savedVal = old('kir.' . $kf['key'], $inventaris->getKirValue($kf['key']));
                           @endphp
                           <div class="form-group">
-                            <label class="form-label" for="{{ $kf['key'] }}">{{ $kf['label'] }}</label>
+                            <label class="form-label" for="{{ $kf['key'] }}">
+                              {{ $kf['label'] }}
+                            </label>
                             @if(($kf['type'] ?? 'text') === 'select')
                               <select id="{{ $kf['key'] }}" name="kir[{{ $kf['key'] }}]" class="form-control form-select">
-                                <option value="" {{ $savedVal === null || $savedVal === '' ? 'selected' : '' }}>-- Pilih Kondisi --</option>
-                                <option value="baik"        {{ $savedVal === 'baik'         ? 'selected' : '' }}>Baik (B)</option>
-                                <option value="rusak_ringan"{{ $savedVal === 'rusak_ringan'  ? 'selected' : '' }}>Kurang Baik (KB)</option>
-                                <option value="rusak_berat" {{ $savedVal === 'rusak_berat'   ? 'selected' : '' }}>Rusak Berat (RB)</option>
+                                <option value="" {{ $savedVal === null || $savedVal === '' ? 'selected' : '' }}>Pilih Kondisi</option>
+                                <option value="baik"        {{ $savedVal === 'baik'         ? 'selected' : '' }}>Baik</option>
+                                <option value="rusak_ringan"{{ $savedVal === 'rusak_ringan'  ? 'selected' : '' }}>Kurang Baik</option>
+                                <option value="rusak_berat" {{ $savedVal === 'rusak_berat'   ? 'selected' : '' }}>Rusak Berat</option>
                               </select>
                             @else
                               <input type="text" id="{{ $kf['key'] }}" name="kir[{{ $kf['key'] }}]" class="form-control" placeholder="{{ $kf['placeholder'] }}" value="{{ $savedVal }}" />
@@ -1235,57 +1458,65 @@
                         <!-- Foto Aset -->
                         <div class="buku-inventaris-section" style="margin-top:16px;">
                             <div class="buku-inventaris-header" style="margin-bottom: 16px;">
-                                <div class="buku-inventaris-header-icon">
-                                    <i data-feather="image"></i>
-                                </div>
                                 <div class="buku-inventaris-header-content">
                                     <span class="buku-inventaris-title">Foto Aset</span>
-                                    <p class="buku-inventaris-desc">Unggah foto aset untuk mendokumentasikan kondisi fisik aset (maksimal 5 foto).</p>
                                 </div>
                             </div>
-
-                            {{-- Existing fotos --}}
-                            @if($inventaris->fotos->isNotEmpty())
-                            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;" id="existing-foto-grid">
-                                @foreach($inventaris->fotos as $foto)
-                                <div id="foto-wrap-{{ $foto->id }}" style="position:relative;width:90px;height:90px;border-radius:8px;overflow:hidden;border:1px solid #e5e7eb;">
-                                    <img src="{{ Storage::url($foto->path) }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
-                                    <button type="button"
-                                        onclick="deleteFotoExisting({{ $foto->id }})"
-                                        style="position:absolute;top:2px;right:2px;background:rgba(220,38,38,.8);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1;">&times;</button>
-                                    <input type="hidden" name="keep_fotos[]" value="{{ $foto->id }}">
-                                </div>
-                                @endforeach
-                            </div>
-                            @endif
 
                             {{-- New foto upload --}}
                             <input type="file" id="new-foto-input" name="fotos[]" accept="image/jpeg,image/png,image/webp" multiple
                                 style="display:none;" onchange="handleNewFotoPreview(this)">
-                            <div class="file-upload-area" id="new-foto-drop-area" onclick="document.getElementById('new-foto-input').click()">
-                                <div class="file-upload-icon">
-                                    <i data-feather="image"></i>
+                            @php
+                                $initialFotoCount = $inventaris->fotos ? $inventaris->fotos->count() : 0;
+                            @endphp
+                            <div class="file-upload-area" id="new-foto-drop-area" onclick="handleEditDropAreaClick()">
+                                <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: 8px;">
+                                    <i data-feather="upload-cloud" style="width: 28px; height: 28px; stroke-width: 1.5; color: var(--color-text-muted); display: block; margin: 0 auto;"></i>
                                 </div>
-                                <div class="file-upload-text">Klik atau drag &amp; drop untuk tambah foto baru</div>
+                                <div class="file-upload-text">
+                                    @if($initialFotoCount === 0)
+                                        Klik atau drag &amp; drop untuk tambah foto baru
+                                    @elseif($initialFotoCount < 5)
+                                        Tambahkan foto lagi ({{ $initialFotoCount }}/5)
+                                    @else
+                                        Batas maksimal foto tercapai ({{ $initialFotoCount }}/5)
+                                    @endif
+                                </div>
                                 <div class="file-upload-hint">Format: JPG, PNG, WEBP &mdash; Setiap foto &le;5MB (total &le;25MB)</div>
                             </div>
-                            <div id="new-foto-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
-                            <p id="new-foto-limit-msg" style="color:#dc2626;font-size:12px;margin-top:6px;display:none;">Maksimal 5 foto total.</p>
+
+                            {{-- All Foto Preview (Existing & New) --}}
+                            <div id="all-foto-preview-container" style="display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;">
+                                {{-- Existing fotos --}}
+                                @if($inventaris->fotos->isNotEmpty())
+                                    @foreach($inventaris->fotos as $foto)
+                                    <div id="foto-wrap-{{ $foto->id }}" class="foto-preview-thumb">
+                                        <img src="{{ Storage::url($foto->path) }}" alt="Foto Lama" loading="lazy" onclick="previewEditFoto(this)" style="cursor: zoom-in;" title="Klik untuk memperbesar (Layar Penuh)">
+                                        <button type="button" class="remove-btn"
+                                            onclick="deleteFotoExisting({{ $foto->id }})"
+                                            title="Hapus foto">&times;</button>
+                                        <input type="hidden" name="keep_fotos[]" value="{{ $foto->id }}">
+                                    </div>
+                                    @endforeach
+                                @endif
+                                <div id="new-foto-grid" style="display:contents;"></div>
+                            </div>
+                            <p id="new-foto-limit-msg" style="color:#dc2626;font-size:12px;margin-top:8px;display:none;">Maksimal 5 foto total tercapai.</p>
                         </div>
 
                         <div class="info-box" style="margin-top:16px;">
-                            <i data-feather="info" style="color:#1e40af;stroke:#1e40af;"></i>
-                            <div style="font-size:13px;color:#1e40af;line-height:1.5;">
+                            <i data-feather="info"></i>
+                            <div class="info-box-text">
                                 Perubahan data inventaris akan langsung tersimpan setelah Anda klik tombol <strong>Update</strong>.
                             </div>
                         </div>
 
                         <div class="form-actions">
-                            <a href="{{ request('from') === 'show' ? route('manajemen-aset.show', $inventaris->id) : route('manajemen-aset.index') }}" class="btn btn-secondary" onclick="return confirm('Apakah Anda yakin ingin membatalkan? Data yang sudah diisi tidak akan tersimpan.');">
+                            <a href="{{ request('from') === 'show' ? route('manajemen-aset.show', $inventaris->id) : route('manajemen-aset.index') }}" class="btn-cancel" onclick="return confirmCancel(event, { returnKey: 'manajemen_aset_returning', isEdit: true })">
                                 <i data-feather="x"></i>
                                 Batal
                             </a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn-submit">
                                 <i data-feather="save"></i>
                                 Update Aset
                             </button>
@@ -1293,6 +1524,7 @@
                     </form>
                 </div>
             </div>
+          </div>
         </div>
     </div>
 
@@ -1674,6 +1906,96 @@
                     state.grid.innerHTML = html;
                 }
 
+                const BULAN_FULL_NAMES = [
+                    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                ];
+                const BULAN_GRID_SHORTS = [
+                    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+                ];
+
+                function initMonthOnlyPickers(root) {
+                    const scope = root || document;
+                    const inputs = scope.querySelectorAll('.month-only-picker-input');
+                    if (!inputs.length || typeof flatpickr === 'undefined') return;
+
+                    inputs.forEach(function(displayInput) {
+                        if (displayInput._flatpickr) {
+                            displayInput._flatpickr.destroy();
+                        }
+
+                        const hiddenInput = displayInput.parentElement.querySelector('input[type="hidden"]');
+
+                        flatpickr(displayInput, {
+                            allowInput: false,
+                            disableMobile: true,
+                            position: 'auto left',
+                            onReady: function(_, __, instance) {
+                                setupMonthOnlyPanel(instance, hiddenInput);
+                            },
+                            onOpen: function(_, __, instance) {
+                                setupMonthOnlyPanel(instance, hiddenInput);
+                            }
+                        });
+                    });
+                }
+
+                function setupMonthOnlyPanel(instance, hiddenInput) {
+                    const cal = instance.calendarContainer;
+                    if (!cal) return;
+
+                    cal.classList.add('month-only-picker');
+
+                    let panel = cal.querySelector('.month-only-panel');
+                    if (!panel) {
+                        panel = document.createElement('div');
+                        panel.className = 'month-only-panel';
+                        panel.innerHTML = `
+                            <div class="month-only-header">
+                                <span class="month-only-title">Pilih Bulan</span>
+                            </div>
+                            <div class="month-only-grid"></div>
+                        `;
+                        cal.appendChild(panel);
+
+                        const grid = panel.querySelector('.month-only-grid');
+                        BULAN_GRID_SHORTS.forEach((shortName, idx) => {
+                            const btn = document.createElement('button');
+                            btn.type = 'button';
+                            btn.className = 'month-only-option';
+                            btn.dataset.month = String(idx + 1);
+                            btn.textContent = shortName;
+                            grid.appendChild(btn);
+                        });
+
+                        grid.addEventListener('click', function(e) {
+                            const btn = e.target.closest('.month-only-option');
+                            if (!btn) return;
+                            const monthNum = parseInt(btn.dataset.month, 10);
+                            if (!monthNum) return;
+
+                            if (hiddenInput) {
+                                hiddenInput.value = monthNum;
+                                hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                            }
+
+                            instance.input.value = BULAN_FULL_NAMES[monthNum - 1];
+                            instance.input.dispatchEvent(new Event('change', { bubbles: true }));
+                            instance.input.classList.remove('is-invalid');
+
+                            instance.close();
+                        });
+                    }
+
+                    // Update active state
+                    const currentVal = hiddenInput ? parseInt(hiddenInput.value, 10) : 0;
+                    panel.querySelectorAll('.month-only-option').forEach(btn => {
+                        const m = parseInt(btn.dataset.month, 10);
+                        btn.classList.toggle('active', m === currentVal);
+                    });
+                }
+
                 function initDatePickers(root) {
                     const scope = root || document;
                     const dateInputs = scope.querySelectorAll('.date-picker');
@@ -1838,6 +2160,7 @@
 
                 initYearPickers(document);
                 initMonthPickers(document);
+                initMonthOnlyPickers(document);
                 initDatePickers(document);
 
                 // Event delegation global: pastikan field .date-picker selalu bisa membuka kalender
@@ -1849,6 +2172,190 @@
                     }
                 });
 
+        // Validasi form edit sebelum konfirmasi modal
+        function validateEditForm() {
+          const form = document.getElementById('edit-aset-form');
+          if (!form) return false;
+
+          let isValid = true;
+          const invalidElements = [];
+
+          function markError(el, errorWrap = null, errorMsg = null) {
+            if (!el) return;
+            isValid = false;
+            if (typeof window.simaShowFieldError === 'function') {
+              window.simaShowFieldError(el, errorMsg);
+            } else {
+              el.style.borderColor = '#E53935';
+              el.classList.add('is-invalid');
+            }
+            const target = (el.offsetParent !== null) ? el : (errorWrap || el.closest('.form-group') || el);
+            if (target && !invalidElements.includes(target)) {
+              invalidElements.push(target);
+            }
+          }
+
+          // 1. Validasi semua field di Builder Fields Container (Data Inventaris) secara urut
+          const builderContainer = document.getElementById('builder-fields-container');
+          if (builderContainer) {
+            const formGroups = builderContainer.querySelectorAll('.form-group');
+            for (let fg of formGroups) {
+              const isRequired = !!fg.querySelector('.required') || !!fg.querySelector('[required]');
+              if (!isRequired) continue;
+
+              const input = fg.querySelector('input, select, textarea');
+              if (!input) continue;
+
+              // A. Khusus Kode Barang
+              if (input.id === 'kode_barang' || input.name === 'kode_barang') {
+                if (!input.value || !input.value.trim()) {
+                  markError(input, fg, 'Kode barang wajib dipilih.');
+                }
+                continue;
+              }
+
+              // B. Khusus NUP
+              if (input.id === 'nup' || input.name === 'nup') {
+                const rawNup = (input.value || '').trim();
+                if (!rawNup) {
+                  markError(input, fg, 'Nomor register (NUP) wajib diisi.');
+                } else {
+                  const nupVal = parseInt(rawNup, 10);
+                  if (isNaN(nupVal) || nupVal <= 0) {
+                    markError(input, fg, 'Nomor NUP minimal harus bernilai 1.');
+                  } else if (window._nupExistingListEdit && window._nupExistingListEdit.includes(nupVal)) {
+                    markError(input, fg, `Nomor NUP ${nupVal} sudah terdaftar untuk kode barang ini.`);
+                  }
+                }
+                continue;
+              }
+
+              // C. Khusus Nama Barang
+              if (input.id === 'nama_barang' || input.name === 'nama_barang') {
+                const rawNama = (input.value || '').trim();
+                if (!rawNama) {
+                  markError(input, fg, 'Jenis barang / nama barang wajib diisi.');
+                } else if (!/[a-zA-Z]/.test(rawNama)) {
+                  markError(input, fg, 'Nama barang harus memuat huruf alfabet.');
+                }
+                continue;
+              }
+
+              // D. Dynamic / Date / Text / Select Fields
+              let val = input.value ? input.value.trim() : '';
+              if (!val || val === '') {
+                const labelText = fg.querySelector('label')?.innerText?.replace('*', '')?.trim() || 'Kolom ini';
+                const isSelect = input.tagName === 'SELECT' || input.classList.contains('form-select');
+                const targetInput = (input._flatpickr && input._flatpickr.altInput) ? input._flatpickr.altInput : input;
+                markError(targetInput, fg, `${labelText} wajib ${isSelect ? 'dipilih' : 'diisi'}.`);
+              }
+            }
+          }
+
+          // 2. Validasi Asal Usul
+          const asalSelect = document.getElementById('asal_usul');
+          if (asalSelect && !asalSelect.value) {
+            markError(asalSelect, asalSelect.closest('.form-group'), 'Asal usul barang wajib dipilih.');
+          }
+
+          // 3. Validasi Satuan
+          const satuanInput = document.getElementById('satuan');
+          if (satuanInput && !satuanInput.value.trim()) {
+            markError(satuanInput, satuanInput.closest('.form-group'), 'Satuan barang wajib diisi.');
+          }
+
+          // 4. Validasi Bulan Perolehan
+          const bulanHidden = document.getElementById('bulan_perolehan');
+          const bulanDisplay = document.getElementById('bulan_perolehan_display');
+          if (bulanHidden && (!bulanHidden.value || bulanHidden.value === '' || bulanHidden.value === '0')) {
+            markError(bulanDisplay || bulanHidden, (bulanDisplay || bulanHidden).closest('.form-group'), 'Bulan perolehan wajib dipilih.');
+          }
+
+          // 5. Validasi Ruangan
+          const kirWrapper = document.getElementById('kir-section-wrapper');
+          const isKirVisible = !!(kirWrapper && kirWrapper.offsetParent !== null && kirWrapper.style.display !== 'none');
+          const ruanganSelect = document.getElementById('ruangan_id');
+          if (isKirVisible && ruanganSelect && !ruanganSelect.value) {
+            markError(ruanganSelect, ruanganSelect.closest('.form-group'), 'Ruangan penempatan aset wajib dipilih.');
+          }
+
+          // 6. Validasi HTML5 Fallback
+          if (!form.checkValidity()) {
+            const firstNativeInvalid = form.querySelector(':invalid');
+            if (firstNativeInvalid) {
+              markError(firstNativeInvalid, firstNativeInvalid.closest('.form-group'));
+            }
+          }
+
+          if (!isValid && invalidElements.length > 0) {
+            const topmost = (typeof window.simaFindTopmostElement === 'function')
+              ? window.simaFindTopmostElement(invalidElements)
+              : invalidElements[0];
+
+            if (topmost) {
+              if (typeof window.simaScrollToField === 'function') {
+                window.simaScrollToField(topmost);
+              } else {
+                topmost.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (typeof topmost.focus === 'function' && !topmost.disabled) {
+                  try { topmost.focus({ preventScroll: true }); } catch(e) {}
+                }
+              }
+            }
+            return false;
+          }
+
+          return true;
+        }
+
+        // Event listeners untuk reset border error secara real-time
+        document.addEventListener('DOMContentLoaded', function() {
+          if (typeof feather !== 'undefined') {
+            try { feather.replace(); } catch(e) {}
+          }
+          const satuanEl = document.getElementById('satuan');
+          if (satuanEl) {
+            satuanEl.addEventListener('input', function() { this.style.borderColor = ''; });
+          }
+
+          const ruanganEl = document.getElementById('ruangan_id');
+          if (ruanganEl) {
+            ruanganEl.addEventListener('change', function() { this.style.borderColor = ''; });
+          }
+
+          const asalEl = document.getElementById('asal_usul');
+          if (asalEl) {
+            asalEl.addEventListener('change', function() { this.style.borderColor = ''; });
+          }
+        });
+
+        window.cleanCurrencyInputs = function(container) {
+          if (!container) return;
+          container.querySelectorAll('.currency-rupiah-input').forEach(function(input) {
+            var raw = String(input.value || '').trim();
+            if (!raw) return;
+            if (/^-?\d+(\.\d{1,2})?$/.test(raw)) {
+              input.value = raw;
+              return;
+            }
+            if (raw.indexOf(',') !== -1) {
+              var parts = raw.split(',');
+              var intP = parts[0].replace(/\./g, '').replace(/\D/g, '');
+              var decP = parts.length > 1 ? parts[1].replace(/\D/g, '').substring(0, 2) : '';
+              input.value = decP ? intP + '.' + decP : intP;
+              return;
+            }
+            var dotParts = raw.split('.');
+            if (dotParts.length > 2 && dotParts[dotParts.length - 1].length <= 2) {
+              var decP = dotParts.pop().replace(/\D/g, '').substring(0, 2);
+              var intP = dotParts.join('').replace(/\D/g, '');
+              input.value = decP ? intP + '.' + decP : intP;
+              return;
+            }
+            input.value = raw.replace(/\D/g, '');
+          });
+        };
+
         // Confirm sebelum update
         (function() {
           const form = document.getElementById('edit-aset-form');
@@ -1856,15 +2363,15 @@
             form.addEventListener('submit', function(e) {
               e.preventDefault();
 
-                            if (!form.checkValidity()) {
-                                form.reportValidity();
-                                return;
-                            }
+              if (!validateEditForm()) {
+                return;
+              }
 
               AppModal.confirm(
                 'Konfirmasi Update Aset',
                 'Apakah Anda yakin ingin menyimpan perubahan data aset ini?',
                 function() {
+                  window.cleanCurrencyInputs(form);
                   form.submit();
                 }
               );
@@ -1874,24 +2381,40 @@
 
         // ---- Currency format (semua .currency-rupiah-input) ----
         (function() {
-                    function sanitizeDecimalLocaleInput(raw) {
-                        var value = String(raw || '').replace(/[^0-9,\.\-]/g, '');
-                        value = value.replace(/(?!^)-/g, '');
-                        return value;
-                    }
+          function sanitizeDecimalLocaleInput(raw) {
+              var value = String(raw || '').replace(/[^0-9,\.\-]/g, '');
+              value = value.replace(/(?!^)-/g, '');
+              return value;
+          }
 
-                    document.querySelectorAll('.decimal-locale-input').forEach(function(input) {
-                        input.addEventListener('input', function() {
-                            this.value = sanitizeDecimalLocaleInput(this.value);
-                        });
-                    });
+          document.querySelectorAll('.decimal-locale-input').forEach(function(input) {
+              input.addEventListener('input', function() {
+                  this.value = sanitizeDecimalLocaleInput(this.value);
+              });
+          });
 
           function formatRupiah(raw) {
-            var parts = raw.split(',');
+            if (raw === null || raw === undefined || raw === '') return '';
+            var str = String(raw).trim();
+            // Handle standard float format from DB e.g. "1633378511.15"
+            if (/^-?\d+\.\d{1,2}$/.test(str)) {
+              var p = str.split('.');
+              var intPart = p[0].replace(/\D/g, '');
+              var intF = intPart ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '0';
+              var dec = p[1].substring(0, 2);
+              return parseInt(dec, 10) > 0 ? intF + ',' + dec : intF;
+            }
+            // If user pasted something like 1.633.378.511.15 (multiple dots where last is 1-2 digits)
+            var dotParts = str.split('.');
+            if (!str.includes(',') && dotParts.length > 2 && dotParts[dotParts.length - 1].length <= 2) {
+              var last = dotParts.pop();
+              str = dotParts.join('') + ',' + last;
+            }
+            var parts = str.split(',');
             var intPart = parts[0].replace(/\./g, '').replace(/\D/g, '');
             var hasComma = parts.length > 1;
             var decPart = hasComma ? parts[1].replace(/\D/g, '').substring(0, 2) : null;
-            var formatted = intPart === '' ? '' : new Intl.NumberFormat('id-ID').format(parseInt(intPart) || 0);
+            var formatted = intPart ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
             if (hasComma) formatted += ',' + decPart;
             return formatted;
           }
@@ -1901,20 +2424,6 @@
               this.value = formatRupiah(this.value);
             });
           });
-
-          // Strip format before submit so server receives plain number e.g. "1000.59"
-          var form = document.getElementById('edit-aset-form');
-          if (form) {
-            form.addEventListener('submit', function() {
-              form.querySelectorAll('.currency-rupiah-input').forEach(function(input) {
-                var raw = input.value;
-                var parts = raw.split(',');
-                var intP = parts[0].replace(/\./g, '').replace(/\D/g, '');
-                var decP = parts.length > 1 ? parts[1].replace(/\D/g, '').substring(0, 2) : '';
-                input.value = decP ? intP + '.' + decP : intP;
-              });
-            }, true); // capture phase so it runs before confirm dialog blocks
-          }
         })();
 
         // ---- Foto edit logic ----
@@ -1929,7 +2438,39 @@
                 return false;
             }
         })();
-        const existingCount = () => document.querySelectorAll('#existing-foto-grid [id^="foto-wrap-"]').length;
+        const existingCount = () => document.querySelectorAll('#all-foto-preview-container [id^="foto-wrap-"]').length;
+
+        function updateEditFotoDropAreaState() {
+            const totalCount = existingCount() + newSelectedFiles.length;
+            const dropArea = document.getElementById('new-foto-drop-area');
+            const limitMsg = document.getElementById('new-foto-limit-msg');
+            if (dropArea) {
+                dropArea.classList.toggle('has-file', totalCount > 0);
+                const uploadText = dropArea.querySelector('.file-upload-text');
+                if (uploadText) {
+                    if (totalCount === 0) {
+                        uploadText.textContent = 'Klik atau drag & drop untuk tambah foto baru';
+                    } else if (totalCount < FOTO_MAX_COUNT) {
+                        uploadText.textContent = `Tambahkan foto lagi (${totalCount}/${FOTO_MAX_COUNT})`;
+                    } else {
+                        uploadText.textContent = `Batas maksimal foto tercapai (${totalCount}/${FOTO_MAX_COUNT})`;
+                    }
+                }
+            }
+            if (limitMsg) {
+                limitMsg.style.display = totalCount >= FOTO_MAX_COUNT ? 'block' : 'none';
+            }
+        }
+
+        function handleEditDropAreaClick() {
+            const currentTotal = existingCount() + newSelectedFiles.length;
+            if (currentTotal >= FOTO_MAX_COUNT) {
+                AppModal.error('Batas Maksimal Foto', 'Maksimal upload adalah ' + FOTO_MAX_COUNT + ' foto total.');
+                return;
+            }
+            const inputEl = document.getElementById('new-foto-input');
+            if (inputEl) inputEl.click();
+        }
 
         function syncNewFotoInput() {
             if (!CAN_MUTATE_FILE_INPUT) return false;
@@ -1998,23 +2539,33 @@
 
             const grid = document.getElementById('new-foto-grid');
             grid.innerHTML = '';
-            const limitMsg = document.getElementById('new-foto-limit-msg');
-            limitMsg.style.display = (existingCount() + newSelectedFiles.length) >= FOTO_MAX_COUNT ? 'block' : 'none';
+            updateEditFotoDropAreaState();
 
             newSelectedFiles.forEach((file, idx) => {
                 const reader = new FileReader();
                 reader.onload = e => {
                     const wrap = document.createElement('div');
                     wrap.className = 'foto-preview-thumb';
-                    wrap.innerHTML = `<img src="${e.target.result}" alt="foto"><button type="button" class="remove-btn" onclick="removeNewFoto(${idx})">&times;</button>`;
+                    wrap.innerHTML = `<img src="${e.target.result}" alt="foto" onclick="previewEditFoto(this)" style="cursor: zoom-in;" title="Klik untuk memperbesar (Layar Penuh)"><button type="button" class="remove-btn" onclick="removeNewFoto(${idx})" title="Hapus foto">&times;</button>`;
                     grid.appendChild(wrap);
                 };
                 reader.readAsDataURL(file);
             });
-            const dropArea = document.getElementById('new-foto-drop-area');
-            if (dropArea) dropArea.classList.toggle('has-file', newSelectedFiles.length > 0);
             syncNewFotoInput();
         }
+
+        function previewEditFoto(clickedImg) {
+            const container = document.getElementById('all-foto-preview-container');
+            if (!container) return;
+            const imgs = Array.from(container.querySelectorAll('.foto-preview-thumb img')).map(img => img.src).filter(Boolean);
+            if (imgs.length === 0) return;
+            const clickedSrc = clickedImg ? clickedImg.src : imgs[0];
+            const startIndex = Math.max(0, imgs.indexOf(clickedSrc));
+            if (typeof window.openSimaImageViewer === 'function') {
+                window.openSimaImageViewer(imgs, startIndex, 'Pratinjau Foto Aset');
+            }
+        }
+        window.previewEditFoto = previewEditFoto;
 
         function removeNewFoto(idx) {
             if (!CAN_MUTATE_FILE_INPUT) {
@@ -2031,20 +2582,51 @@
         }
 
         function deleteFotoExisting(id) {
-            if (!confirm('Hapus foto ini?')) return;
-            fetch(`/manajemen-aset/foto/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json',
-                }
-            }).then(r => r.json()).then(data => {
-                if (data.success) {
-                    const wrap = document.getElementById('foto-wrap-' + id);
-                    if (wrap) wrap.remove();
-                }
-            }).catch(() => alert('Gagal menghapus foto.'));
+            AppModal.confirm('Hapus Foto', 'Apakah Anda yakin ingin menghapus foto aset ini?', function() {
+                fetch(`/manajemen-aset/foto/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    }
+                }).then(r => r.json()).then(data => {
+                    if (data.success) {
+                        const wrap = document.getElementById('foto-wrap-' + id);
+                        if (wrap) wrap.remove();
+                        updateEditFotoDropAreaState();
+                    }
+                }).catch(() => {
+                    AppModal.error('Gagal', 'Gagal menghapus foto.');
+                });
+            });
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateEditFotoDropAreaState();
+            const editDropArea = document.getElementById('new-foto-drop-area');
+            if (editDropArea) {
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    editDropArea.addEventListener(eventName, e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        editDropArea.classList.add('dragover');
+                    });
+                });
+                ['dragleave', 'drop'].forEach(eventName => {
+                    editDropArea.addEventListener(eventName, e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        editDropArea.classList.remove('dragover');
+                    });
+                });
+                editDropArea.addEventListener('drop', e => {
+                    const dt = e.dataTransfer;
+                    if (dt && dt.files && dt.files.length) {
+                        handleNewFotoPreview({ files: dt.files });
+                    }
+                });
+            }
+        });
     </script>
 
     <script>
@@ -2068,44 +2650,44 @@
         modal.id = 'kb-search-modal-edit';
         modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
         modal.innerHTML = `
-          <div style="background:#fff;border-radius:16px;width:95%;max-width:780px;max-height:84vh;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,.28);overflow:hidden;">
-            <div style="padding:20px 24px 16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;">
+          <div style="background:var(--color-surface, #f8faf7);border:1.5px solid var(--color-border, #cfdcc8);border-radius:16px;width:95%;max-width:780px;max-height:84vh;display:flex;flex-direction:column;box-shadow:var(--shadow-float);overflow:hidden;">
+            <div style="padding:20px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;">
               <div>
-                <div style="font-size:16px;font-weight:700;color:#1f2937;">Cari Kode Barang</div>
-                <div style="font-size:12px;color:#9ca3af;margin-top:3px;">Pilih hingga level Sub-Sub Kelompok untuk mendapatkan kode 5 struktur</div>
+                <div style="font-size:16px;font-weight:700;color:var(--color-text,#16251b);">Cari Kode Barang</div>
+                <div style="font-size:12px;color:var(--color-text-muted,#546958);margin-top:3px;">Pilih hingga level Sub-Sub Kelompok untuk mendapatkan kode 5 struktur</div>
               </div>
-              <button onclick="closeKbModalEdit()" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:22px;line-height:1;padding:0;margin-left:12px;flex-shrink:0;">&times;</button>
+              <button onclick="closeKbModalEdit()" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted,#546958);font-size:22px;line-height:1;padding:0;margin-left:12px;flex-shrink:0;">&times;</button>
             </div>
             <div style="padding:14px 24px 0;flex-shrink:0;">
               <div style="position:relative;">
-                <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:#9ca3af;fill:none;stroke-width:2;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--color-text-muted,#546958);fill:none;stroke-width:2;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 <input type="text" id="kb-search-input-edit" placeholder="Cari nama atau kode barang..."
-                  style="width:100%;padding:10px 14px 10px 36px;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;outline:none;box-sizing:border-box;"
-                  onfocus="this.style.borderColor='#064635';this.style.boxShadow='0 0 0 3px rgba(6, 70, 53,.1)'"
-                  onblur="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'"
+                  style="width:100%;padding:10px 14px 10px 36px;border:1.5px solid var(--color-border,#cfdcc8);border-radius:10px;font-size:13px;outline:none;background:var(--color-surface,#f8faf7);color:var(--color-text,#16251b);box-sizing:border-box;"
+                  onfocus="this.style.borderColor='var(--color-primary,#1f3a2a)';this.style.boxShadow='none'"
+                  onblur="this.style.borderColor='var(--color-border,#cfdcc8)';this.style.boxShadow='none'"
                   oninput="debounceKbSearchEdit(this.value)">
               </div>
             </div>
             <div style="padding:12px 24px 0;flex-shrink:0;">
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                <span style="font-size:11px;color:#6b7280;white-space:nowrap;font-weight:500;">Cari di struktur:</span>
-                <button onclick="setKbLevelEdit(1,this)" class="kb-level-btn-edit" data-level="1" style="padding:5px 11px;border:1px solid #e5e7eb;background:#fff;color:#374151;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;">Golongan</button>
-                <button onclick="setKbLevelEdit(2,this)" class="kb-level-btn-edit" data-level="2" style="padding:5px 11px;border:1px solid #e5e7eb;background:#fff;color:#374151;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;">Bidang</button>
-                <button onclick="setKbLevelEdit(3,this)" class="kb-level-btn-edit" data-level="3" style="padding:5px 11px;border:1px solid #e5e7eb;background:#fff;color:#374151;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;">Kelompok</button>
-                <button onclick="setKbLevelEdit(4,this)" class="kb-level-btn-edit" data-level="4" style="padding:5px 11px;border:1px solid #e5e7eb;background:#fff;color:#374151;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;">Sub Kelompok</button>
-                <button onclick="setKbLevelEdit(5,this)" class="kb-level-btn-edit" data-level="5" style="padding:5px 11px;border:1px solid #064635;background:#064635;color:#fff;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;">Sub-Sub Kelompok</button>
+                <span style="font-size:11px;color:var(--color-text-muted,#546958);white-space:nowrap;font-weight:500;">Cari di struktur:</span>
+                <button onclick="setKbLevelEdit(1,this)" class="kb-level-btn-edit" data-level="1" style="padding:5px 11px;border:1.5px solid var(--color-border,#cfdcc8);background:var(--color-bg,#eaf1e7);color:var(--color-text,#16251b);border-radius:var(--radius-full);font-size:11px;font-weight:600;cursor:pointer;">Golongan</button>
+                <button onclick="setKbLevelEdit(2,this)" class="kb-level-btn-edit" data-level="2" style="padding:5px 11px;border:1.5px solid var(--color-border,#cfdcc8);background:var(--color-bg,#eaf1e7);color:var(--color-text,#16251b);border-radius:var(--radius-full);font-size:11px;font-weight:600;cursor:pointer;">Bidang</button>
+                <button onclick="setKbLevelEdit(3,this)" class="kb-level-btn-edit" data-level="3" style="padding:5px 11px;border:1.5px solid var(--color-border,#cfdcc8);background:var(--color-bg,#eaf1e7);color:var(--color-text,#16251b);border-radius:var(--radius-full);font-size:11px;font-weight:600;cursor:pointer;">Kelompok</button>
+                <button onclick="setKbLevelEdit(4,this)" class="kb-level-btn-edit" data-level="4" style="padding:5px 11px;border:1.5px solid var(--color-border,#cfdcc8);background:var(--color-bg,#eaf1e7);color:var(--color-text,#16251b);border-radius:var(--radius-full);font-size:11px;font-weight:600;cursor:pointer;">Sub Kelompok</button>
+                <button onclick="setKbLevelEdit(5,this)" class="kb-level-btn-edit" data-level="5" style="padding:5px 11px;border:1.5px solid var(--color-primary,#1f3a2a);background:var(--color-primary,#1f3a2a);color:#fff;border-radius:var(--radius-full);font-size:11px;font-weight:600;cursor:pointer;">Sub-Sub Kelompok</button>
               </div>
             </div>
             <div id="kb-breadcrumb-edit" style="display:none;padding:8px 24px 0;flex-shrink:0;">
-              <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:7px 12px;background:#f4faf5;border-radius:6px;border:1px solid #e5e7eb;">
-                <span style="font-size:11px;color:#6b7280;font-weight:500;margin-right:2px;">Pilihan:</span>
+              <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:7px 12px;background:var(--color-bg,#eaf1e7);border-radius:8px;border:1px solid var(--color-border,#cfdcc8);">
+                <span style="font-size:11px;color:var(--color-text-muted,#546958);font-weight:500;margin-right:2px;">Pilihan:</span>
                 <div id="kb-breadcrumb-items-edit" style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;"></div>
-                <button onclick="resetKbSelectionEdit()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#9ca3af;font-size:11px;padding:0;white-space:nowrap;">✕ Reset</button>
+                <button onclick="resetKbSelectionEdit()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--color-text-muted,#546958);font-size:11px;padding:0;white-space:nowrap;">✕ Reset</button>
               </div>
             </div>
-            <div style="height:1px;background:#f3f4f6;margin:12px 0 0;flex-shrink:0;"></div>
+            <div style="height:1px;border-top:1px dashed var(--color-border,#cfdcc8);background:transparent;margin:12px 0 0;flex-shrink:0;"></div>
             <div id="kb-search-results-edit" style="flex:1;overflow-y:auto;">
-              <div style="padding:24px;text-align:center;color:#9ca3af;font-size:13px;">Memuat data...</div>
+              <div style="padding:24px;text-align:center;color:var(--color-text-muted,#546958);font-size:13px;">Memuat data...</div>
             </div>
           </div>
         `;
@@ -2126,8 +2708,8 @@
     function kbSetActiveTabBtnEdit(level) {
       document.querySelectorAll('.kb-level-btn-edit').forEach(b => {
         const lv = parseInt(b.getAttribute('data-level'));
-        if (lv === level) { b.style.background='#064635'; b.style.color='#fff'; b.style.borderColor='#064635'; }
-        else              { b.style.background='#fff';    b.style.color='#374151'; b.style.borderColor='#e5e7eb'; }
+        if (lv === level) { b.style.background='var(--color-primary, #1f3a2a)'; b.style.color='#fff'; b.style.borderColor='var(--color-primary, #1f3a2a)'; }
+        else              { b.style.background='var(--color-bg, #eaf1e7)';    b.style.color='var(--color-text, #16251b)'; b.style.borderColor='var(--color-border, #cfdcc8)'; }
       });
     }
 
@@ -2150,9 +2732,9 @@
         const s = window._kbSelectedEdit[l];
         const isLast = idx === selected.length - 1;
         return `<span onclick="kbBreadcrumbClickEdit(${l})"
-          style="font-size:11px;font-weight:${isLast?'700':'500'};color:#064635;cursor:pointer;white-space:nowrap;${!isLast?'opacity:0.6;':''}">
+          style="font-size:11px;font-weight:${isLast?'700':'500'};color:var(--color-primary, #1f3a2a);cursor:pointer;white-space:nowrap;${!isLast?'opacity:0.6;':''}">
           ${s.kode} — ${s.uraian}
-        </span>${!isLast?'<span style="color:#9ca3af;font-size:11px;margin:0 2px;">›</span>':''}`;
+        </span>${!isLast?'<span style="color:var(--color-text-muted, #546958);font-size:11px;margin:0 2px;">›</span>':''}`;
       }).join('');
     }
 
@@ -2185,7 +2767,7 @@
     function doKbSearchEdit(q) {
       const resultsEl = document.getElementById('kb-search-results-edit');
       if (!resultsEl) return;
-      resultsEl.innerHTML = '<div style="padding:24px;text-align:center;color:#9ca3af;font-size:13px;">Memuat...</div>';
+      resultsEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--color-text-muted,#546958);font-size:13px;">Memuat...</div>';
       const level = window._kbLevelEdit || 5;
       let parentId = null;
       let ancestorKode = '';
@@ -2203,7 +2785,7 @@
       fetch(url, { credentials:'same-origin', headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')||''} })
       .then(r => { if (!r.ok) { resultsEl.innerHTML = `<div style="padding:24px;text-align:center;color:#ef4444;font-size:13px;">Gagal memuat (${r.status}).</div>`; return Promise.reject(); } return r.json(); })
       .then(data => {
-        if (!Array.isArray(data) || !data.length) { resultsEl.innerHTML = '<div style="padding:24px;text-align:center;color:#9ca3af;font-size:13px;">Tidak ada hasil ditemukan.</div>'; return; }
+        if (!Array.isArray(data) || !data.length) { resultsEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--color-text-muted,#546958);font-size:13px;">Tidak ada hasil ditemukan.</div>'; return; }
         const selAtLevel = window._kbSelectedEdit[level];
         const pinned = data.filter(i => selAtLevel && i.id === selAtLevel.id);
         const rest   = data.filter(i => !(selAtLevel && i.id === selAtLevel.id));
@@ -2215,24 +2797,24 @@
           const isPinned = selAtLevel && item.id === selAtLevel.id;
           const kodeE = kode.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
           const uraianE = uraian.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-          const bg = isPinned ? '#f0f4f8' : '#fff';
+          const bg = isPinned ? 'var(--color-primary-tint, #E0E5CE)' : 'transparent';
           if (isSelectable) {
             return `<div onclick="selectKodeBarangEdit('${kodeE}','${uraianE}')"
-              style="padding:11px 20px;cursor:pointer;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:10px;background:${bg};"
-              onmouseover="this.style.background='#f4faf5'" onmouseout="this.style.background='${bg}'">
-              <span style="font-size:12px;font-weight:700;color:#064635;white-space:nowrap;">${kode}</span>
-              <span style="font-size:13px;color:#374151;margin:0 2px;">—</span>
-              <span style="font-size:13px;color:#1f2937;flex:1;">${uraian}</span>
-              ${isPinned?'<span style="font-size:10px;color:#064635;font-weight:700;white-space:nowrap;">✓ Terpilih</span>':''}
+              style="padding:11px 20px;cursor:pointer;border-bottom:1px dashed var(--color-border,#cfdcc8);display:flex;align-items:center;gap:10px;background:${bg};"
+              onmouseover="this.style.background='var(--color-row-hover,#eff5ed)'" onmouseout="this.style.background='${bg}'">
+              <span style="font-size:12px;font-weight:700;color:var(--color-primary,#1f3a2a);white-space:nowrap;">${kode}</span>
+              <span style="font-size:13px;color:var(--color-text-muted,#546958);margin:0 2px;">—</span>
+              <span style="font-size:13px;color:var(--color-text,#16251b);flex:1;">${uraian}</span>
+              ${isPinned?'<span style="font-size:10px;color:var(--color-primary,#1f3a2a);font-weight:700;white-space:nowrap;">✓ Terpilih</span>':''}
             </div>`;
           } else {
             return `<div onclick="kbDrillDownEdit(${level},${item.id},'${kodeE}','${uraianE}')"
-              style="padding:11px 20px;cursor:pointer;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:10px;background:${bg};"
-              onmouseover="this.style.background='#f4faf5'" onmouseout="this.style.background='${bg}'">
-              <span style="font-size:12px;font-weight:700;color:#064635;white-space:nowrap;">${kode}</span>
-              <span style="font-size:13px;color:#374151;margin:0 2px;">—</span>
-              <span style="font-size:13px;color:#1f2937;flex:1;">${uraian}</span>
-              <span style="margin-left:auto;font-size:10px;color:#9ca3af;white-space:nowrap;flex-shrink:0;">${isPinned?'✓ Dipilih · ':''}Pilih struktur berikutnya ›</span>
+              style="padding:11px 20px;cursor:pointer;border-bottom:1px dashed var(--color-border,#cfdcc8);display:flex;align-items:center;gap:10px;background:${bg};"
+              onmouseover="this.style.background='var(--color-row-hover,#eff5ed)'" onmouseout="this.style.background='${bg}'">
+              <span style="font-size:12px;font-weight:700;color:var(--color-primary,#1f3a2a);white-space:nowrap;">${kode}</span>
+              <span style="font-size:13px;color:var(--color-text-muted,#546958);margin:0 2px;">—</span>
+              <span style="font-size:13px;color:var(--color-text,#16251b);flex:1;">${uraian}</span>
+              <span style="margin-left:auto;font-size:10px;color:var(--color-text-muted,#546958);white-space:nowrap;flex-shrink:0;">${isPinned?'✓ Dipilih · ':''}Pilih struktur berikutnya ›</span>
             </div>`;
           }
         }).join('');
@@ -2270,6 +2852,143 @@
       });
     }
 
+    window._nupExistingListEdit = [];
+
+    function fetchAndSetNextNupEdit(kode, forceUpdateInput = false) {
+      if (!kode) return;
+      const nupInput = document.getElementById('nup');
+      const hintEl = document.getElementById('nup-history-hint-edit');
+      if (!nupInput) return;
+
+      const tahunInput = document.getElementById('tahun_perolehan');
+      const tahun = tahunInput ? (tahunInput.value || '').trim() : '';
+
+      let url = `{{ route('manajemen-aset.next-nup') }}?kode_barang=${encodeURIComponent(kode)}&ignore_id={{ $inventaris->id }}`;
+      if (tahun) {
+        url += `&tahun_perolehan=${encodeURIComponent(tahun)}`;
+      }
+
+      fetch(url, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
+        }
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res && res.next_nup !== undefined && nupInput) {
+          window._nupExistingListEdit = (res.existing_nups || []).map(Number);
+
+          // Otomatis ubah nilai NUP di input jika dipaksa (misal ganti kode barang / ganti tahun) atau jika input kosong
+          if (forceUpdateInput || (nupInput.readOnly && !nupInput.value)) {
+            nupInput.value = res.next_nup;
+            nupInput.dispatchEvent(new Event('input', { bubbles: true }));
+            nupInput.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+
+          if (hintEl) {
+            if (!res.max_nup || res.max_nup === 0) {
+              hintEl.innerHTML = `<span style="color:#1f3a2a;font-weight:500;">Belum ada aset lain di kode barang ini. NUP disarankan: <strong>1</strong>.</span>`;
+            } else {
+              hintEl.innerHTML = `<span style="color:#1f3a2a;font-weight:500;">Ada <strong>${res.max_nup}</strong> aset di kode barang ini. NUP berikutnya: <strong>${res.next_nup}</strong>.</span>`;
+            }
+          }
+
+          checkNupConflictEdit();
+        }
+      })
+      .catch(err => console.error('Gagal mengambil next NUP:', err));
+    }
+
+    function checkNupConflictEdit() {
+      const nupInput = document.getElementById('nup');
+      const hintEl = document.getElementById('nup-history-hint-edit');
+      if (!nupInput || !hintEl) return;
+      const raw = (nupInput.value || '').trim();
+      const val = parseInt(raw, 10);
+      const tahunInput = document.getElementById('tahun_perolehan');
+      const tahun = tahunInput ? (tahunInput.value || '').trim() : '';
+      const tahunStr = tahun ? ` di tahun ${tahun}` : '';
+      if (raw !== '' && (isNaN(val) || val <= 0)) {
+        nupInput.style.borderColor = '#dc2626';
+        hintEl.innerHTML = `<span style="color:#dc2626;display:inline-flex;align-items:center;gap:5px;font-weight:600;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Nomor NUP minimal harus bernilai 1 (tidak boleh 0 atau negatif)!</span>`;
+      } else if (val && window._nupExistingListEdit && window._nupExistingListEdit.includes(val)) {
+        nupInput.style.borderColor = '#dc2626';
+        hintEl.innerHTML = `<span style="color:#dc2626;display:inline-flex;align-items:center;gap:5px;font-weight:600;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Perhatian: NUP ${val} sudah digunakan oleh aset lain pada kode barang ini${tahunStr}!</span>`;
+      } else if (val) {
+        nupInput.style.borderColor = '';
+        hintEl.innerHTML = `<span style="color:#4b5563;">NUP diatur: <strong>${val}</strong></span>`;
+      }
+    }
+
+    // Re-fetch NUP saat tahun perolehan diubah di form edit
+    document.addEventListener('change', function(e) {
+      if (e.target && e.target.id === 'tahun_perolehan') {
+        const kode = document.getElementById('kode_barang_edit')?.value || document.getElementById('kode_barang')?.value;
+        if (kode) {
+          fetchAndSetNextNupEdit(kode, true);
+        }
+      }
+    });
+    document.addEventListener('input', function(e) {
+      if (e.target && e.target.id === 'tahun_perolehan') {
+        const val = e.target.value.trim();
+        if (val.length === 4) {
+          const kode = document.getElementById('kode_barang_edit')?.value || document.getElementById('kode_barang')?.value;
+          if (kode) {
+            fetchAndSetNextNupEdit(kode, true);
+          }
+        }
+      }
+    });
+
+    function confirmUnlockNupEdit() {
+      AppModal.show({
+        customHtml: `
+          <div class="modal-header" style="padding: 24px 24px 8px 24px; text-align: center;">
+            <div class="modal-icon warning" style="background:#fef3c7;color:#d97706;width:48px;height:48px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 12px auto;">
+              <i data-feather="alert-triangle" style="width:24px;height:24px;stroke:#d97706;"></i>
+            </div>
+            <h3 class="modal-title" style="margin: 0; font-size: 18px; font-weight: 700; color: #111827;">Ubah NUP Secara Manual?</h3>
+          </div>
+          <div class="modal-body" style="padding: 8px 28px 16px 28px; text-align: center;">
+            <p style="color: #4b5563; font-size: 13.5px; margin: 0 auto; line-height: 1.5; text-align: center; max-width: 380px;">
+              NUP telah diatur otomatis oleh sistem agar tidak terjadi duplikasi. Mengubah NUP secara manual berisiko menyebabkan nomor ganda.
+            </p>
+            <p style="color: #111827; font-size: 13.5px; font-weight: 600; margin: 12px auto 0 auto; text-align: center; max-width: 380px;">
+              Apakah Anda yakin ingin membuka kunci dan mengedit NUP?
+            </p>
+          </div>
+          <div class="modal-footer" style="padding: 8px 24px 24px 24px; display: flex; justify-content: center; gap: 12px;">
+            <button type="button" class="modal-btn modal-btn-secondary" onclick="AppModal.handleCancel()" style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;">
+              <i data-feather="x" style="width:14px;height:14px;"></i> Batal
+            </button>
+            <button type="button" class="modal-btn modal-btn-warning" onclick="unlockNupFieldEdit()" style="background:#d97706;color:#fff;padding:9px 20px;border:none;border-radius: var(--radius-full);font-weight:600;cursor:pointer;">
+              Ya, Ubah NUP
+            </button>
+          </div>
+        `
+      });
+      if (typeof feather !== 'undefined') try { feather.replace(); } catch(e) {}
+    }
+
+    function unlockNupFieldEdit() {
+      AppModal.close();
+      const nupInput = document.getElementById('nup');
+      if (nupInput) {
+        nupInput.readOnly = false;
+        nupInput.style.background = '#ffffff';
+        nupInput.style.cursor = 'text';
+        nupInput.focus();
+        nupInput.select();
+
+        nupInput.addEventListener('input', checkNupConflictEdit);
+        nupInput.addEventListener('change', checkNupConflictEdit);
+      }
+      const unlockBtn = document.getElementById('btn-unlock-nup-edit');
+      if (unlockBtn) unlockBtn.style.display = 'none';
+    }
+
     function selectKodeBarangEdit(kode, uraian) {
       const segCount = kbCountSegmentsEdit(kode);
       if (segCount !== 5) {
@@ -2282,6 +3001,7 @@
       if (info) { info.style.display = 'block'; info.textContent = kode + ' — ' + uraian; }
       closeKbModalEdit();
       if (typeof feather !== 'undefined') feather.replace();
+      fetchAndSetNextNupEdit(kode);
     }
 
     // ── KIB Auto-sync: true 2-way real-time sync ────────────────────────────
@@ -2399,7 +3119,7 @@
           keywords: ['no pol', 'nopol', 'nomor polisi', 'no. pol', 'polisi'],
           targets: ['kir_no_pol']
         },
-        // Group tambahan untuk Format 2 (Desa Demo)
+        // Group tambahan untuk Format 2 (Format Khusus 3 TTD)
         {
           name: 'bahan',
           keywords: ['bahan'],
@@ -2432,7 +3152,7 @@
         }
       ];
 
-      const excludedIds = ['nama_barang', 'kode_barang', 'kode_barang_edit', 'nup', 'tahun_perolehan', 'nilai_perolehan', 'keterangan', 'asal_usul', 'pengguna'];
+      const excludedIds = ['nama_barang', 'kode_barang', 'kode_barang_edit', 'nup', 'tahun_perolehan', 'nilai_perolehan', 'keterangan', 'asal_usul', 'bukti_kepemilikan', 'pengguna'];
 
       function isEligible(input) {
         if (input.type === 'hidden' || input.type === 'file' || input.disabled || input.readOnly) {
@@ -2529,11 +3249,26 @@
         });
       }
 
+      // Strip format rupiah sebelum submit agar server menerima angka murni
+      function prepareCurrencyInputs(formEl) {
+        if (!formEl) return;
+        if (typeof window.cleanCurrencyInputs === 'function') {
+          window.cleanCurrencyInputs(formEl);
+        }
+      }
+
+      // Initial fetch to load existing NUPs on page load
+      const initKode = document.getElementById('kode_barang_edit')?.value || document.getElementById('kode_barang')?.value;
+      if (initKode) {
+        fetchAndSetNextNupEdit(initKode, false);
+      }
+
       // Initialize KIR sync if the page has room select
       const ruanganSelect = document.getElementById('ruangan_id');
       if (ruanganSelect) {
         setupFieldSync();
       }
+      try { sessionStorage.setItem('manajemen_aset_returning', '1'); } catch(e) {}
     });
     </script>
 </body>

@@ -8,18 +8,24 @@ class UpdateJenisInventarisRequest extends FormRequest
 {
     public function authorize()
     {
-        return $this->user()->isSuperAdmin();
+        return $this->user() && ($this->user()->isSuperDeveloper() || $this->user()->isSuperAdmin());
     }
 
     public function rules()
     {
         $jenisId = $this->route('jenis_inventaris') ?? $this->route('id');
+        if (is_object($jenisId)) {
+            $jenisId = $jenisId->id;
+        }
         
         return [
             'nama' => [
                 'required',
                 'string',
+                'min:3',
                 'max:255',
+                'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s\/\.,\-\(\)]+$/',
+                \Illuminate\Validation\Rule::unique('jenis_inventaris', 'nama')->ignore($jenisId),
                 function ($attribute, $value, $fail) use ($jenisId) {
                     // Prevent renaming other jenis to the template name
                     $trimmedName = trim($value);
@@ -64,6 +70,16 @@ class UpdateJenisInventarisRequest extends FormRequest
             'selected_dropdowns.*.required' => 'sometimes|in:0,1',
             'selected_dropdowns.*.include_in_export' => 'sometimes|in:0,1',
             'selected_dropdowns.*.order' => 'sometimes|integer|min:1',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nama.required' => 'Nama jenis inventaris wajib diisi.',
+            'nama.min'      => 'Nama jenis inventaris minimal 3 karakter.',
+            'nama.regex'    => 'Nama jenis inventaris harus memuat huruf dan tidak boleh hanya berisi angka/simbol.',
+            'nama.unique'   => 'Nama jenis inventaris sudah digunakan oleh jenis lain.',
         ];
     }
 }

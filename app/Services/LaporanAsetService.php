@@ -12,15 +12,7 @@ class LaporanAsetService
 {
     protected string $disk = 'local';
 
-    /**
-     * Export laporan aset per tahun atau per semester.
-     *
-     * @param array $opts
-     *   - tahun: int (wajib)
-     *   - periode: 'tahunan' | 'semester'
-     *   - format: 'excel' | 'pdf'
-     *   - user_id: int
-     */
+    // Export laporan aset per tahun atau per semester
     public function export(array $opts): array
     {
         ini_set('memory_limit', '2048M');
@@ -32,7 +24,7 @@ class LaporanAsetService
             $periode = 'semester_1';
         }
         $format  = strtolower($opts['format'] ?? 'excel');
-        $userId  = $opts['user_id'] ?? null;
+        $userId  = $opts['user_id'] ?? \Illuminate\Support\Facades\Auth::id() ?? \App\Models\User::first()?->id;
 
         // Tentukan label akhir periode
         if ($periode === 'semester_1') {
@@ -73,10 +65,7 @@ class LaporanAsetService
         return ['filename' => $filename, 'path' => $relativePath, 'log_id' => $log->id ?? null];
     }
 
-    /**
-     * Bangun baris data laporan.
-     * Grouping: kode_barang + nup + nama_barang
-     */
+    // Bangun baris data laporan (grouping: kode_barang + nup + nama_barang)
     public function buildRows(int $tahun, string $periode): array
     {
         if ($periode === 'semester') {
@@ -105,14 +94,27 @@ class LaporanAsetService
                 ->whereHas('jenis', fn($q) => $q->where('nama', '!=', \App\Models\JenisInventaris::NAMA_TIDAK_DITEMUKAN))
                 ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan']);
 
-            $saldoAwalDeleted = InventarisDeletedLog::whereNotNull('kode_barang')
+            $rawSaldoAwalDeleted = InventarisDeletedLog::whereNotNull('kode_barang')
                 ->whereNotNull('nama_barang')
                 ->where('deleted_at', '>=', "$tahun-07-01 00:00:00")
                 ->where(function($q) use ($tahun) {
                     $q->where('tahun_perolehan', '<', $tahun)
                       ->orWhere('tahun_perolehan', $tahun);
                 })
-                ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan']);
+                ->where(function($q) {
+                    $q->whereNull('alasan_penghapusan')
+                      ->orWhere('alasan_penghapusan', '!=', 'salah_input');
+                })
+                ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan', 'asset_data_snapshot']);
+
+            $saldoAwalDeleted = $rawSaldoAwalDeleted->filter(function($item) use ($tahun) {
+                if ((int)$item->tahun_perolehan < (int)$tahun) {
+                    return true;
+                }
+                // Hanya aset perolehan tahun berjalan yang diperoleh di Semester 1 (bulan <= 6 atau default) yang masuk Saldo Awal 1 Juli
+                $bulan = $this->getDeletedAssetBulanPerolehan($item);
+                return $bulan === null || $bulan <= 6;
+            });
         } else {
             // Per Tahun atau Semester I (Saldo Awal per 1 Januari)
             $saldoAwalActive = Inventaris::whereNotNull('kode_barang')
@@ -126,6 +128,10 @@ class LaporanAsetService
                 ->whereNotNull('nama_barang')
                 ->where('tahun_perolehan', '<', $tahun)
                 ->where('deleted_at', '>=', "$tahun-01-01 00:00:00")
+                ->where(function($q) {
+                    $q->whereNull('alasan_penghapusan')
+                      ->orWhere('alasan_penghapusan', '!=', 'salah_input');
+                })
                 ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan']);
         }
 
@@ -149,12 +155,21 @@ class LaporanAsetService
                 ->whereHas('jenis', fn($q) => $q->where('nama', '!=', \App\Models\JenisInventaris::NAMA_TIDAK_DITEMUKAN))
                 ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan']);
 
-            // Deleted assets acquired in $tahun: assume Semester 1 (convention)
-            $bertambahDeleted = InventarisDeletedLog::whereNotNull('kode_barang')
+            // Deleted assets acquired in $tahun: hanya yang dihapus dalam periode Semester 1
+            $rawBertambahDeleted = InventarisDeletedLog::whereNotNull('kode_barang')
                 ->whereNotNull('nama_barang')
                 ->where('tahun_perolehan', $tahun)
-                ->where('deleted_at', '>=', "$tahun-01-01 00:00:00")
-                ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan']);
+                ->whereBetween('deleted_at', ["$tahun-01-01 00:00:00", "$tahun-06-30 23:59:59"])
+                ->where(function($q) {
+                    $q->whereNull('alasan_penghapusan')
+                      ->orWhere('alasan_penghapusan', '!=', 'salah_input');
+                })
+                ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan', 'asset_data_snapshot']);
+
+            $bertambahDeleted = $rawBertambahDeleted->filter(function($item) {
+                $bulan = $this->getDeletedAssetBulanPerolehan($item);
+                return $bulan === null || $bulan <= 6;
+            });
         } elseif ($periode === 'semester_2') {
             // Acquired in $tahun and acquired month in Semester II (bulan 7-12)
             $bertambahActive = Inventaris::whereNotNull('kode_barang')
@@ -165,7 +180,21 @@ class LaporanAsetService
                 ->whereHas('jenis', fn($q) => $q->where('nama', '!=', \App\Models\JenisInventaris::NAMA_TIDAK_DITEMUKAN))
                 ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan']);
 
-            $bertambahDeleted = collect();
+            $rawBertambahDeleted = InventarisDeletedLog::whereNotNull('kode_barang')
+                ->whereNotNull('nama_barang')
+                ->where('tahun_perolehan', $tahun)
+                ->whereBetween('deleted_at', ["$tahun-07-01 00:00:00", "$tahun-12-31 23:59:59"])
+                ->where(function($q) {
+                    $q->whereNull('alasan_penghapusan')
+                      ->orWhere('alasan_penghapusan', '!=', 'salah_input');
+                })
+                ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan', 'asset_data_snapshot']);
+
+            $bertambahDeleted = $rawBertambahDeleted->filter(function($item) {
+                // Di Semester 2, hanya aset yang DIPEROLEH di Semester 2 (bulan >= 7) yang masuk mutasi bertambah
+                $bulan = $this->getDeletedAssetBulanPerolehan($item);
+                return $bulan !== null && $bulan >= 7;
+            });
         } else {
             // Per Tahun - semua aset dengan tahun_perolehan = $tahun
             $bertambahActive = Inventaris::whereNotNull('kode_barang')
@@ -178,7 +207,11 @@ class LaporanAsetService
             $bertambahDeleted = InventarisDeletedLog::whereNotNull('kode_barang')
                 ->whereNotNull('nama_barang')
                 ->where('tahun_perolehan', $tahun)
-                ->where('deleted_at', '>=', "$tahun-01-01 00:00:00")
+                ->whereBetween('deleted_at', ["$tahun-01-01 00:00:00", "$tahun-12-31 23:59:59"])
+                ->where(function($q) {
+                    $q->whereNull('alasan_penghapusan')
+                      ->orWhere('alasan_penghapusan', '!=', 'salah_input');
+                })
                 ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan']);
         }
 
@@ -191,18 +224,30 @@ class LaporanAsetService
                 ->whereNotNull('nama_barang')
                 ->whereYear('deleted_at', $tahun)
                 ->whereMonth('deleted_at', '<=', 6)
+                ->where(function($q) {
+                    $q->whereNull('alasan_penghapusan')
+                      ->orWhere('alasan_penghapusan', '!=', 'salah_input');
+                })
                 ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan']);
         } elseif ($periode === 'semester_2') {
             $berkurang = InventarisDeletedLog::whereNotNull('kode_barang')
                 ->whereNotNull('nama_barang')
                 ->whereYear('deleted_at', $tahun)
                 ->whereMonth('deleted_at', '>=', 7)
+                ->where(function($q) {
+                    $q->whereNull('alasan_penghapusan')
+                      ->orWhere('alasan_penghapusan', '!=', 'salah_input');
+                })
                 ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan']);
         } else {
             // Per Tahun
             $berkurang = InventarisDeletedLog::whereNotNull('kode_barang')
                 ->whereNotNull('nama_barang')
                 ->whereYear('deleted_at', $tahun)
+                ->where(function($q) {
+                    $q->whereNull('alasan_penghapusan')
+                      ->orWhere('alasan_penghapusan', '!=', 'salah_input');
+                })
                 ->get(['kode_barang', 'nup', 'nama_barang', 'satuan', 'nilai_perolehan', 'tahun_perolehan']);
         }
 
@@ -219,6 +264,7 @@ class LaporanAsetService
                     $groups->put($key, [
                         'kode'        => $item->kode_barang ?? '',
                         'nama'        => $item->nama_barang ?? '',
+                        'tahun'       => $item->tahun_perolehan ?? '',
                         'satuan'      => $item->satuan ?? 'Unit',
                         'saldo_kwant' => 0,
                         'saldo_nilai' => 0.0,
@@ -278,7 +324,11 @@ class LaporanAsetService
             $g['akhir_kwant'] = $g['saldo_kwant'] + $g['tambah_kwant'] - $g['kurang_kwant'];
             $g['akhir_nilai'] = $g['saldo_nilai'] + $g['tambah_nilai'] - $g['kurang_nilai'];
             return $g;
-        })->sortBy('kode')->values()->toArray();
+        })->sort(function ($a, $b) {
+            return ($a['kode'] <=> $b['kode'])
+                ?: (($a['tahun'] ?? '') <=> ($b['tahun'] ?? ''))
+                ?: (($a['nama'] ?? '') <=> ($b['nama'] ?? ''));
+        })->values()->toArray();
     }
 
     protected function renderPdf(array $rows, int $tahun, string $periode, string $labelAkhir): string
@@ -296,7 +346,9 @@ class LaporanAsetService
             @page { size: A4 landscape; margin: 10mm 10mm 22mm 10mm; }
             body { font-family: Arial, sans-serif; font-size: 9px; color: #000; margin: 0; }
             .title { text-align:center; font-weight:bold; font-size:11px; margin-bottom:0; }
-            table { width:100%; border-collapse:collapse; font-size:8px; }
+            table { width:100%; border-collapse:collapse; font-size:8px; border: 1px solid #000; }
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid; }
             th { border:1px solid #000; padding:3px 4px; text-align:center; font-weight:bold; vertical-align:middle; background:#fff; }
             td { border:1px solid #000; padding:2px 4px; vertical-align:middle; }
             .num { text-align:right; }
@@ -356,13 +408,13 @@ class LaporanAsetService
             $html .= '<td>' . htmlentities($r['nama']) . '</td>';
             $html .= '<td class="center">' . htmlentities($r['satuan']) . '</td>';
             $html .= '<td class="center">' . ($r['saldo_kwant'] ?: '-') . '</td>';
-            $html .= '<td class="num">' . ($r['saldo_nilai'] > 0 ? number_format($r['saldo_nilai'], 2, ',', '.') : '-') . '</td>';
+            $html .= '<td class="num">' . ($r['saldo_nilai'] > 0 ? number_format((float)$r['saldo_nilai'], fmod((float)$r['saldo_nilai'], 1) != 0 ? 2 : 0, ',', '.') : '-') . '</td>';
             $html .= '<td class="center">' . ($r['tambah_kwant'] ?: '-') . '</td>';
-            $html .= '<td class="num">' . ($r['tambah_nilai'] > 0 ? number_format($r['tambah_nilai'], 2, ',', '.') : '-') . '</td>';
+            $html .= '<td class="num">' . ($r['tambah_nilai'] > 0 ? number_format((float)$r['tambah_nilai'], fmod((float)$r['tambah_nilai'], 1) != 0 ? 2 : 0, ',', '.') : '-') . '</td>';
             $html .= '<td class="center">' . ($r['kurang_kwant'] ?: '-') . '</td>';
-            $html .= '<td class="num">' . ($r['kurang_nilai'] > 0 ? number_format($r['kurang_nilai'], 2, ',', '.') : '-') . '</td>';
+            $html .= '<td class="num">' . ($r['kurang_nilai'] > 0 ? number_format((float)$r['kurang_nilai'], fmod((float)$r['kurang_nilai'], 1) != 0 ? 2 : 0, ',', '.') : '-') . '</td>';
             $html .= '<td class="center">' . ($r['akhir_kwant'] ?: '-') . '</td>';
-            $html .= '<td class="num">' . ($r['akhir_nilai'] > 0 ? number_format($r['akhir_nilai'], 2, ',', '.') : '-') . '</td>';
+            $html .= '<td class="num">' . ($r['akhir_nilai'] > 0 ? number_format((float)$r['akhir_nilai'], fmod((float)$r['akhir_nilai'], 1) != 0 ? 2 : 0, ',', '.') : '-') . '</td>';
             $html .= '</tr>';
         }
 
@@ -370,13 +422,13 @@ class LaporanAsetService
         $html .= '<tr class="bold">';
         $html .= '<td colspan="3" class="center bold">JUMLAH</td>';
         $html .= '<td class="center bold"></td>'; // KWANTITAS kosong
-        $html .= '<td class="num bold">' . number_format($totSaldoN, 2, ',', '.') . '</td>';
+        $html .= '<td class="num bold">' . number_format($totSaldoN, fmod($totSaldoN, 1) != 0 ? 2 : 0, ',', '.') . '</td>';
         $html .= '<td class="center bold"></td>'; // KWANTITAS kosong
-        $html .= '<td class="num bold">' . number_format($totTambahN, 2, ',', '.') . '</td>';
+        $html .= '<td class="num bold">' . number_format($totTambahN, fmod($totTambahN, 1) != 0 ? 2 : 0, ',', '.') . '</td>';
         $html .= '<td class="center bold"></td>'; // KWANTITAS kosong
-        $html .= '<td class="num bold">' . number_format($totKurangN, 2, ',', '.') . '</td>';
+        $html .= '<td class="num bold">' . number_format($totKurangN, fmod($totKurangN, 1) != 0 ? 2 : 0, ',', '.') . '</td>';
         $html .= '<td class="center bold"></td>'; // KWANTITAS kosong
-        $html .= '<td class="num bold">' . number_format($totAkhirN, 2, ',', '.') . '</td>';
+        $html .= '<td class="num bold">' . number_format($totAkhirN, fmod($totAkhirN, 1) != 0 ? 2 : 0, ',', '.') . '</td>';
         $html .= '</tr>';
 
         $html .= '</tbody></table>';
@@ -390,26 +442,23 @@ class LaporanAsetService
         return $html;
     }
 
-    /**
-     * Get pejabat data untuk Laporan Aset (Perbekel & Kaur TU)
-     * Prioritas: 1) User by role+bidang, 2) Pejabat by jabatan
-     */
-    protected function getPejabatForLaporanAset(): array
+    // Get data pejabat untuk Laporan Aset (Perbekel & Kaur TU)
+    public function getPejabatForLaporanAset(): array
     {
         // === PERBEKEL ===
         $perbekel = null;
         
         // Prioritas 1: Cari di Users dengan role 'perbekel'
-        $userPerbekel = \App\Models\User::with('role')
+        $userPerbekel = \App\Models\User::with(['role', 'pejabat'])
             ->whereHas('role', fn($q) => $q->where('nama', 'perbekel'))
             ->where('is_aktif', 1)
             ->first();
         
         if ($userPerbekel) {
             $perbekel = [
-                'nama' => $userPerbekel->nama,
-                'jabatan' => 'Perbekel ' . (config('desa.nama_lokasi') ?: 'Mengwi'),
-                'ttd_path' => null,
+                'nama' => $userPerbekel->pejabat?->nama ?: $userPerbekel->nama,
+                'jabatan' => $userPerbekel->pejabat?->jabatan ?: ('Perbekel ' . (config('desa.nama_lokasi') ?: 'Demo')),
+                'ttd_path' => $userPerbekel->pejabat?->ttd_path ?? null,
             ];
         } else {
             // Prioritas 2: Cari di Pejabats dengan jabatan mengandung 'perbekel'
@@ -431,7 +480,7 @@ class LaporanAsetService
         $kaurTU = null;
         
         // Prioritas 1: Cari di Users dengan role 'kaur' DAN bidang 'Tata Usaha dan Umum'
-        $userKaurTU = \App\Models\User::with(['role', 'bidang'])
+        $userKaurTU = \App\Models\User::with(['role', 'bidang', 'pejabat'])
             ->whereHas('role', fn($q) => $q->where('nama', 'kaur'))
             ->whereHas('bidang', fn($q) => $q->where('nama', 'LIKE', '%tata usaha%')
                                              ->orWhere('nama', 'LIKE', '%umum%'))
@@ -439,11 +488,10 @@ class LaporanAsetService
             ->first();
         
         if ($userKaurTU) {
-            $bidangNama = $userKaurTU->bidang->nama ?? 'Kaur Umum';
             $kaurTU = [
-                'nama' => $userKaurTU->nama,
-                'jabatan' => 'Pengelola Aset ( Kaur Umum)',
-                'ttd_path' => null,
+                'nama' => $userKaurTU->pejabat?->nama ?: $userKaurTU->nama,
+                'jabatan' => $userKaurTU->pejabat?->jabatan ?: 'Pengelola Aset ( Kaur Umum)',
+                'ttd_path' => $userKaurTU->pejabat?->ttd_path ?? null,
             ];
         } else {
             // Prioritas 2: Cari di Pejabats dengan jabatan mengandung 'kaur' dan 'tata usaha' / 'umum'
@@ -469,9 +517,7 @@ class LaporanAsetService
         ];
     }
 
-    /**
-     * Render tanda tangan untuk Laporan Aset (2 kolom: Perbekel & Kaur TU)
-     */
+    // Render tanda tangan untuk Laporan Aset (Perbekel & Kaur TU)
     protected function renderLaporanAsetTtd(array $pejabats, bool $includeImg, string $tanggalDokumen = ''): string
     {
         $perbekelNama = trim((string)($pejabats['perbekel']['nama'] ?? ''));
@@ -507,7 +553,7 @@ class LaporanAsetService
         
         $perbekel = $pejabats['perbekel'] ?? null;
         if ($perbekel) {
-            $html .= '<div style="font-weight:bold;margin-bottom:4px;">Mengetahui,<br>' . htmlentities($perbekel['jabatan'] ?? 'Perbekel ' . (config('desa.nama_lokasi') ?: 'Mengwi')) . '</div>';
+            $html .= '<div style="font-weight:bold;margin-bottom:4px;">Mengetahui,<br>' . htmlentities($perbekel['jabatan'] ?? 'Perbekel ' . (config('desa.nama_lokasi') ?: 'Demo')) . '</div>';
             
             if ($includeImg && !empty($perbekel['ttd_path'])) {
                 $full = storage_path('app/public/' . ltrim($perbekel['ttd_path'], '/'));
@@ -561,12 +607,40 @@ class LaporanAsetService
         ini_set('memory_limit', '2048M');
         set_time_limit(300);
 
+        // Pastikan font dir ada dan writable, jika gagal gunakan temp dir
+        $fontDir = storage_path('fonts');
+        if (!is_dir($fontDir)) {
+            @mkdir($fontDir, 0775, true);
+        }
+        if (!is_writable($fontDir)) {
+            $fontDir = sys_get_temp_dir();
+        }
+
+        // Pastikan target directory export tersedia
+        $targetDir = dirname(Storage::disk($this->disk)->path($relativePath));
+        if (!is_dir($targetDir)) {
+            @mkdir($targetDir, 0775, true);
+        }
+
+        $dompdfOptions = [
+            'isHtml5ParserEnabled'    => true,
+            'isRemoteEnabled'         => true,
+            'isPhpEnabled'            => true,
+            'isFontSubsettingEnabled' => true,
+            'defaultFont'             => 'sans-serif',
+            'fontDir'                 => $fontDir,
+            'fontCache'               => $fontDir,
+            'tempDir'                 => sys_get_temp_dir(),
+            'chroot'                  => [base_path(), storage_path(), sys_get_temp_dir()],
+        ];
+
         if (class_exists('\\Barryvdh\\DomPDF\\Facade\\Pdf')) {
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
+            $pdf->setOptions($dompdfOptions);
             $pdf->setPaper('A4', 'landscape');
             Storage::disk($this->disk)->put($relativePath, $pdf->output());
         } elseif (class_exists('\\Dompdf\\Dompdf')) {
-            $dompdf = new \Dompdf\Dompdf(['isHtml5ParserEnabled' => true]);
+            $dompdf = new \Dompdf\Dompdf($dompdfOptions);
             $dompdf->loadHtml($html);
             $dompdf->setPaper('A4', 'landscape');
             $dompdf->render();
@@ -574,5 +648,24 @@ class LaporanAsetService
         } else {
             Storage::disk($this->disk)->put($relativePath, $html);
         }
+    }
+
+    /**
+     * Dapatkan bulan perolehan dari snapshot aset yang dihapus.
+     */
+    protected function getDeletedAssetBulanPerolehan($item): ?int
+    {
+        $snapshot = $item->asset_data_snapshot ?? null;
+        if (is_array($snapshot)) {
+            if (!empty($snapshot['bulan_perolehan'])) {
+                return (int) $snapshot['bulan_perolehan'];
+            }
+            if (!empty($snapshot['inventaris']['created_at'])) {
+                try {
+                    return (int) \Carbon\Carbon::parse($snapshot['inventaris']['created_at'])->month;
+                } catch (\Throwable $e) {}
+            }
+        }
+        return null;
     }
 }

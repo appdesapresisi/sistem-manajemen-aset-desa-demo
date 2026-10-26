@@ -4,25 +4,31 @@
     @include('layouts.head-page-meta', ['title' => 'Edit Bidang'])
     @include('layouts.head-css')
     <style>
-      /* Form Styling */
+      /* Form Styling - SIMA Standard */
       .form-section {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 16px;
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin-bottom: 24px;
+      }
+      .form-section + .form-section {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--color-border);
       }
       .form-section-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #064635;
+        font-size: 14.5px;
+        font-weight: 700;
+        color: var(--color-primary);
         margin-bottom: 16px;
         display: flex;
         align-items: center;
         gap: 8px;
       }
-      .form-section-title i {
-        width: 18px;
-        height: 18px;
+      .form-section-title i, .form-section-title svg {
+        width: 16px;
+        height: 16px;
+        color: var(--color-primary);
       }
       .form-grid {
         display: grid;
@@ -33,103 +39,56 @@
         margin-bottom: 0;
       }
       .form-label {
-        font-weight: 500;
-        font-size: 13px;
-        color: #374151;
-        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 13.5px;
+        color: var(--color-text);
+        margin-bottom: 8px;
         display: block;
       }
       .form-label .required {
-        color: #ef4444;
+        color: #D9383A;
+        font-weight: 700;
         margin-left: 2px;
       }
       .form-label .optional {
-        color: #9ca3af;
+        color: var(--color-text-muted);
         font-weight: 400;
-        font-size: 11px;
+        font-size: 12px;
         margin-left: 4px;
       }
-      .form-control, .form-select, textarea.form-control {
+      .form-control, textarea.form-control {
         width: 100%;
-        padding: 10px 14px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
+        height: 46px;
+        padding: 0 16px;
+        border: 1.5px solid var(--color-border);
+        border-radius: 10px;
         font-size: 14px;
-        transition: all 0.2s ease;
-        background: #fff;
+        transition: border-color 0.2s ease;
+        background: var(--color-surface);
+        color: var(--color-text);
+        box-shadow: none !important;
       }
-      .form-control:focus, .form-select:focus, textarea.form-control:focus {
-        outline: none;
-        border-color: #064635;
-        box-shadow: 0 0 0 3px rgba(6, 70, 53, 0.1);
+      textarea.form-control {
+        height: auto;
+        min-height: 80px;
+        padding: 12px 16px;
+      }
+      .form-control:focus, textarea.form-control:focus {
+        outline: none !important;
+        border-color: var(--color-primary) !important;
+        box-shadow: none !important;
       }
       .form-control::placeholder, textarea.form-control::placeholder {
-        color: #9ca3af;
-      }
-      .form-control.is-invalid, textarea.form-control.is-invalid {
-        border-color: #ef4444;
-      }
-      .text-danger {
-        color: #ef4444;
-        font-size: 12px;
-        margin-top: 4px;
+        color: var(--color-text-muted);
+        opacity: 0.65;
       }
       .form-hint {
         font-size: 12px;
-        color: #6b7280;
-        margin-top: 4px;
+        color: var(--color-text-muted);
+        margin-top: 6px;
       }
       .form-full {
         grid-column: 1 / -1;
-      }
-
-      /* Warning box */
-      .warning-box {
-        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-        border: 1px solid #fbbf24;
-        border-radius: 8px;
-        padding: 12px 16px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 16px;
-      }
-      .warning-box i,
-      .warning-box svg {
-        color: #d97706 !important;
-        stroke: #d97706 !important;
-        flex-shrink: 0;
-        width: 18px;
-        height: 18px;
-      }
-      .warning-box-text {
-        font-size: 13px;
-        color: #92400e;
-        line-height: 1.5;
-      }
-
-      /* Info box */
-      .info-box {
-        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-        border: 1px solid #60a5fa;
-        border-radius: 8px;
-        padding: 12px 16px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-top: 12px;
-      }
-      .info-box i {
-        color: #1e3a8a;
-        stroke: #1e3a8a;
-        flex-shrink: 0;
-        width: 18px;
-        height: 18px;
-      }
-      .info-box-text {
-        font-size: 13px;
-        color: #1e3a8a;
-        line-height: 1.5;
       }
 
       /* Buttons */
@@ -137,66 +96,104 @@
         display: flex;
         gap: 12px;
         justify-content: flex-end;
-        padding-top: 20px;
-        border-top: 1px solid #e5e7eb;
+        padding-top: 24px;
+        border-top: none;
         margin-top: 24px;
+        margin-bottom: 32px;
       }
       .btn-cancel {
-        padding: 10px 20px;
-        border: 1px solid #d1d5db;
-        background: #fff;
-        color: #374151;
-        border-radius: 8px;
+        height: 46px;
+        padding: 0 20px;
+        border: 1.5px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text);
+        border-radius: var(--radius-full);
         font-weight: 500;
+        font-size: 14px;
         cursor: pointer;
         transition: all 0.2s;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        box-shadow: none !important;
       }
       .btn-cancel:hover {
-        background: #f3f4f6;
+        background: var(--color-row-hover);
+        border-color: var(--color-border);
+        color: var(--color-text);
       }
       .btn-submit {
-        padding: 10px 24px;
+        height: 46px;
+        padding: 0 24px;
         border: none;
-        background: #064635;
+        background: var(--color-primary);
         color: #fff;
-        border-radius: 8px;
-        font-weight: 500;
+        border-radius: var(--radius-full);
+        font-weight: 600;
+        font-size: 14px;
         cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
+        box-shadow: none !important;
+        transition: background-color 0.2s ease;
+        display: inline-flex;
         align-items: center;
         gap: 8px;
       }
       .btn-submit:hover {
-        background: #1c5240;
+        background: var(--color-primary-hover, #3A5C39);
+        color: #fff;
       }
-      .btn-submit i {
+      .btn-cancel i, .btn-cancel svg {
+        width: 16px;
+        height: 16px;
+      }
+      .btn-submit i, .btn-submit svg {
         width: 18px;
         height: 18px;
       }
 
       /* Card Header */
+      .card .card-header,
+      .card-header {
+        background-color: transparent !important;
+        padding: 32px 24px 0 24px !important;
+        border: none !important;
+        border-bottom: none !important;
+      }
+      .card .card-body,
+      .card-body {
+        padding-bottom: 0 !important;
+      }
+      .card .card-header > div,
+      .card-header > div,
+      .card-header-inner,
+      .card-header > .flex {
+        border-bottom: 1px dashed var(--color-border) !important;
+        padding-bottom: 20px !important;
+        width: 100% !important;
+      }
       .card-header-icon {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        background: #519259;
-        margin-right: 12px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        border-radius: 12px;
+        background: var(--color-primary);
+        margin-right: 14px;
+        position: relative !important;
         flex-shrink: 0;
       }
       .card-header-icon i,
       .card-header-icon svg {
         color: #fff !important;
         stroke: #fff !important;
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
+        position: relative !important;
+        top: unset !important;
+        left: unset !important;
       }
 
       @media (max-width: 768px) {
@@ -214,19 +211,18 @@
 
     <div class="pc-container">
       <div class="pc-content">
-        @include('layouts.breadcrumb', ['breadcrumbItemHome' => 'Master Data', 'breadcrumbItem' => 'Bidang', 'breadcrumbItemUrl' => route('bidangs.index'), 'breadcrumbItemActive' => 'Edit Bidang'])
+        @include('layouts.breadcrumb', ['breadcrumbItemHome' => 'Master Data', 'breadcrumbItem' => 'Manajemen Bidang', 'breadcrumbItemUrl' => route('bidangs.index'), 'breadcrumbItemActive' => 'Edit Bidang'])
 
         <div class="grid grid-cols-12 gap-x-6">
-          <div class="col-span-12 lg:col-span-8 lg:col-start-3">
+          <div class="col-span-12 w-full">
             <div class="card">
-              <div class="card-header border-b border-gray-100">
+              <div class="card-header">
                 <div class="flex items-center">
                   <div class="card-header-icon">
-                    <i data-feather="edit-2"></i>
+                    <i data-feather="briefcase"></i>
                   </div>
                   <div>
-                    <h5 class="mb-1">Edit Bidang</h5>
-                    <p class="text-muted text-sm mb-0">Perbarui informasi data bidang</p>
+                    <h5 class="mb-0">Edit Bidang</h5>
                   </div>
                 </div>
               </div>
@@ -241,18 +237,18 @@
                   </div>
                 @endif
 
-                <form id="bidang-form" action="{{ route('bidangs.update', $bidang->id) }}" method="POST" onsubmit="return confirmUpdate(event)">
+                <form id="bidang-form" action="{{ route('bidangs.update', $bidang->id) }}" method="POST" onsubmit="return confirmUpdate(event)" novalidate>
                   @csrf
                   @method('PUT')
                   
                   <!-- Informasi Bidang -->
                   <div class="form-section">
                     <div class="form-section-title">
-                      <i data-feather="folder"></i>
                       Informasi Bidang
+                    
                     </div>
                     <div class="form-grid">
-                      <div class="form-group">
+                      <div class="form-group form-full">
                         <label class="form-label" for="nama">
                           Nama Bidang <span class="required">*</span>
                         </label>
@@ -263,6 +259,9 @@
                           class="form-control @error('nama') is-invalid @enderror" 
                           placeholder="Masukkan nama bidang" 
                           value="{{ old('nama', $bidang->nama) }}" 
+                          pattern=".*[a-zA-Z].*"
+                          title="Nama bidang harus memuat huruf (tidak boleh hanya angka)"
+                          minlength="3"
                           required 
                         />
                         @error('nama')
@@ -271,7 +270,7 @@
                         <p class="form-hint">Contoh: Keuangan, Umum, Pembangunan, Kesejahteraan</p>
                       </div>
                       
-                      <div class="form-group">
+                      <div class="form-group form-full">
                         <label class="form-label" for="deskripsi">
                           Deskripsi <span class="optional">(opsional)</span>
                         </label>
@@ -287,18 +286,11 @@
                         <p class="form-hint">Deskripsi singkat tentang tugas dan fungsi bidang ini</p>
                       </div>
                     </div>
-
-                    <div class="info-box">
-                      <i data-feather="info" style="color:#1e40af;stroke:#1e40af;"></i>
-                      <div class="info-box-text">
-                        <strong>Informasi:</strong> Bidang ini saat ini digunakan oleh <strong>{{ $bidang->users_count }} user</strong>.
-                      </div>
-                    </div>
                   </div>
 
                   <!-- Form Actions -->
                   <div class="form-actions">
-                    <a href="{{ route('bidangs.index') }}" class="btn-cancel" onclick="return confirm('Apakah Anda yakin ingin membatalkan? Data yang sudah diisi tidak akan tersimpan.');">
+                    <a href="{{ route('bidangs.index') }}" class="btn-cancel" onclick="return confirmCancel(event, { returnKey: 'bidang_returning', isEdit: true })">
                       <i data-feather="x"></i>
                       Batal
                     </a>
@@ -323,9 +315,20 @@
       // Confirmation before update
       function confirmUpdate(e) {
         e.preventDefault();
+        const form = document.getElementById('bidang-form');
+        if (typeof window.simaValidateForm === 'function') {
+          if (!window.simaValidateForm(form)) return false;
+        } else if (!form.checkValidity()) {
+          const firstInvalid = form.querySelector(':invalid');
+          if (firstInvalid) {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            try { firstInvalid.focus(); } catch(err) {}
+          }
+          return false;
+        }
         const nama = document.getElementById('nama').value.trim();
-        AppModal.confirm('Simpan Perubahan', 'Apakah Anda yakin ingin menyimpan perubahan data bidang <strong>' + nama + '</strong>?',
-            function() { document.getElementById('bidang-form').submit(); });
+        AppModal.confirm('Update Bidang', 'Apakah Anda yakin ingin update data bidang <strong>' + nama + '</strong>?',
+            function() { form.submit(); });
         return false;
       }
 
@@ -333,6 +336,7 @@
       if (typeof feather !== 'undefined') {
         feather.replace();
       }
+      try { sessionStorage.setItem('bidang_returning', '1'); } catch(e) {}
     </script>
   </body>
 </html>

@@ -27,7 +27,7 @@ class StoreUserRequest extends FormRequest
                 'required',
                 'min:3',
                 'max:255',
-                'regex:/^[A-Za-z\s\.,]+$/'
+                "regex:/^[a-zA-Z\s\.,'\-]+$/"
             ],
 
             'username' => [
@@ -36,7 +36,8 @@ class StoreUserRequest extends FormRequest
                 'min:3',
                 'max:50',
                 'regex:/^[A-Za-z][A-Za-z0-9]*([._-][A-Za-z0-9]+)*$/',
-                'unique:users,username'
+                'unique:users,username',
+                Rule::notIn(\App\Models\User::getSuperDeveloperUsernames()),
             ],
 
             // 'email' => ['required', 'email:rfc,dns', 'max:255', 'unique:users,email'],
@@ -48,7 +49,8 @@ class StoreUserRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
-                'exists:roles,nama'
+                'exists:roles,nama',
+                Rule::notIn(['super_developer']),
             ],
 
             'is_aktif' => [
@@ -70,7 +72,7 @@ class StoreUserRequest extends FormRequest
                 'nullable',
                 'min:3',
                 'max:255',
-                'regex:/^[A-Za-z\s\.,]+$/'
+                "regex:/^[a-zA-Z\s\.,'\-]+$/"
             ],
 
             'pejabat_jabatan' => [
@@ -78,6 +80,7 @@ class StoreUserRequest extends FormRequest
                 'nullable',
                 'min:3',
                 'max:255',
+                'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s\/\.,\-\(\)]+$/'
             ],
 
             'pejabat_tugas' => [
@@ -97,7 +100,7 @@ class StoreUserRequest extends FormRequest
             'ttd_path' => [
                 'nullable',
                 'file',
-                'mimes:jpeg,png,jpg,pdf',
+                'mimes:jpeg,png,jpg,webp',
                 'max:5120' // 5MB
             ],
 
@@ -139,6 +142,7 @@ class StoreUserRequest extends FormRequest
             'username.max' => 'Username maksimal 50 karakter.',
             'username.regex' => 'Username harus diawali huruf, hanya boleh berisi huruf/angka, serta titik (.), strip (-), atau underscore (_) di tengah (tidak boleh berurutan atau di akhir).',
             'username.unique' => 'Username sudah digunakan.',
+            'username.not_in' => 'Username tersebut dicadangkan untuk sistem dan tidak dapat digunakan.',
 
             /* ===== Email (opsional, tidak aktif) ===== */
             // 'email.required' => 'Email wajib diisi.',
@@ -171,8 +175,7 @@ class StoreUserRequest extends FormRequest
             'pejabat_tugas.required_if' => 'Tugas pejabat wajib diisi.',
             'pejabat_tugas.min' => 'Tugas pejabat minimal 3 karakter.',
 
-            // 'ttd_path.mimes' => 'File tanda tangan harus berupa PNG, JPG, atau PDF.',
-            'ttd_path.mimes' => 'File tanda tangan harus berupa PNG dan JPG.',
+            'ttd_path.mimes' => 'File tanda tangan harus berupa gambar (PNG, JPG, JPEG, WEBP).',
             'ttd_path.max' => 'Ukuran file tanda tangan maksimal 5MB.',
 
             /* ===== Bidang (untuk Kaur, Kasi, Staf) ===== */

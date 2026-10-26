@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" data-pc-preset="preset-1" data-pc-sidebar-theme="light" data-pc-sidebar-caption="true">
   <head>
-    @include('layouts.head-page-meta', ['title' => 'Lupa Password - Sistem Manajemen Aset Desa Demo'])
+    @include('layouts.head-page-meta', ['title' => 'Lupa Password - Sistem Manajemen Aset Desa (SIMA Demo)'])
     @include('layouts.head-css')
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <style>
@@ -11,7 +11,7 @@
       /* Left Panel */
       .login-brand-panel {
         flex: 1;
-        background: #064635;
+        background: #1f3a2a;
         display: flex; flex-direction: column; justify-content: center; align-items: center;
         padding: 60px; position: relative; overflow: hidden;
       }
@@ -28,7 +28,7 @@
         display: flex; align-items: center; justify-content: center;
         margin: 0 auto 32px;
       }
-      .brand-logo img { width: 110px; height: 110px; object-fit: contain; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35)); }
+      .brand-logo img { width: 110px; height: 110px; object-fit: contain; filter: none; image-rendering: -webkit-optimize-contrast; }
       .brand-title { font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 16px; line-height: 1.3; }
       .brand-subtitle { font-size: 16px; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.6; }
 
@@ -43,36 +43,39 @@
         width: 64px; height: 64px;
         background: #1c5240;
         border-radius: 16px; display: flex; align-items: center; justify-content: center;
-        margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(6, 70, 53, 0.25);
+        margin: 0 auto 20px; box-shadow: none;
       }
       .login-header-icon i { width: 32px; height: 32px; color: #fff !important; stroke: #fff !important; }
       .login-header h1 { font-size: 26px; font-weight: 700; color: #1f2937; margin: 0 0 8px; }
       .login-header p { font-size: 14px; color: #6b7280; margin: 0; }
 
       .login-form-card {
-        background: #fff; border-radius: 20px; padding: 36px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.05);
+        background: #fff; border-radius: 8px; padding: 36px;
+        box-shadow: none; border: 1px solid #e5e7eb;
       }
       .form-group { margin-bottom: 24px; }
       .form-label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; }
-      .form-input-wrapper { position: relative; }
-      .form-input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #064635; }
+      .form-input-wrapper:hover .form-input-icon,
+      .form-input-wrapper:focus-within .form-input-icon { color: #1f3a2a; }
+      .form-input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #9ca3af; transition: color 0.2s; }
       .form-input-icon i { width: 20px; height: 20px; }
       .form-input {
         width: 100%; padding: 14px 16px 14px 50px; font-size: 15px;
-        border: 2px solid #e5e7eb; border-radius: 12px; background: #f9fafb;
-        transition: all 0.2s; box-sizing: border-box;
+        border: 1.5px solid #d1d5db; border-radius: 8px; background: #ffffff;
+        color: #1f2937; transition: border-color 0.2s ease; box-sizing: border-box;
       }
-      .form-input:focus { outline: none; border-color: #064635; background: #fff; box-shadow: 0 0 0 4px rgba(6, 70, 53, 0.1); }
+      .form-input:hover { border-color: #1f3a2a; background: #ffffff; }
+      .form-input:focus { outline: none; border-color: #1f3a2a; background: #ffffff; box-shadow: none; }
       .form-input::placeholder { color: #9ca3af; }
 
       .submit-btn {
-        width: 100%; padding: 16px 24px; font-size: 15px; font-weight: 600; color: #fff;
-        background: #064635;
-        border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s;
+        width: 100%; padding: 14px 24px; font-size: 15px; font-weight: 600; color: #fff;
+        background: linear-gradient(135deg, #1f3a2a 0%, #519259 100%);
+        border: none; border-radius: var(--radius-full); cursor: pointer; transition: background 0.2s ease;
         display: flex; align-items: center; justify-content: center; gap: 10px;
+        box-shadow: none;
       }
-      .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(6, 70, 53, 0.3); }
+      .submit-btn:hover { background: linear-gradient(135deg, #053a2c 0%, #46804d 100%); }
       .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
       .submit-btn i { width: 18px; height: 18px; }
 
@@ -96,8 +99,8 @@
         display: block; text-align: center; margin-top: 20px; font-size: 14px;
         color: #6b7280; text-decoration: none;
       }
-      .back-link a { color: #064635; font-weight: 600; text-decoration: none; }
-      .back-link a:hover { text-decoration: underline; }
+      .back-link a { color: #1f3a2a; font-weight: 600; text-decoration: none; }
+      .back-link a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
       .version-info {
         position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
@@ -120,7 +123,7 @@
       <div class="login-brand-panel">
         <div class="brand-content">
           <div class="brand-logo">
-            <img src="{{ asset('assets/images/logo/logo-demo.png') }}" alt="Logo Mengwi" />
+            <img src="{{ asset('assets/images/logo/logo-sima-desa-demo.png') }}" alt="Logo Desa" />
           </div>
           <h1 class="brand-title">Sistem Manajemen Aset</h1>
           <p class="brand-subtitle">
@@ -195,7 +198,7 @@
           </div>
         </div>
 
-        <div class="version-info">Sistem Manajemen Aset Desa Demo v1.0.0</div>
+        <div class="version-info">Sistem Manajemen Aset Desa (SIMA Demo) v1.0.0</div>
       </div>
     </div>
 
@@ -205,11 +208,13 @@
       const forgotForm = document.getElementById('forgotForm');
       const submitBtn  = document.getElementById('submitBtn');
 
-      forgotForm.addEventListener('submit', function () {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i data-feather="loader" style="animation: spin 1s linear infinite;"></i> Mengirim...';
-        feather.replace();
-      });
+      if (forgotForm && submitBtn) {
+        forgotForm.addEventListener('submit', function () {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i data-feather="loader" style="animation: spin 1s linear infinite;"></i> Mengirim...';
+          feather.replace();
+        });
+      }
     </script>
   </body>
 </html>

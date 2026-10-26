@@ -12,14 +12,17 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Font;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 
-class BukuInventarisSheet implements
+class BukuInventarisSheet extends StringValueBinder implements
     FromCollection,
     WithTitle,
     WithColumnWidths,
-    WithEvents
+    WithEvents,
+    WithCustomValueBinder
 {
     protected array $filters;
     protected array $pejabatSnapshot;
@@ -59,7 +62,7 @@ class BukuInventarisSheet implements
     }
 
     /**
-     * Format tanggal ke bahasa Indonesia: "Mengwi, 31 Desember 2026"
+     * Format tanggal ke bahasa Indonesia: "Demo, 31 Desember 2026"
      */
     private function formatTanggal(string $tanggal, string $keterangan): string
     {
@@ -89,7 +92,11 @@ class BukuInventarisSheet implements
     {
         $query = Inventaris::with('jenis')
             ->orderBy('jenis_inventaris_id')
-            ->orderBy('kode_barang');
+            ->orderBy('kode_barang')
+            ->orderBy('tahun_perolehan')
+            ->orderBy('nama_barang')
+            ->orderByRaw('CAST(nup AS UNSIGNED) ASC')
+            ->orderBy('id');
 
         if (!empty($this->filters['tahun'])) {
             $query->where('tahun_perolehan', '<=', $this->filters['tahun']);
@@ -111,7 +118,7 @@ class BukuInventarisSheet implements
                 ($inv->asal_usul === 'perolehan_lain') ? '✓' : '',
                 ($inv->asal_usul === 'kekayaan_asli')  ? '✓' : '',
                 $inv->tahun_perolehan ?? '-',
-                $nilai > 0 ? number_format($nilai, 0, ',', '.') : '',
+                $nilai > 0 ? number_format($nilai, fmod($nilai, 1) != 0 ? 2 : 0, ',', '.') : '',
                 $inv->pengguna ?? '-',
                 $inv->keterangan ?? '',
             ]);
@@ -263,20 +270,20 @@ class BukuInventarisSheet implements
                     $sheet->getStyle("H{$dataStart}:H{$lastRow}")->getAlignment()
                         ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-                    // Format kolom nilai sebagai teks agar pemisah ribuan tetap titik
+                    // Format kolom nilai
                     $sheet->getStyle("I{$dataStart}:I{$lastRow}")
-                        ->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+                        ->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
+                    $sheet->getStyle("I{$dataStart}:I{$lastRow}")
+                        ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                 }
 
                 // ── 3. Jumlah row ─────────────────────────────────────────────────────
                 $jumlahRow = ($lastRow >= $dataStart) ? $lastRow + 1 : $dataStart + 1;
                 $sheet->mergeCells("A{$jumlahRow}:H{$jumlahRow}");
                 $sheet->setCellValue("A{$jumlahRow}", 'Jumlah ' . str_repeat('-', 60));
-                // Tampilkan jumlah dengan format titik dan format cell text
-                $sheet->setCellValue("I{$jumlahRow}", number_format($this->nilaiTotal, 0, ',', '.'));
-                $sheet->getStyle("I{$jumlahRow}")->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
-                // Paksa alignment jumlah ke kiri
-                $sheet->getStyle("I{$jumlahRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                // Tampilkan jumlah dengan format number
+                $sheet->setCellValue("I{$jumlahRow}", number_format($this->nilaiTotal, fmod($this->nilaiTotal, 1) != 0 ? 2 : 0, ',', '.'));
+                $sheet->getStyle("I{$jumlahRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                 $sheet->getStyle("A{$jumlahRow}:{$lastCol}{$jumlahRow}")->applyFromArray([
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]],
                     'font'    => ['bold' => true, 'size' => 10],

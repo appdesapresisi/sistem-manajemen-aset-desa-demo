@@ -158,17 +158,34 @@ class ExternalApiController extends Controller
     public function jenisInventaris()
     {
         $data = JenisInventaris::where('nama', '!=', 'Buku Inventaris Aset Desa')
-            ->withCount('inventaris')
+            ->withCount([
+                'inventaris as jumlah_aset',
+                'inventaris as kondisi_baik' => fn($q) => $q->where('kondisi', 'baik'),
+                'inventaris as kondisi_rusak_ringan' => fn($q) => $q->where('kondisi', 'rusak_ringan'),
+                'inventaris as kondisi_rusak_berat' => fn($q) => $q->where('kondisi', 'rusak_berat'),
+            ])
+            ->withSum('inventaris as total_nilai', 'nilai_perolehan')
             ->orderBy('nama')
             ->get()
-            ->map(fn($j) => [
-                'id'              => $j->id,
-                'nama'            => $j->nama,
-                'deskripsi'       => $j->deskripsi,
-                'icon'            => $j->icon,
-                'kib_type'        => $j->kib_type,
-                'jumlah_aset'     => $j->inventaris_count,
-            ]);
+            ->map(function ($j) {
+                $nilaiAset = (float) ($j->total_nilai ?? 0);
+
+                return [
+                    'id'           => $j->id,
+                    'nama'         => $j->nama,
+                    'deskripsi'    => $j->deskripsi,
+                    'icon'         => $j->icon,
+                    'kib_type'     => $j->kib_type,
+                    'jumlah_aset'  => (int) ($j->jumlah_aset ?? 0),
+                    'nilai_aset'   => $nilaiAset,
+                    'nilai_format' => 'Rp ' . number_format($nilaiAset, fmod($nilaiAset, 1) != 0 ? 2 : 0, ',', '.'),
+                    'kondisi'      => [
+                        'baik'         => (int) ($j->kondisi_baik ?? 0),
+                        'rusak_ringan' => (int) ($j->kondisi_rusak_ringan ?? 0),
+                        'rusak_berat'  => (int) ($j->kondisi_rusak_berat ?? 0),
+                    ],
+                ];
+            });
 
         return response()->json(['success' => true, 'data' => $data]);
     }
@@ -232,7 +249,7 @@ class ExternalApiController extends Controller
             'data'    => [
                 'total_aset'          => $totalAset,
                 'total_nilai'         => $totalNilai,
-                'total_nilai_format'  => 'Rp ' . number_format($totalNilai, 0, ',', '.'),
+                'total_nilai_format'  => 'Rp ' . number_format($totalNilai, fmod($totalNilai, 1) != 0 ? 2 : 0, ',', '.'),
                 'kondisi'             => [
                     'baik'         => $kondisiBaik,
                     'rusak_ringan' => $kondisiRR,

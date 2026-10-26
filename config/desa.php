@@ -7,16 +7,16 @@ return [
     |--------------------------------------------------------------------------
     | Atur nilai ini di .env. Contoh untuk Desa Demo:
     |
-    |   KODE_LOKASI_DESA=51.3.2.2009
-    |   NAMA_LOKASI_DESA=Mengwi
-    |   DESA_PROVINSI_KODE=51
+    |   KODE_LOKASI_DESA=111.3.2.2009
+    |   NAMA_LOKASI_DESA=DEMO
+    |   DESA_PROVINSI_KODE=111
     |   DESA_PROVINSI_NAMA=BALI
-    |   DESA_KABUPATEN_KODE=51.3
-    |   DESA_KABUPATEN_NAMA=KABUPATEN BADUNG
-    |   DESA_KECAMATAN_KODE=51.3.2
-    |   DESA_KECAMATAN_NAMA=KECAMATAN MENGWI
-    |   DESA_NAMA=MENGWI
-    |   DESA_UPB=PEMERINTAH DESA MENGWI
+    |   DESA_KABUPATEN_KODE=111.3
+    |   DESA_KABUPATEN_NAMA=KABUPATEN DEMO
+    |   DESA_KECAMATAN_KODE=111.3.2
+    |   DESA_KECAMATAN_NAMA=KECAMATAN DEMO
+    |   DESA_NAMA=DEMO
+    |   DESA_UPB=PEMERINTAH DESA DEMO
     */
 
     // Kode & nama lokasi (dipakai di Buku Inventaris Aset Desa)
@@ -32,4 +32,10 @@ return [
     'kecamatan_nama'  => env('DESA_KECAMATAN_NAMA', ''),
     'desa_nama'       => env('DESA_NAMA', ''),
     'upb'             => env('DESA_UPB', ''),
+
+    // Otorisasi Super Developer / Platform Owner (pemilik sistem SaaS)
+    // Hanya akun-akun ini yang dapat mengakses Cadangan Basis Data (Backup)
+    'super_developer_usernames' => env('SUPER_DEVELOPER_USERNAMES', 'superdeveloper,developer,owner'),
+    'super_developer_emails'    => env('SUPER_DEVELOPER_EMAILS', ''),
 ];
+

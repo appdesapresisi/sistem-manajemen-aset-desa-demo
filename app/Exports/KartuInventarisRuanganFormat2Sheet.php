@@ -280,9 +280,13 @@ class KartuInventarisRuanganFormat2Sheet implements FromArray, WithTitle, WithSt
                         : 'Penanggung Jawab';
                     $petugasJabatan = !empty($this->petugasPejabat[0]['jabatan'])
                         ? $this->petugasPejabat[0]['jabatan']
-                        : 'Pengurus Barang Desa Demo';
+                        : 'Pengurus Barang ' . (config('desa.nama_lokasi') ?: 'Desa');
 
-                    $ttdSubs = ['Perbekel Mengwi,', $kasiJabatan.',', $petugasJabatan.','];
+                    $perbekelJabatan = !empty($this->perbekelPejabat['jabatan'])
+                        ? $this->perbekelPejabat['jabatan'] . ','
+                        : 'Perbekel ' . (config('desa.nama_lokasi') ?: 'Desa') . ',';
+
+                    $ttdSubs = [$perbekelJabatan, $kasiJabatan.',', $petugasJabatan.','];
 
                     $r = $ttdStartRow;
                     foreach ($ttdCols as $i => [$cs, $ce]) {

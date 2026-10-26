@@ -18,7 +18,7 @@ class BidangPolicy
     /**
      * Detail bidang: Admin & Super Admin bisa lihat.
      */
-    public function view(User $user, Bidang $bidang): bool
+    public function view(User $user, ?Bidang $bidang = null): bool
     {
         return $user->isAdmin() || $user->isSuperAdmin();
     }
@@ -34,7 +34,7 @@ class BidangPolicy
     /**
      * Edit bidang: hanya Super Admin.
      */
-    public function update(User $user, Bidang $bidang): bool
+    public function update(User $user, ?Bidang $bidang = null): bool
     {
         return $user->isSuperAdmin();
     }

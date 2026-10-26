@@ -8,15 +8,21 @@ class StoreRuanganRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->isSuperAdmin();
+        return $this->user() && ($this->user()->isSuperDeveloper() || $this->user()->isSuperAdmin());
     }
 
     public function rules(): array
     {
         return [
-            'nama'                 => ['required', 'string', 'max:150'],
-            'kode'                 => ['required', 'integer', 'min:1', 'unique:ruangans,kode'],
-            'deskripsi'            => ['nullable', 'string'],
+            'nama'                 => [
+                'required',
+                'string',
+                'min:3',
+                'max:150',
+                'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s\/\.,\-\(\)]+$/',
+            ],
+            'kode'                 => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9\-_]+$/', 'unique:ruangans,kode'],
+            'deskripsi'            => ['nullable', 'string', 'regex:/[a-zA-Z]/'],
             'penanggung_jawab_id'  => ['required', 'integer', 'exists:users,id'],
         ];
     }
@@ -25,10 +31,14 @@ class StoreRuanganRequest extends FormRequest
     {
         return [
             'nama.required' => 'Nama ruangan wajib diisi.',
+            'nama.min'      => 'Nama ruangan minimal 3 karakter.',
+            'nama.regex'    => 'Nama ruangan harus memuat huruf dan tidak boleh hanya berisi angka/simbol.',
             'kode.required' => 'Kode ruangan wajib diisi.',
-            'kode.integer'  => 'Kode ruangan harus berupa angka.',
-            'kode.min'      => 'Kode ruangan minimal 1.',
-            'kode.unique'   => 'Kode ruangan sudah digunakan, pilih nomor lain.',
+            'kode.string'   => 'Kode ruangan harus berupa teks yang valid.',
+            'kode.max'      => 'Kode ruangan maksimal 50 karakter.',
+            'kode.regex'    => 'Kode ruangan hanya boleh memuat huruf, angka, tanda minus (-), dan garis bawah (_).',
+            'kode.unique'   => 'Kode ruangan sudah digunakan, pilih kode lain.',
+            'deskripsi.regex' => 'Deskripsi ruangan harus memuat teks huruf.',
         ];
     }
 }

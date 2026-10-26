@@ -21,6 +21,9 @@ use Illuminate\Support\Facades\Schema;
 use App\Models\InventarisFoto;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Notification;
+use App\Exports\InventarisTemplateExport;
+use App\Imports\InventarisImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ManajemenAsetController extends Controller
 {
@@ -35,7 +38,7 @@ class ManajemenAsetController extends Controller
         }
         
         // Build query with filters
-        $query = Inventaris::with(['jenis', 'values.field']);
+        $query = Inventaris::with(['jenis', 'ruangan', 'values.field']);
         
         // Search filter
         if ($request->has('search') && $request->search != '') {
@@ -46,6 +49,10 @@ class ManajemenAsetController extends Controller
                   ->orWhere('nup', 'like', '%' . $search . '%')
                   ->orWhereHas('jenis', function($jq) use ($search) {
                       $jq->where('nama', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('ruangan', function($rq) use ($search) {
+                      $rq->where('nama', 'like', '%' . $search . '%')
+                         ->orWhere('kode', 'like', '%' . $search . '%');
                   });
             });
         }
@@ -54,22 +61,53 @@ class ManajemenAsetController extends Controller
         if ($request->has('jenis') && is_array($request->jenis) && count($request->jenis) > 0) {
             $query->whereIn('jenis_inventaris_id', $request->jenis);
         }
-        
-        // Status filter — DISABLED: approval system removed, tidak ada filter status
-        // if ($request->has('status') && $request->status !== '' && $request->status !== 'all') {
-        //     $query->where('status', $request->status);
-        // }
+
+        // Tahun perolehan filter
+        if ($request->filled('tahun') && $request->tahun !== 'all') {
+            $query->where('tahun_perolehan', $request->tahun);
+        }
+
+        // Ruangan filter
+        if ($request->filled('ruangan') && $request->ruangan !== 'all') {
+            if ($request->ruangan === 'none') {
+                $query->whereNull('ruangan_id');
+            } else {
+                $query->where('ruangan_id', $request->ruangan);
+            }
+        }
+
+        // Kondisi filter (supports array for checklist e.g. kondisi[]=baik&kondisi[]=rusak_ringan)
+        if ($request->has('kondisi')) {
+            $kondisi = (array) $request->kondisi;
+            $validKondisi = array_values(array_filter($kondisi, fn($k) => in_array(strtolower($k), ['baik', 'rusak_ringan', 'rusak_berat'])));
+            if (!empty($validKondisi)) {
+                $query->where(function($q) use ($validKondisi) {
+                    foreach ($validKondisi as $k) {
+                        $clean = strtolower($k);
+                        $title = ucwords(str_replace('_', ' ', $clean));
+                        $q->orWhere('kondisi', $clean)
+                          ->orWhere('kondisi', $title)
+                          ->orWhere('kondisi', ucfirst($clean));
+                    }
+                });
+            }
+        }
+
+        // Kelengkapan filter ('lengkap' | 'tidak_lengkap')
+        if ($request->filled('kelengkapan') && in_array($request->kelengkapan, ['lengkap', 'tidak_lengkap'])) {
+            $query->kelengkapan($request->kelengkapan);
+        }
         
         // Sort order
-        $sortBy = $request->get('sort', 'nama_asc');
+        $sortBy = $request->get('sort', 'terbaru');
         if ($sortBy === 'nama_desc') {
             $query->orderBy('nama_barang', 'desc');
-        } elseif ($sortBy === 'terbaru') {
-            $query->orderBy('created_at', 'desc');
+        } elseif ($sortBy === 'nama_asc') {
+            $query->orderBy('nama_barang', 'asc');
         } elseif ($sortBy === 'terlama') {
             $query->orderBy('created_at', 'asc');
         } else {
-            $query->orderBy('nama_barang', 'asc');
+            $query->orderBy('created_at', 'desc');
         }
         
         $perPage = (int) $request->input('per_page', $request->input('limit', 10));
@@ -80,6 +118,8 @@ class ManajemenAsetController extends Controller
         // Paginate with items per page
         $inventarisPaginated = $query->paginate($perPage)->appends($request->except('page'));
         
+        /*
+        // Kodingan vs Kemarin (Daily) — disimpan untuk opsi filter di masa depan
         $todayStart = now()->startOfDay();
         $yesterdayStart = now()->subDay()->startOfDay();
 
@@ -110,6 +150,61 @@ class ManajemenAsetController extends Controller
         $rbYesterday = Inventaris::where('kondisi', 'rusak_berat')->whereBetween('created_at', [$yesterdayStart, $todayStart])->count();
         $rbDiff = $rbToday - $rbYesterday;
         $rbPercent = $rbYesterday > 0 ? round(($rbDiff / $rbYesterday) * 100, 1) : ($rbToday > 0 ? 100 : 0);
+        */
+
+        // Konteks Per Bulan (vs. Bulan Lalu) - Dioptimalkan dalam 1 query agregasi cepat
+        $thisMonthStart = now()->startOfMonth();
+        $lastMonthStart = now()->subMonth()->startOfMonth();
+
+        $statsRaw = DB::table('inventaris')
+            ->selectRaw("
+                COUNT(*) as total_inv,
+                SUM(CASE WHEN created_at >= ? THEN 1 ELSE 0 END) as inv_this_month,
+                SUM(CASE WHEN created_at >= ? AND created_at < ? THEN 1 ELSE 0 END) as inv_last_month,
+                SUM(CASE WHEN LOWER(kondisi) = 'baik' THEN 1 ELSE 0 END) as baik_total,
+                SUM(CASE WHEN LOWER(kondisi) = 'baik' AND created_at >= ? THEN 1 ELSE 0 END) as baik_this_month,
+                SUM(CASE WHEN LOWER(kondisi) = 'baik' AND created_at >= ? AND created_at < ? THEN 1 ELSE 0 END) as baik_last_month,
+                SUM(CASE WHEN LOWER(kondisi) = 'rusak_ringan' THEN 1 ELSE 0 END) as rr_total,
+                SUM(CASE WHEN LOWER(kondisi) = 'rusak_ringan' AND created_at >= ? THEN 1 ELSE 0 END) as rr_this_month,
+                SUM(CASE WHEN LOWER(kondisi) = 'rusak_ringan' AND created_at >= ? AND created_at < ? THEN 1 ELSE 0 END) as rr_last_month,
+                SUM(CASE WHEN LOWER(kondisi) = 'rusak_berat' THEN 1 ELSE 0 END) as rb_total,
+                SUM(CASE WHEN LOWER(kondisi) = 'rusak_berat' AND created_at >= ? THEN 1 ELSE 0 END) as rb_this_month,
+                SUM(CASE WHEN LOWER(kondisi) = 'rusak_berat' AND created_at >= ? AND created_at < ? THEN 1 ELSE 0 END) as rb_last_month
+            ", [
+                $thisMonthStart,
+                $lastMonthStart, $thisMonthStart,
+                $thisMonthStart,
+                $lastMonthStart, $thisMonthStart,
+                $thisMonthStart,
+                $lastMonthStart, $thisMonthStart,
+                $thisMonthStart,
+                $lastMonthStart, $thisMonthStart,
+            ])
+            ->first();
+
+        $totalInv = (int) ($statsRaw->total_inv ?? 0);
+        $invThisMonth = (int) ($statsRaw->inv_this_month ?? 0);
+        $invLastMonth = (int) ($statsRaw->inv_last_month ?? 0);
+        $invDiff = $invThisMonth - $invLastMonth;
+        $invPercent = $invLastMonth > 0 ? round(($invDiff / $invLastMonth) * 100, 1) : ($invThisMonth > 0 ? 100 : 0);
+
+        $baikTotal = (int) ($statsRaw->baik_total ?? 0);
+        $baikThisMonth = (int) ($statsRaw->baik_this_month ?? 0);
+        $baikLastMonth = (int) ($statsRaw->baik_last_month ?? 0);
+        $baikDiff = $baikThisMonth - $baikLastMonth;
+        $baikPercent = $baikLastMonth > 0 ? round(($baikDiff / $baikLastMonth) * 100, 1) : ($baikThisMonth > 0 ? 100 : 0);
+
+        $rrTotal = (int) ($statsRaw->rr_total ?? 0);
+        $rrThisMonth = (int) ($statsRaw->rr_this_month ?? 0);
+        $rrLastMonth = (int) ($statsRaw->rr_last_month ?? 0);
+        $rrDiff = $rrThisMonth - $rrLastMonth;
+        $rrPercent = $rrLastMonth > 0 ? round(($rrDiff / $rrLastMonth) * 100, 1) : ($rrThisMonth > 0 ? 100 : 0);
+
+        $rbTotal = (int) ($statsRaw->rb_total ?? 0);
+        $rbThisMonth = (int) ($statsRaw->rb_this_month ?? 0);
+        $rbLastMonth = (int) ($statsRaw->rb_last_month ?? 0);
+        $rbDiff = $rbThisMonth - $rbLastMonth;
+        $rbPercent = $rbLastMonth > 0 ? round(($rbDiff / $rbLastMonth) * 100, 1) : ($rbThisMonth > 0 ? 100 : 0);
 
         // Get total counts with status breakdown & trends
         $stats = [
@@ -117,6 +212,8 @@ class ManajemenAsetController extends Controller
             'kondisiBaik'        => $baikTotal,
             'kondisiRusakRingan' => $rrTotal,
             'kondisiRusakBerat'  => $rbTotal,
+            'totalLengkap'       => Inventaris::kelengkapan('lengkap')->count(),
+            'totalTidakLengkap'  => Inventaris::kelengkapan('tidak_lengkap')->count(),
             'trends' => [
                 'total' => ['diff' => $invDiff, 'percent' => $invPercent],
                 'baik'  => ['diff' => $baikDiff, 'percent' => $baikPercent],
@@ -129,21 +226,38 @@ class ManajemenAsetController extends Controller
         $jenisList = JenisInventaris::where('nama', '!=', 'Buku Inventaris Aset Desa')
                                      ->orderBy('nama')
                                      ->get();
+
+        // Get tahun list and ruangan list for filter
+        $tahunList = Inventaris::whereNotNull('tahun_perolehan')
+                               ->select('tahun_perolehan')
+                               ->distinct()
+                               ->orderBy('tahun_perolehan', 'desc')
+                               ->pluck('tahun_perolehan');
+        $ruanganList = \App\Models\Ruangan::orderBy('nama')->get(['id', 'nama', 'kode']);
         
         // If AJAX request, return JSON
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
             $items = collect($inventarisPaginated->items())->map(function($item) {
                 $jenis = $item->jenis;
                 $colors = $jenis ? ($jenis->color_gradient ?? ['#6b7280','#4b5563']) : ['#6b7280','#4b5563'];
+                $isLengkap = $item->isDataLengkap();
                 return [
-                    'id'           => $item->id,
-                    'display_name' => $item->display_name ?? '-',
-                    'nup'          => $item->nup ?? '-',
-                    'kode_barang'  => $item->kode_barang,
-                    'jenis_nama'   => $jenis->nama ?? 'Unknown',
-                    'jenis_icon'   => $jenis ? ($jenis->icon ?? 'box') : 'box',
-                    'jenis_color0' => $colors[0],
-                    'jenis_color1' => $colors[1],
+                    'id'              => $item->id,
+                    'display_name'    => $item->display_name ?? ($item->nama_barang ?? '-'),
+                    'nama_barang'     => $item->nama_barang ?? ($item->display_name ?? '-'),
+                    'nup'             => $item->nup ?? '-',
+                    'kode_barang'     => $item->kode_barang ?? '-',
+                    'tahun_perolehan' => $item->tahun_perolehan ? (string)$item->tahun_perolehan : '-',
+                    'nilai_perolehan' => (float)($item->nilai_perolehan ?? 0),
+                    'kondisi'         => $item->kondisi ?? 'Baik',
+                    'is_lengkap'      => $isLengkap,
+                    'missing_fields'  => $isLengkap ? [] : $item->getMissingRequiredFields(),
+                    'ruangan_id'      => $item->ruangan_id,
+                    'ruangan_nama'    => $item->ruangan ? $item->ruangan->nama_with_kode : '-',
+                    'jenis_nama'      => $jenis->nama ?? 'Unknown',
+                    'jenis_icon'      => $jenis ? ($jenis->icon ?? 'box') : 'box',
+                    'jenis_color0'    => $colors[0],
+                    'jenis_color1'    => $colors[1],
                 ];
             });
             return response()->json([
@@ -164,10 +278,96 @@ class ManajemenAsetController extends Controller
         }
         
         return view('manajemen-aset.index', [
-            'inventaris' => $inventarisPaginated,
-            'stats' => $stats,
-            'jenisList' => $jenisList,
+            'inventaris'  => $inventarisPaginated,
+            'stats'       => $stats,
+            'jenisList'   => $jenisList,
+            'tahunList'   => $tahunList,
+            'ruanganList' => $ruanganList,
         ]);
+    }
+
+    /**
+     * Download template resmi CSV (.csv) untuk import inventaris aset.
+     */
+    public function downloadTemplate()
+    {
+        $this->authorize('create', Inventaris::class);
+        $fileName = 'Template_Import_Inventaris_Desa_' . date('Ymd_His') . '.csv';
+        return Excel::download(new InventarisTemplateExport(), $fileName, \Maatwebsite\Excel\Excel::CSV);
+    }
+
+    /**
+     * Proses import data inventaris dari file Excel (.xlsx) atau CSV (.csv).
+     */
+    public function import(Request $request)
+    {
+        $this->authorize('create', Inventaris::class);
+
+        $request->validate([
+            'file_excel' => ['required', 'file', 'mimes:csv,txt', 'max:10240'],
+        ], [
+            'file_excel.required' => 'Silakan pilih file CSV (.csv) untuk diimpor.',
+            'file_excel.file'     => 'File yang diunggah tidak valid.',
+            'file_excel.mimes'    => 'Format file harus berupa CSV (.csv). Format Excel (.xlsx/.xls) tidak didukung.',
+            'file_excel.max'      => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        try {
+            $importer = new InventarisImport();
+            Excel::import($importer, $request->file('file_excel'));
+
+            // Clear dashboard cache agar angka statistik langsung terupdate
+            \Illuminate\Support\Facades\Cache::forget('dashboard_kpi');
+            \Illuminate\Support\Facades\Cache::forget('dashboard_charts');
+
+            // Log aktivitas
+            ActivityLogger::log(
+                'Inventaris',
+                'tambah',
+                "Import CSV: {$importer->importedCount} data berhasil diimpor, {$importer->skippedCount} dilewati (duplikat), {$importer->failedCount} gagal."
+            );
+
+            $resultData = [
+                'success' => true,
+                'message' => "Proses impor selesai. {$importer->importedCount} data berhasil ditambahkan ke sistem.",
+                'stats' => [
+                    'total_rows'     => $importer->totalRows,
+                    'imported_count' => $importer->importedCount,
+                    'skipped_count'  => $importer->skippedCount,
+                    'failed_count'   => $importer->failedCount,
+                ],
+                'imported_rows' => $importer->importedRows,
+                'skipped_rows'  => $importer->skippedRows,
+                'failed_rows'   => $importer->failedRows,
+            ];
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json($resultData);
+            }
+
+            return redirect()->route('manajemen-aset.index')
+                ->with('import_result', $resultData)
+                ->with('success', "Proses impor selesai: {$importer->importedCount} aset berhasil diimpor.");
+
+        } catch (\Throwable $e) {
+            Log::error('Import Inventaris error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $errorMessage = $e instanceof \InvalidArgumentException
+                ? $e->getMessage()
+                : 'Terjadi kesalahan saat memproses file Excel: ' . $e->getMessage();
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage,
+                ], 422);
+            }
+
+            return redirect()->back()
+                ->with('error', $errorMessage);
+        }
     }
 
     public function create()
@@ -199,7 +399,7 @@ class ManajemenAsetController extends Controller
         }
 
         // Daftar user untuk dropdown Pengguna
-        $userList = \App\Models\User::where('is_aktif', 1)->orderBy('nama')->with(['role','bidang','dinas'])->get(['id','nama','role_id','bidang_id','dinas_id']);
+        $userList = \App\Models\User::excludeSuperDevelopers()->where('is_aktif', 1)->orderBy('nama')->with(['role','bidang','dinas'])->get(['id','nama','role_id','bidang_id','dinas_id']);
 
         // Daftar ruangan untuk dropdown Ruangan
         $ruanganList = \App\Models\Ruangan::orderBy('nama')->get(['id', 'nama', 'kode' /*, 'lokasi'*/]);
@@ -247,6 +447,7 @@ class ManajemenAsetController extends Controller
                 'nilai_perolehan' => $data['nilai_perolehan'] ?? null,
                 'keterangan' => $data['keterangan'] ?? null,
                 'asal_usul' => $data['asal_usul'] ?? null,
+                'bukti_kepemilikan' => $data['bukti_kepemilikan'] ?? null,
                 'pengguna' => $data['pengguna'] ?? null,
                 'ruangan_id' => $data['ruangan_id'] ?? null,
                 'kondisi' => $data['kondisi'] ?? null,
@@ -461,9 +662,9 @@ class ManajemenAsetController extends Controller
                                      ->get();
         
         // Load all fields untuk jenis ini, urut by order
-        $allFields = $inventaris->jenis->fields()
-            ->orderBy('order', 'asc')
-            ->get();
+        $allFields = $inventaris->jenis
+            ? $inventaris->jenis->fields()->orderBy('order', 'asc')->get()
+            : collect();
         
         // Map fields dengan data - gunakan field_type dari database
         $fieldsWithData = $allFields->map(function($field) use ($inventaris) {
@@ -498,11 +699,30 @@ class ManajemenAsetController extends Controller
             'inventaris' => $inventaris,
             'jenisList' => $jenisList,
             'fieldsWithData' => $fieldsWithData,
-            'userList' => \App\Models\User::where('is_aktif', 1)->orderBy('nama')->with(['role','bidang','dinas'])->get(['id','nama','role_id','bidang_id','dinas_id']),
+            'userList' => \App\Models\User::excludeSuperDevelopers()->where('is_aktif', 1)->orderBy('nama')->with(['role','bidang','dinas'])->get(['id','nama','role_id','bidang_id','dinas_id']),
             'ruanganList' => \App\Models\Ruangan::orderBy('nama')->get(['id', 'nama', 'kode' /*, 'lokasi'*/]),
             'kibValues' => $kibValues,
             'kibConfig' => $kibConfig,
         ]);
+    }
+
+    /**
+    /**
+     * Konfigurasi root URL untuk QR Code / Barcode agar kompatibel dengan akses jaringan lokal (LAN) maupun domain.
+     */
+    protected function configureQrRootUrl(): void
+    {
+        $appUrl = config('app.url') ?: env('APP_URL');
+        $currentRoot = (!app()->runningInConsole() && request()->hasHeader('Host')) ? request()->root() : null;
+        $rootToUse = $currentRoot ?: $appUrl;
+
+        if ($rootToUse) {
+            \Illuminate\Support\Facades\URL::forceRootUrl(rtrim($rootToUse, '/'));
+            $scheme = parse_url($rootToUse, PHP_URL_SCHEME);
+            if ($scheme) {
+                \Illuminate\Support\Facades\URL::forceScheme($scheme);
+            }
+        }
     }
 
     /**
@@ -517,14 +737,7 @@ class ManajemenAsetController extends Controller
             abort(404);
         }
 
-        $appUrl = config('app.url') ?: env('APP_URL');
-        if ($appUrl) {
-            \Illuminate\Support\Facades\URL::forceRootUrl(rtrim($appUrl, '/'));
-            $scheme = parse_url($appUrl, PHP_URL_SCHEME);
-            if ($scheme) {
-                \Illuminate\Support\Facades\URL::forceScheme($scheme);
-            }
-        }
+        $this->configureQrRootUrl();
 
         $qrData = \Illuminate\Support\Facades\URL::signedRoute('inventaris.scan', ['barcode' => $inventaris->barcode]);
         if (!preg_match('#^https?://#i', $qrData)) {
@@ -576,9 +789,10 @@ class ManajemenAsetController extends Controller
                 'nilai_perolehan' => $data['nilai_perolehan'] ?? null,
                 'keterangan' => $data['keterangan'] ?? null,
                 'asal_usul' => $data['asal_usul'] ?? null,
+                'bukti_kepemilikan' => $data['bukti_kepemilikan'] ?? null,
                 'pengguna' => $data['pengguna'] ?? null,
                 'ruangan_id' => $data['ruangan_id'] ?? null,
-                'kondisi' => $data['kondisi'] ?? null,
+                'kondisi' => array_key_exists('kondisi', $data) ? $data['kondisi'] : ($inventaris->kondisi ?? 'baik'),
                 // Status NOT changed via form - only via approve() method
                 // updated_by di-set otomatis oleh Inventaris::booted()
             ]);
@@ -737,22 +951,46 @@ class ManajemenAsetController extends Controller
         return $redirect;
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $inventaris = Inventaris::find($id);
         if (!$inventaris) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Inventaris tidak ditemukan.'], 404);
+            }
             return redirect()->route('manajemen-aset.index')->with('error', 'Inventaris tidak ditemukan.');
         }
+        if (!auth()->user()->canDeleteAset()) {
+            abort(403, 'Hanya Kaur Umum, Sekretaris Desa, Perbekel, dan Super Admin yang berhak menghapus aset.');
+        }
         $this->authorize('delete', $inventaris);
+        
+        $tipeHapus = $request->input('tipe_hapus', 'salah_input');
+
+        if ($tipeHapus === 'mutasi_berkurang') {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Penghapusan resmi aset wajib diproses melalui modul Penghapusan Aset dengan melampirkan Dokumen Berita Acara / SK.',
+                    'redirect_url' => route('penghapusan-aset.index', ['inventaris_id' => $id])
+                ], 422);
+            }
+            return redirect()->route('penghapusan-aset.index', ['inventaris_id' => $id])
+                ->with('info', 'Penghapusan resmi aset wajib diproses melalui modul Penghapusan Aset dengan melampirkan Dokumen Berita Acara / SK.');
+        }
         
         try {
             DB::beginTransaction();
 
-            // Cascade delete manual - Hapus semua relasi
+            // Cascade delete manual - Hapus semua relasi aset
             $valuesCount = InventarisValue::where('inventaris_id', $id)->count();
             if ($valuesCount > 0) {
                 InventarisValue::where('inventaris_id', $id)->delete();
             }
+
+            \App\Models\InventarisKibValue::where('inventaris_id', $id)->delete();
+            \App\Models\InventarisKirValue::where('inventaris_id', $id)->delete();
+            \App\Models\InventarisLaporanAsetValue::where('inventaris_id', $id)->delete();
 
             $exportLogsCount = \App\Models\ExportLog::where('inventaris_id', $id)->count();
             if ($exportLogsCount > 0) {
@@ -774,24 +1012,12 @@ class ManajemenAsetController extends Controller
             $kodeBarang = $inventaris->kode_barang;
             $namaBarang = $inventaris->nama_barang;
 
-            // Log ke inventaris_deleted_log untuk tracking mutasi berkurang
-            \App\Models\InventarisDeletedLog::create([
-                'kode_barang'     => $inventaris->kode_barang,
-                'nup'             => $inventaris->nup,
-                'nama_barang'     => $inventaris->nama_barang,
-                'satuan'          => $inventaris->satuan,
-                'nilai_perolehan' => $inventaris->nilai_perolehan,
-                'tahun_perolehan' => $inventaris->tahun_perolehan,
-                'deleted_at'      => now(),
-                'deleted_by'      => auth()->id(),
-            ]);
-
             $inventaris->delete();
 
             DB::commit();
 
             ActivityLogger::log('Inventaris', 'hapus',
-                "Menghapus inventaris {$kodeBarang} - {$namaBarang}",
+                "Menghapus inventaris {$kodeBarang} - {$namaBarang} (Salah Input)",
                 $id, $namaBarang
             );
 
@@ -799,6 +1025,7 @@ class ManajemenAsetController extends Controller
                 'inventaris_id'         => $id,
                 'kode_barang'           => $kodeBarang,
                 'nama_barang'           => $namaBarang,
+                'tipe_hapus'            => $tipeHapus,
                 'values_deleted'        => $valuesCount,
                 'export_logs_nullified' => $exportLogsCount,
                 'deleted_by'            => auth()->id(),
@@ -807,6 +1034,14 @@ class ManajemenAsetController extends Controller
             \Illuminate\Support\Facades\Cache::forget('dashboard_kpi');
             \Illuminate\Support\Facades\Cache::forget('dashboard_charts');
             $namaDisplay = $namaBarang ?? $kodeBarang ?? 'Inventaris';
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Data Aset {$namaDisplay} berhasil dihapus."
+                ]);
+            }
+            
             return redirect()->route('manajemen-aset.index')->with('success', "Data Aset {$namaDisplay} berhasil dihapus.");
                 
         } catch (\Throwable $e) {
@@ -818,6 +1053,14 @@ class ManajemenAsetController extends Controller
                 'user_id' => auth()->id(),
             ]);
             $namaDisplay = $inventaris->nama_barang ?? $inventaris->kode_barang ?? 'Inventaris';
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Gagal menghapus Aset {$namaDisplay}."
+                ], 500);
+            }
+            
             return redirect()->route('manajemen-aset.index')->with('error', 
                 "Gagal menghapus Aset {$namaDisplay}. Silakan coba lagi.");
         }
@@ -836,17 +1079,10 @@ class ManajemenAsetController extends Controller
     {
         /** @var \App\Models\User|null $user */
         $user = $request->user();
-        abort_unless($user && $user->isSuperAdmin(), 403);
+        abort_unless($user && ($user->isSuperAdmin() || $user->isSuperDeveloper()), 403);
 
-        // Force URL root and scheme from APP_URL to avoid generation using a different host
-        $appUrl = config('app.url') ?: env('APP_URL');
-        if ($appUrl) {
-            \Illuminate\Support\Facades\URL::forceRootUrl(rtrim($appUrl, '/'));
-            $scheme = parse_url($appUrl, PHP_URL_SCHEME);
-            if ($scheme) {
-                \Illuminate\Support\Facades\URL::forceScheme($scheme);
-            }
-        }
+        // Configure URL root and scheme for QR Code
+        $this->configureQrRootUrl();
 
         if (!Schema::hasColumn('inventaris', 'barcode')) {
             return response()->json([
@@ -943,7 +1179,7 @@ class ManajemenAsetController extends Controller
      */
     public function scan($barcode)
     {
-        $inventaris = Inventaris::with(['jenis', 'values.field', 'fotos'])
+        $inventaris = Inventaris::with(['jenis', 'ruangan.penanggungJawab.role', 'ruangan.penanggungJawab.pejabat', 'values.field', 'fotos'])
             ->where('barcode', $barcode)
             ->first();
 
@@ -961,23 +1197,7 @@ class ManajemenAsetController extends Controller
     // Helpers
     private function generateUniqueBarcode()
     {
-        $attempt = 0;
-        do {
-            $candidate = 'INV-' . date('Y') . '-' . strtoupper(Str::random(6));
-            $exists = Inventaris::where('barcode', $candidate)->exists();
-            $attempt++;
-        } while ($exists && $attempt < 10);
-
-        if ($exists) {
-            // Fallback: gunakan UUID yang dijamin unik secara matematis
-            $candidate = 'INV-' . date('Y') . '-' . strtoupper(substr(str_replace('-', '', (string) \Illuminate\Support\Str::uuid()), 0, 8));
-            // Pastikan fallback juga tidak bentrok
-            if (Inventaris::where('barcode', $candidate)->exists()) {
-                $candidate = 'INV-' . date('Y') . '-' . strtoupper(substr(str_replace('-', '', (string) \Illuminate\Support\Str::uuid()), 0, 8));
-            }
-        }
-
-        return $candidate;
+        return Inventaris::generateBarcode();
     }
 
     private function generateQrPng($inventarisId, $barcode)
@@ -990,15 +1210,8 @@ class ManajemenAsetController extends Controller
         $filename = "barcode_{$inventarisId}.png";
         $path = $dir . DIRECTORY_SEPARATOR . $filename;
 
-        // Ensure signed URLs use APP_URL rather than the current request host
-        $appUrl = config('app.url') ?: env('APP_URL');
-        if ($appUrl) {
-            \Illuminate\Support\Facades\URL::forceRootUrl(rtrim($appUrl, '/'));
-            $scheme = parse_url($appUrl, PHP_URL_SCHEME);
-            if ($scheme) {
-                \Illuminate\Support\Facades\URL::forceScheme($scheme);
-            }
-        }
+        // Configure root URL for QR Code
+        $this->configureQrRootUrl();
 
         // Embed scan URL so scanning opens the public detail page directly
         $qrData = \Illuminate\Support\Facades\URL::signedRoute('inventaris.scan', ['barcode' => $barcode]);
@@ -1022,7 +1235,11 @@ class ManajemenAsetController extends Controller
     public function deleteFoto($id)
     {
         $foto = InventarisFoto::findOrFail($id);
-        $this->authorize('update', $foto->inventaris);
+        if ($foto->inventaris) {
+            $this->authorize('update', $foto->inventaris);
+        } else {
+            $this->authorize('delete', Inventaris::class);
+        }
 
         Storage::disk('public')->delete($foto->path);
         $foto->delete();
@@ -1040,26 +1257,43 @@ class ManajemenAsetController extends Controller
             'jumlah' => ['required', 'integer', 'min:1', 'max:50'],
         ]);
 
-        $source = Inventaris::with(['values', 'fotos', 'kibValues', 'kirValues'])->findOrFail($id);
+        $source = Inventaris::with(['values', 'fotos', 'kibValues', 'kirValues', 'laporanAsetValue'])->findOrFail($id);
         $this->authorize('create', Inventaris::class);
 
         $jumlah = (int) $request->input('jumlah', 1);
         $created = 0;
 
+        // Auto-increment NUP berurutan berdasarkan NUP numerik tertinggi untuk kode barang ini (lintas tahun sesuai standar runtut SIMA)
+        $nupQuery = Inventaris::where('kode_barang', $source->kode_barang);
+        $existingNups = $nupQuery
+            ->pluck('nup')
+            ->map(function ($val) {
+                return is_numeric($val) ? (int)$val : 0;
+            });
+        $maxNup = $existingNups->max() ?: 0;
+
         DB::beginTransaction();
         try {
+            $candidateNup = $maxNup;
+            $createdNups = [];
             for ($i = 0; $i < $jumlah; $i++) {
-                // Copy data utama — barcode baru, sisanya identik
+                $candidateNup++;
+                while (Inventaris::where('kode_barang', $source->kode_barang)->where('nup', (string)$candidateNup)->exists()) {
+                    $candidateNup++;
+                }
+
+                // Copy data utama — barcode baru, NUP auto-increment
                 $newData = $source->only([
                     'jenis_inventaris_id', 'jenis_barang', 'nama_barang', 'satuan',
-                    'kode_barang', 'nup', 'tahun_perolehan', 'nilai_perolehan',
-                    'keterangan', 'asal_usul', 'pengguna', 'kondisi', 'ruangan_id',
+                    'kode_barang', 'tahun_perolehan', 'nilai_perolehan',
+                    'keterangan', 'asal_usul', 'bukti_kepemilikan', 'pengguna', 'kondisi', 'ruangan_id',
                 ]);
-                // created_by di-set otomatis oleh Inventaris::booted() saat create()
+                $newData['nup']     = (string)$candidateNup;
                 $newData['status']  = 'draft';
                 $newData['barcode'] = $this->generateUniqueBarcode();
 
                 $newInventaris = Inventaris::create($newData);
+                $createdNups[] = $candidateNup;
 
                 // Copy dynamic values
                 foreach ($source->values as $val) {
@@ -1085,6 +1319,14 @@ class ManajemenAsetController extends Controller
                         'inventaris_id' => $newInventaris->id,
                         'kir_field_key' => $kir->kir_field_key,
                         'value'         => $kir->value,
+                    ]);
+                }
+
+                // Copy Laporan Aset values (bulan perolehan)
+                if ($source->laporanAsetValue) {
+                    \App\Models\InventarisLaporanAsetValue::create([
+                        'inventaris_id'   => $newInventaris->id,
+                        'bulan_perolehan' => $source->laporanAsetValue->bulan_perolehan,
                     ]);
                 }
 
@@ -1119,17 +1361,21 @@ class ManajemenAsetController extends Controller
             return response()->json(['success' => false, 'message' => 'Gagal menduplikasi aset. Silakan coba lagi.'], 500);
         }
 
+        $nupRangeText = count($createdNups) === 1
+            ? "NUP " . $createdNups[0]
+            : "NUP " . min($createdNups) . " s.d. " . max($createdNups);
+
         $namaDisplay = $source->nama_barang ?? $source->kode_barang ?? 'Aset';
         ActivityLogger::log('Inventaris', 'tambah',
-            "Menduplikasi aset '{$namaDisplay}' sebanyak {$created} salinan",
+            "Menduplikasi aset '{$namaDisplay}' sebanyak {$created} salinan ({$nupRangeText})",
             $source->id, $namaDisplay
         );
         \Illuminate\Support\Facades\Cache::forget('dashboard_kpi');
         \Illuminate\Support\Facades\Cache::forget('dashboard_charts');
 
         $msg = $created === 1
-            ? "Data Aset {$namaDisplay} berhasil diduplikasi."
-            : "{$created} salinan {$namaDisplay} berhasil dibuat.";
+            ? "Data Aset {$namaDisplay} berhasil diduplikasi ({$nupRangeText})."
+            : "{$created} salinan {$namaDisplay} berhasil dibuat ({$nupRangeText}).";
 
         // Kalau AJAX (dari index), return JSON
         if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
@@ -1139,74 +1385,204 @@ class ManajemenAsetController extends Controller
         return redirect()->route('manajemen-aset.index')->with('success', $msg);
     }
 
-    public function bulkDestroy(Request $request)    {
-        $request->validate([
-            'ids'   => ['required', 'array', 'min:1'],
-            'ids.*' => ['integer'],
-        ]);
-
-        $ids = array_filter((array) $request->input('ids', []));
-        if (empty($ids)) {
-            return redirect()->back()->with('error', 'Tidak ada item yang dipilih.');
+    public function bulkDestroy(Request $request)
+    {
+        if (!auth()->user()->canDeleteAset()) {
+            abort(403, 'Hanya Kaur Umum, Sekretaris Desa, Perbekel, dan Super Admin yang berhak menghapus aset.');
         }
-        $totalRequested = count($ids);
-        $ids = array_slice($ids, 0, 100);
+        $this->authorize('delete', Inventaris::class);
+        $ids = $request->input('ids', []);
+        $tipeHapus = $request->input('tipe_hapus', 'salah_input');
+        if (empty($ids)) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Tidak ada aset yang dipilih.'], 422);
+            }
+            return redirect()->back()->with('error', 'Tidak ada aset yang dipilih.');
+        }
 
-        $deleted = 0;
+        if ($tipeHapus === 'mutasi_berkurang') {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Penghapusan resmi aset wajib diproses melalui modul Penghapusan Aset dengan melampirkan Dokumen Berita Acara / SK.',
+                    'redirect_url' => route('penghapusan-aset.index', ['inventaris_ids' => implode(',', $ids)])
+                ], 422);
+            }
+            return redirect()->route('penghapusan-aset.index', ['inventaris_ids' => implode(',', $ids)]);
+        }
+
+        $inventarisList = Inventaris::with('fotos')->whereIn('id', $ids)->get();
+        if ($inventarisList->isEmpty()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Aset yang dipilih tidak ditemukan atau sudah dihapus.'], 404);
+            }
+            return redirect()->back()->with('error', 'Aset yang dipilih tidak ditemukan atau sudah dihapus.');
+        }
+
         DB::beginTransaction();
         try {
-            foreach ($ids as $id) {
-                $inventaris = Inventaris::find($id);
-                if (!$inventaris) continue;
-                $this->authorize('delete', $inventaris);
-
-                // Cascade: values, export_logs, fotos
-                InventarisValue::where('inventaris_id', $id)->delete();
-                \App\Models\ExportLog::where('inventaris_id', $id)->update(['inventaris_id' => null]);
-                foreach ($inventaris->fotos as $foto) {
+            $count = 0;
+            foreach ($inventarisList as $item) {
+                InventarisValue::where('inventaris_id', $item->id)->delete();
+                \App\Models\InventarisKibValue::where('inventaris_id', $item->id)->delete();
+                \App\Models\InventarisKirValue::where('inventaris_id', $item->id)->delete();
+                \App\Models\InventarisLaporanAsetValue::where('inventaris_id', $item->id)->delete();
+                \App\Models\ExportLog::where('inventaris_id', $item->id)->update(['inventaris_id' => null]);
+                foreach ($item->fotos as $foto) {
                     Storage::disk('public')->delete($foto->path);
                 }
-                InventarisFoto::where('inventaris_id', $id)->delete();
-
-                // Delete barcode PNG if exists
-                $barcodePath = public_path('barcodes/barcode_' . $id . '.png');
+                InventarisFoto::where('inventaris_id', $item->id)->delete();
+                $barcodePath = public_path('barcodes/barcode_' . $item->id . '.png');
                 if (file_exists($barcodePath)) {
                     @unlink($barcodePath);
                 }
-
-                // Log ke inventaris_deleted_log untuk tracking mutasi berkurang
-                \App\Models\InventarisDeletedLog::create([
-                    'kode_barang'     => $inventaris->kode_barang,
-                    'nup'             => $inventaris->nup,
-                    'nama_barang'     => $inventaris->nama_barang,
-                    'satuan'          => $inventaris->satuan,
-                    'nilai_perolehan' => $inventaris->nilai_perolehan,
-                    'tahun_perolehan' => $inventaris->tahun_perolehan,
-                    'deleted_at'      => now(),
-                    'deleted_by'      => auth()->id(),
-                ]);
-
-                $inventaris->delete();
-                $deleted++;
+                $item->delete();
+                $count++;
             }
             DB::commit();
+
+            ActivityLogger::log(
+                'Inventaris',
+                'hapus',
+                "Menghapus {$count} aset inventaris sekaligus (tipe: " . ($tipeHapus === 'mutasi_berkurang' ? 'Mutasi Berkurang' : 'Salah Input') . ")",
+                null,
+                "{$count} Aset"
+            );
+
             \Illuminate\Support\Facades\Cache::forget('dashboard_kpi');
             \Illuminate\Support\Facades\Cache::forget('dashboard_charts');
-            $msg = $deleted . ' inventaris berhasil dihapus.';
-            if ($totalRequested > 100) {
-                $msg .= ' Sisa ' . ($totalRequested - 100) . ' data, pilih ulang untuk melanjutkan.';
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => "{$count} aset berhasil dihapus."]);
             }
-            return redirect()->route('manajemen-aset.index')->with('success', $msg);
-        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            // Spesifik dulu: akses ditolak → rollback lalu lempar ke Laravel (tampil 403)
-            DB::rollBack();
-            throw $e;
-        } catch (\Exception $e) {
-            // General error: rollback, log, redirect dengan pesan error
+            return redirect()->route('manajemen-aset.index')->with('success', "{$count} aset berhasil dihapus.");
+        } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('ManajemenAsetController::bulkDestroy error', ['error' => $e->getMessage()]);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Gagal menghapus: ' . $e->getMessage()], 500);
+            }
             return redirect()->back()->with('error', 'Gagal menghapus: ' . $e->getMessage());
         }
+    }
+
+    public function getNextNup(Request $request)
+    {
+        $kodeBarang = $request->query('kode_barang');
+        $tahunPerolehan = $request->query('tahun_perolehan') ?? $request->query('tahun');
+        $ignoreId = $request->query('ignore_id');
+
+        if (!$kodeBarang) {
+            return response()->json([
+                'next_nup'        => 1,
+                'max_nup'         => 0,
+                'existing_nups'   => [],
+                'tahun_perolehan' => $tahunPerolehan,
+            ]);
+        }
+
+        // NUP berurutan lintas tahun per kode barang (sesuai standar runtut SIMA)
+        $query = Inventaris::where('kode_barang', $kodeBarang);
+        if (!empty($ignoreId)) {
+            $query->where('id', '!=', (int)$ignoreId);
+        }
+
+        $existingNups = $query
+            ->pluck('nup')
+            ->map(function ($val) {
+                return is_numeric($val) ? (int)$val : 0;
+            })
+            ->filter(fn($v) => $v > 0)
+            ->values();
+
+        $maxNup = $existingNups->max() ?: 0;
+        $nextNup = $maxNup + 1;
+
+        return response()->json([
+            'kode_barang'     => $kodeBarang,
+            'tahun_perolehan' => $tahunPerolehan,
+            'max_nup'         => $maxNup,
+            'next_nup'        => $nextNup,
+            'existing_nups'   => $existingNups,
+        ]);
+    }
+
+    /**
+     * Cetak label stiker QR Code masal untuk aset yang dipilih.
+     */
+    public function bulkPrintQr(Request $request)
+    {
+        $this->authorize('viewAny', Inventaris::class);
+
+        $ids = $request->input('ids', []);
+        if (is_string($ids)) {
+            $ids = explode(',', $ids);
+        }
+        $ids = array_filter(array_map('intval', (array) $ids));
+
+        if (empty($ids)) {
+            return redirect()->back()->with('error', 'Pilih minimal satu aset untuk mencetak label QR.');
+        }
+
+        // Batasi maksimal 100 stiker per cetak untuk menjaga performa rendering DomPDF
+        $ids = array_slice($ids, 0, 100);
+
+        $format = $request->input('format', 'sticker');
+        if (!in_array($format, ['sticker', 'plain'])) {
+            $format = 'sticker';
+        }
+
+        $inventarisList = Inventaris::with(['ruangan', 'jenis'])
+            ->whereIn('id', $ids)
+            ->get();
+
+        if ($inventarisList->isEmpty()) {
+            return redirect()->back()->with('error', 'Data aset tidak ditemukan.');
+        }
+
+        // Configure root URL for QR Code
+        $this->configureQrRootUrl();
+
+        $writer = new PngWriter();
+        $itemsWithQr = [];
+
+        foreach ($inventarisList as $item) {
+            if (empty($item->barcode)) {
+                $item->barcode = Inventaris::generateBarcode();
+                $item->saveQuietly();
+            }
+
+            $qrData = \Illuminate\Support\Facades\URL::signedRoute('inventaris.scan', ['barcode' => $item->barcode]);
+            if (!preg_match('#^https?://#i', $qrData)) {
+                $qrData = 'http://' . ltrim($qrData, '/');
+            }
+
+            $qrCode = QrCode::create($qrData)
+                ->setSize(300)
+                ->setMargin(2);
+
+            $result = $writer->write($qrCode);
+            $base64 = 'data:image/png;base64,' . base64_encode($result->getString());
+
+            $itemsWithQr[] = [
+                'item' => $item,
+                'qrBase64' => $base64,
+            ];
+        }
+
+        $logoPath = public_path('assets/images/logo/logo-sima-desa-demo.png');
+        $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
+
+        ActivityLogger::log('Inventaris', 'export', 'Mencetak ' . count($itemsWithQr) . ' label stiker QR code aset (' . $format . ')');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('manajemen-aset.bulk-qr-pdf', [
+            'items' => $itemsWithQr,
+            'logoBase64' => $logoBase64,
+            'format' => $format,
+        ])->setPaper('a4', 'portrait');
+
+        $filePrefix = $format === 'plain' ? 'QR_Code_Polos_' : 'Label_Stiker_Resmi_';
+        return $pdf->stream($filePrefix . date('Ymd_His') . '.pdf');
     }
 }
 

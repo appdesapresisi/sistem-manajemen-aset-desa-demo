@@ -9,6 +9,8 @@
 <script src="{{ asset('assets/js/component.js') }}"></script>
 <script src="{{ asset('assets/js/theme.js') }}"></script>
 <script src="{{ asset('assets/js/script.js') }}"></script>
+<script src="{{ asset('assets/js/sima-dropdown.js') }}"></script>
+<script src="{{ asset('assets/js/sima-validation.js') }}?v={{ file_exists(public_path('assets/js/sima-validation.js')) ? filemtime(public_path('assets/js/sima-validation.js')) : time() }}"></script>
 
 <div class="floting-button fixed bottom-[50px] right-[30px] z-[1030]">
 </div>

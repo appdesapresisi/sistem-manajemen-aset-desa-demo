@@ -1,0 +1,10 @@
+@extends('errors.layout')
+
+@section('title', '500 — Gangguan Server Internal')
+@section('status_code', '500')
+@section('status_title', 'Waduh! Server Kami Sedang Istirahat Sebentar')
+@section('status_message', 'Permintaan Anda belum dapat diselesaikan saat ini karena terjadi kendala internal sementara pada server. Tim teknis sedang menanganinya.')
+@section('primary_action_label', 'Muat Ulang Halaman')
+@section('primary_action_url', url()->current())
+@section('secondary_action_label', 'Kembali ke Dashboard')
+@section('secondary_action_url', auth()->check() ? route('dashboard') : route('login'))

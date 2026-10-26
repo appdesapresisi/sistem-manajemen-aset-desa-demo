@@ -10,8 +10,16 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 
-class LaporanAsetExport implements FromArray, WithTitle, WithColumnWidths, WithEvents
+class LaporanAsetExport extends StringValueBinder implements
+    FromArray,
+    WithTitle,
+    WithColumnWidths,
+    WithEvents,
+    WithCustomValueBinder
 {
     protected array $rows;
     protected int   $tahun;
@@ -45,13 +53,13 @@ class LaporanAsetExport implements FromArray, WithTitle, WithColumnWidths, WithE
                 $r['nama'],
                 $r['satuan'],
                 $r['saldo_kwant'] ?: 0,
-                $r['saldo_nilai'] > 0 ? $r['saldo_nilai'] : 0,
+                $r['saldo_nilai'] > 0 ? number_format($r['saldo_nilai'], fmod($r['saldo_nilai'], 1) != 0 ? 2 : 0, ',', '.') : 0,
                 $r['tambah_kwant'] ?: 0,
-                $r['tambah_nilai'] > 0 ? $r['tambah_nilai'] : 0,
+                $r['tambah_nilai'] > 0 ? number_format($r['tambah_nilai'], fmod($r['tambah_nilai'], 1) != 0 ? 2 : 0, ',', '.') : 0,
                 $r['kurang_kwant'] ?: 0,
-                $r['kurang_nilai'] > 0 ? $r['kurang_nilai'] : 0,
+                $r['kurang_nilai'] > 0 ? number_format($r['kurang_nilai'], fmod($r['kurang_nilai'], 1) != 0 ? 2 : 0, ',', '.') : 0,
                 $r['akhir_kwant'] ?: 0,
-                $r['akhir_nilai'] > 0 ? $r['akhir_nilai'] : 0,
+                $r['akhir_nilai'] > 0 ? number_format($r['akhir_nilai'], fmod($r['akhir_nilai'], 1) != 0 ? 2 : 0, ',', '.') : 0,
             ];
         }
         return $data;
@@ -160,15 +168,15 @@ class LaporanAsetExport implements FromArray, WithTitle, WithColumnWidths, WithE
                     foreach (['E','G','I','K'] as $col) {
                         $sheet->getStyle("{$col}{$dataStart}:{$col}{$dataEnd}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                     }
-                    // Format angka untuk kolom kwantitas (integer)
+                    // Format teks untuk kolom kwantitas
                     foreach (['D','F','H','J'] as $col) {
                         $sheet->getStyle("{$col}{$dataStart}:{$col}{$dataEnd}")->getNumberFormat()
-                            ->setFormatCode('#,##0');
+                            ->setFormatCode(NumberFormat::FORMAT_TEXT);
                     }
-                    // Format angka untuk kolom nilai (desimal 2 digit)
+                    // Format angka/teks untuk kolom nilai (menjaga separator titik Indonesia)
                     foreach (['E','G','I','K'] as $col) {
                         $sheet->getStyle("{$col}{$dataStart}:{$col}{$dataEnd}")->getNumberFormat()
-                            ->setFormatCode('#,##0.00');
+                            ->setFormatCode(NumberFormat::FORMAT_TEXT);
                     }
                     for ($r = $dataStart; $r <= $dataEnd; $r++) {
                         $sheet->getRowDimension($r)->setRowHeight(-1);
@@ -188,21 +196,20 @@ class LaporanAsetExport implements FromArray, WithTitle, WithColumnWidths, WithE
                 $sheet->setCellValue("A{$jumlahRow}", 'JUMLAH');
                 // Kolom KWANTITAS dikosongkan (D, F, H, J)
                 $sheet->setCellValue("D{$jumlahRow}", '');
-                $sheet->setCellValue("E{$jumlahRow}", $totSaldoN);
+                $sheet->setCellValue("E{$jumlahRow}", number_format($totSaldoN, fmod($totSaldoN, 1) != 0 ? 2 : 0, ',', '.'));
                 $sheet->setCellValue("F{$jumlahRow}", '');
-                $sheet->setCellValue("G{$jumlahRow}", $totTambahN);
+                $sheet->setCellValue("G{$jumlahRow}", number_format($totTambahN, fmod($totTambahN, 1) != 0 ? 2 : 0, ',', '.'));
                 $sheet->setCellValue("H{$jumlahRow}", '');
-                $sheet->setCellValue("I{$jumlahRow}", $totKurangN);
+                $sheet->setCellValue("I{$jumlahRow}", number_format($totKurangN, fmod($totKurangN, 1) != 0 ? 2 : 0, ',', '.'));
                 $sheet->setCellValue("J{$jumlahRow}", '');
-                $sheet->setCellValue("K{$jumlahRow}", $totAkhirN);
+                $sheet->setCellValue("K{$jumlahRow}", number_format($totAkhirN, fmod($totAkhirN, 1) != 0 ? 2 : 0, ',', '.'));
                 $sheet->getStyle("A{$jumlahRow}:{$lastCol}{$jumlahRow}")->applyFromArray([
                     'font'    => ['bold' => true, 'size' => 10],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
-                // Format number untuk kolom NILAI saja
+                // Format alignment untuk kolom NILAI saja
                 foreach (['E','G','I','K'] as $col) {
-                    $sheet->getStyle("{$col}{$jumlahRow}")->getNumberFormat()->setFormatCode('#,##0.00');
                     $sheet->getStyle("{$col}{$jumlahRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                 }
                 $sheet->getRowDimension($jumlahRow)->setRowHeight(22);
@@ -210,10 +217,7 @@ class LaporanAsetExport implements FromArray, WithTitle, WithColumnWidths, WithE
                 // === TANDA TANGAN ===
                 // Get pejabat data
                 $service = new \App\Services\LaporanAsetService();
-                $reflection = new \ReflectionClass($service);
-                $method = $reflection->getMethod('getPejabatForLaporanAset');
-                $method->setAccessible(true);
-                $pejabats = $method->invoke($service);
+                $pejabats = $service->getPejabatForLaporanAset();
                 
                 $perbekel = $pejabats['perbekel'] ?? null;
                 $kaurTU = $pejabats['kaur_tu'] ?? null;
@@ -259,7 +263,7 @@ class LaporanAsetExport implements FromArray, WithTitle, WithColumnWidths, WithE
                     // Row: Nama jabatan
                     $ttdRow++;
                     if ($showPerbekel) {
-                        $sheet->setCellValue("A{$ttdRow}", $perbekel['jabatan'] ?? 'Perbekel ' . (config('desa.nama_lokasi') ?: 'Mengwi'));
+                        $sheet->setCellValue("A{$ttdRow}", $perbekel['jabatan'] ?? 'Perbekel ' . (config('desa.nama_lokasi') ?: 'Demo'));
                         $sheet->mergeCells("A{$ttdRow}:E{$ttdRow}");
                         $sheet->getStyle("A{$ttdRow}")->applyFromArray([
                             'font' => ['bold' => true, 'size' => 10],

@@ -110,7 +110,7 @@ class UserCrudTest extends TestCase
             'role' => 'kaur',
             'bidang_id' => $this->bidang->id,
             'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
         ]);
 
         $response->assertRedirect(route('users.index'));
@@ -125,7 +125,7 @@ class UserCrudTest extends TestCase
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'role' => 'kaur',
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
         ]);
 
         $response->assertSessionHasErrors('nama');
@@ -139,7 +139,7 @@ class UserCrudTest extends TestCase
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'role' => 'kaur',
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
         ]);
 
         $response->assertSessionHasErrors('username');
@@ -153,7 +153,7 @@ class UserCrudTest extends TestCase
             'password' => 'password123',
             // missing password_confirmation
             'role' => 'kaur',
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
         ]);
 
         $response->assertSessionHasErrors('password');
@@ -168,7 +168,7 @@ class UserCrudTest extends TestCase
             'password_confirmation' => 'password123',
             'role' => 'sekretaris_desa',
             'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
             'create_pejabat' => '1',
             'pejabat_nama' => '',
             'pejabat_jabatan' => '',
@@ -196,12 +196,12 @@ class UserCrudTest extends TestCase
             'role' => 'kaur',
             'bidang_id' => $this->bidang->id,
             'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
             'create_pejabat' => '1',
             'pejabat_nama' => 'Pejabat Tanpa TTD',
             'pejabat_jabatan' => 'Sekretaris Desa',
             'pejabat_tugas' => 'Menandatangani dokumen dan verifikasi administrasi',
-            'pejabat_alamat' => 'Jl. Raya Mengwi Pejabat',
+            'pejabat_alamat' => 'Jl. Raya Demo Pejabat',
             // ttd_path tidak diisi (harus tetap lolos)
         ]);
 
@@ -229,7 +229,7 @@ class UserCrudTest extends TestCase
             'password' => bcrypt('pw'),
             'role_id' => $this->roleSK->id,
             'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
         ]);
 
         $username = 'sek_baru_' . uniqid();
@@ -240,7 +240,7 @@ class UserCrudTest extends TestCase
             'password_confirmation' => 'password123',
             'role' => 'sekretaris_desa',
             'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
         ]);
 
         $response->assertRedirect();
@@ -258,7 +258,7 @@ class UserCrudTest extends TestCase
             'role' => 'kaur',
             'bidang_id' => $this->bidang->id,
             'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
         ]);
 
         $this->assertDatabaseHas('activity_logs', [
@@ -313,7 +313,7 @@ class UserCrudTest extends TestCase
         $target = User::create([
             'nama' => 'Target Update', 'username' => 'target_upd_' . uniqid(),
             'password' => bcrypt('pw'), 'role_id' => $this->roleKR->id, 'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
         ]);
 
         $response = $this->actingAs($this->superAdmin)->put(route('users.update', $target->id), [
@@ -322,7 +322,7 @@ class UserCrudTest extends TestCase
             'role' => 'kaur',
             'bidang_id' => $this->bidang->id,
             'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi Updated',
+            'alamat' => 'Jl. Raya Demo Updated',
         ]);
 
         $response->assertRedirect(route('users.index'));
@@ -335,7 +335,7 @@ class UserCrudTest extends TestCase
         $target = User::create([
             'nama' => 'No PW Change', 'username' => 'nopwch_' . uniqid(),
             'password' => bcrypt('oldpassword'), 'role_id' => $this->roleKR->id, 'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
         ]);
 
         $response = $this->actingAs($this->superAdmin)->put(route('users.update', $target->id), [
@@ -344,7 +344,7 @@ class UserCrudTest extends TestCase
             'role' => 'kaur',
             'bidang_id' => $this->bidang->id,
             'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi Updated',
+            'alamat' => 'Jl. Raya Demo Updated',
             // no password field = no password change
         ]);
 
@@ -356,7 +356,7 @@ class UserCrudTest extends TestCase
         $target = User::create([
             'nama' => 'Inactive Target', 'username' => 'inactive_upd_' . uniqid(),
             'password' => bcrypt('pw'), 'role_id' => $this->roleKR->id, 'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
         ]);
 
         $response = $this->actingAs($this->superAdmin)->put(route('users.update', $target->id), [
@@ -365,7 +365,7 @@ class UserCrudTest extends TestCase
             'role' => 'kaur',
             'bidang_id' => $this->bidang->id,
             'is_aktif' => 0,
-            'alamat' => 'Jl. Raya Mengwi Updated',
+            'alamat' => 'Jl. Raya Demo Updated',
         ]);
 
         $response->assertRedirect(route('users.index'));
@@ -381,7 +381,7 @@ class UserCrudTest extends TestCase
             'password' => bcrypt('pw'),
             'role_id' => $this->roleSK->id,
             'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
         ]);
 
         $target = User::create([
@@ -390,7 +390,7 @@ class UserCrudTest extends TestCase
             'password' => bcrypt('pw'),
             'role_id' => $this->roleKR->id,
             'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi',
+            'alamat' => 'Jl. Raya Demo',
         ]);
 
         $response = $this->actingAs($this->superAdmin)->put(route('users.update', $target->id), [
@@ -398,7 +398,7 @@ class UserCrudTest extends TestCase
             'username' => $target->username,
             'role' => 'sekretaris_desa',
             'is_aktif' => 1,
-            'alamat' => 'Jl. Raya Mengwi Updated',
+            'alamat' => 'Jl. Raya Demo Updated',
         ]);
 
         $response->assertRedirect();
@@ -477,5 +477,51 @@ class UserCrudTest extends TestCase
 
         $this->assertDatabaseMissing('users', ['id' => $u1->id]);
         $this->assertDatabaseMissing('users', ['id' => $u2->id]);
+    }
+
+    public function test_cannot_update_user_username_to_reserved_superdeveloper_username(): void
+    {
+        $response = $this->actingAs($this->superAdmin)->put(route('users.update', $this->kaur->id), [
+            'nama' => 'Kaur Updated',
+            'username' => 'developer',
+            'role' => 'kaur',
+            'is_aktif' => 1,
+            'alamat' => 'Desa Demo',
+            'bidang_id' => $this->bidang->id,
+        ]);
+
+        $response->assertSessionHasErrors(['username']);
+        $this->assertDatabaseMissing('users', ['id' => $this->kaur->id, 'username' => 'developer']);
+    }
+
+    public function test_user_cannot_update_own_profile_username_to_reserved_superdeveloper_username(): void
+    {
+        $response = $this->actingAs($this->kaur)->put(route('profile.update'), [
+            'nama' => $this->kaur->nama,
+            'username' => 'owner',
+        ]);
+
+        $response->assertSessionHasErrors(['username']);
+        $this->assertDatabaseMissing('users', ['id' => $this->kaur->id, 'username' => 'owner']);
+    }
+
+    public function test_store_user_form_request_rejects_reserved_superdeveloper_username(): void
+    {
+        $uniqueAttempt = 'sima_superdeveloper_' . uniqid();
+        config(['desa.super_developer_usernames' => 'developer,owner,' . $uniqueAttempt]);
+
+        $response = $this->actingAs($this->superAdmin)->post(route('users.store'), [
+            'nama' => 'Attempt Superdev',
+            'username' => $uniqueAttempt,
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'role' => 'kaur',
+            'bidang_id' => $this->bidang->id,
+            'is_aktif' => 1,
+            'alamat' => 'Desa Demo',
+        ]);
+
+        $response->assertSessionHasErrors(['username']);
+        $this->assertDatabaseMissing('users', ['username' => $uniqueAttempt]);
     }
 }

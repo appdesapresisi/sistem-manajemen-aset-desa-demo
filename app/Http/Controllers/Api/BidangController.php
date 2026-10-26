@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Bidang;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -19,6 +20,7 @@ class BidangController extends Controller
             // Validate input
             $validated = $request->validate([
                 'nama' => 'required|string|max:255|unique:bidangs,nama',
+                'deskripsi' => 'nullable|string',
             ], [
                 'nama.required' => 'Nama bidang harus diisi',
                 'nama.max' => 'Nama bidang maksimal 255 karakter',
@@ -28,8 +30,10 @@ class BidangController extends Controller
             // Create bidang
             $bidang = Bidang::create([
                 'nama' => $validated['nama'],
-                'deskripsi' => $request->get('deskripsi', null),
+                'deskripsi' => $validated['deskripsi'] ?? null,
             ]);
+
+            ActivityLogger::log('Bidang', 'tambah', 'Menambahkan bidang via API ' . $bidang->nama, $bidang->id, $bidang->nama);
 
             return response()->json([
                 'success' => true,
@@ -88,9 +92,16 @@ class BidangController extends Controller
         try {
             $validated = $request->validate([
                 'nama' => 'required|string|max:255|unique:bidangs,nama,' . $bidang->id,
+                'deskripsi' => 'nullable|string',
+            ], [
+                'nama.required' => 'Nama bidang harus diisi',
+                'nama.max' => 'Nama bidang maksimal 255 karakter',
+                'nama.unique' => 'Bidang dengan nama ini sudah ada',
             ]);
 
             $bidang->update($validated);
+
+            ActivityLogger::log('Bidang', 'ubah', 'Mengubah bidang via API ' . $bidang->nama, $bidang->id, $bidang->nama);
 
             return response()->json([
                 'success' => true,
@@ -120,7 +131,11 @@ class BidangController extends Controller
                 ], 409);
             }
 
+            $bidangNama = $bidang->nama;
+            $bidangId = $bidang->id;
             $bidang->delete();
+
+            ActivityLogger::log('Bidang', 'hapus', 'Menghapus bidang via API ' . $bidangNama, $bidangId, $bidangNama);
 
             return response()->json([
                 'success' => true,

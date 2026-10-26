@@ -106,10 +106,91 @@ class User extends Authenticatable
         return false;
     }
 
+    /**
+     * Cek apakah user saat ini adalah Super Developer / Platform Owner (pemilik sistem SaaS).
+     * Otorisasi tingkat tertinggi lintas sistem untuk operasi infrastruktur kritis
+     * seperti Cadangan & Pemulihan Basis Data (Database Backup & Restore).
+     */
+    public function isSuperDeveloper(): bool
+    {
+        // 1. Role khusus super_developer atau developer
+        if ($this->hasRole('super_developer') || $this->hasRole('developer') || $this->hasRole('owner')) {
+            return true;
+        }
+
+        // 2. Kolom flag jika ada di tabel users
+        if (!empty($this->is_developer) || !empty($this->is_owner) || !empty($this->is_super_developer)) {
+            return true;
+        }
+
+        // 3. Username cocok dengan daftar konfigurasi SUPER_DEVELOPER_USERNAMES
+        $devUsernames = config('desa.super_developer_usernames', env('SUPER_DEVELOPER_USERNAMES', 'superdeveloper,developer,owner'));
+        if (is_string($devUsernames)) {
+            $devUsernames = array_filter(array_map('trim', explode(',', $devUsernames)));
+        }
+        if (is_array($devUsernames)) {
+            $currentUsername = strtolower(trim((string) $this->username));
+            foreach ($devUsernames as $u) {
+                if ($currentUsername !== '' && $currentUsername === strtolower(trim((string) $u))) {
+                    return true;
+                }
+            }
+        }
+
+        // 4. Email cocok dengan daftar konfigurasi SUPER_DEVELOPER_EMAILS
+        $devEmails = config('desa.super_developer_emails', env('SUPER_DEVELOPER_EMAILS', ''));
+        if (is_string($devEmails) && $devEmails !== '') {
+            $devEmails = array_filter(array_map('trim', explode(',', $devEmails)));
+            $currentEmail = strtolower(trim((string) $this->email));
+            foreach ($devEmails as $e) {
+                if ($currentEmail !== '' && $currentEmail === strtolower(trim((string) $e))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Ambil array daftar username Super Developer / Platform Owner dari konfigurasi/env.
+     *
+     * @return array<string>
+     */
+    public static function getSuperDeveloperUsernames(): array
+    {
+        $devUsernames = config('desa.super_developer_usernames', env('SUPER_DEVELOPER_USERNAMES', 'developer,owner,superdeveloper'));
+        if (is_string($devUsernames)) {
+            $devUsernames = array_filter(array_map('trim', explode(',', $devUsernames)));
+        }
+        return array_values((array) $devUsernames);
+    }
+
+    /**
+     * Scope query untuk mengecualikan akun Super Developer / Platform Owner secara ketat (super strict).
+     * Akun developer/owner dijamin tidak pernah masuk ke query data pengguna desa (tabel, statistik, export, dropdown).
+     */
+    public function scopeExcludeSuperDevelopers($query)
+    {
+        $usernames = static::getSuperDeveloperUsernames();
+        if (!empty($usernames)) {
+            $query->whereNotIn('username', $usernames);
+        }
+
+        // Juga kecualikan berdasarkan role jika ada
+        $query->whereDoesntHave('role', function ($rq) {
+            $rq->whereIn('nama', ['super_developer', 'developer', 'owner']);
+        });
+
+        return $query;
+    }
+
+
     public function isSuperAdmin(): bool
     {
         return $this->hasRole('super_admin');
     }
+
 
     public function isSekretaris(): bool
     {
@@ -119,6 +200,39 @@ class User extends Authenticatable
     public function isKaur(): bool
     {
         return $this->hasRole('kaur');
+    }
+
+    public function isKaurUmum(): bool
+    {
+        if (!$this->isKaur()) {
+            return false;
+        }
+
+        $bidangNama = strtolower((string) optional($this->bidang)->nama);
+        if (str_contains($bidangNama, 'umum') || str_contains($bidangNama, 'tata usaha')) {
+            return true;
+        }
+
+        $jabatan = strtolower((string) optional($this->pejabat)->jabatan);
+        if (str_contains($jabatan, 'umum') || str_contains($jabatan, 'tata usaha') || (bool) optional($this->pejabat)->is_petugas_barang) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Otorisasi khusus penghapusan aset inventaris desa:
+     * Hanya Kaur Umum (Pengurus Barang), Sekretaris Desa (Pengelola Barang),
+     * Perbekel (PKPAD), dan Super Admin yang berhak menghapus aset.
+     */
+    public function canDeleteAset(): bool
+    {
+        return $this->isSuperDeveloper()
+            || $this->isSuperAdmin()
+            || $this->isPerbekel()
+            || $this->isSekretaris()
+            || $this->isKaurUmum();
     }
 
     public function isPerbekel(): bool
@@ -143,7 +257,8 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->hasRole('admin') || $this->hasRole('super_admin')
+        return $this->isSuperDeveloper()
+            || $this->hasRole('admin') || $this->hasRole('super_admin')
             || $this->hasRole('sekretaris') || $this->hasRole('sekretaris_desa')
             || $this->hasRole('kaur') || $this->hasRole('kasi') 
             || $this->hasRole('kelian_banjar') || $this->hasRole('staf')

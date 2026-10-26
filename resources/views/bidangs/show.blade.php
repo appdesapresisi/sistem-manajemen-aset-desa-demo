@@ -1,108 +1,49 @@
 <!doctype html>
 <html lang="en" data-pc-preset="{{ $pc_preset_theme }}" data-pc-theme="{{ $pc_dark_layout }}">
   <head>
-    @include('layouts.head-page-meta', ['title' => 'Detail Bidang'])
+    @include('layouts.head-page-meta', ['title' => 'Detail Bidang — ' . ($bidang->nama ?? 'Bidang')])
     @include('layouts.head-css')
     <style>
-      /* ===== LAYOUT CENTER ===== */
-      .page-center { max-width:720px; margin:0 auto; }
 
-      /* ===== CARD ===== */
-      .d-card { background:#fff; border-radius:12px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,.05); margin-bottom:14px; overflow:hidden; }
-      .d-card-header { padding:13px 20px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:#064635; text-transform:uppercase; letter-spacing:.5px; }
-      .d-card-header i { width:15px; height:15px; }
 
-      /* ===== DETAIL LIST ===== */
-      .detail-list { list-style:none; margin:0; padding:0; }
-      .detail-list li { display:flex; align-items:flex-start; padding:12px 20px; border-bottom:1px solid #f1f5f9; gap:12px; }
-      .detail-list li:last-child { border-bottom:none; }
-      .detail-list li:hover { background:#fafbfc; }
-      .dl-label { width:165px; flex-shrink:0; font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.4px; padding-top:3px; }
-      .dl-value { flex:1; font-size:14px; color:#1e293b; font-weight:500; word-break:break-word; line-height:1.5; }
-      .dl-value.empty { color:#cbd5e1; font-style:italic; font-weight:400; }
-
-      /* ===== BADGE ===== */
-      .info-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:600; background:linear-gradient(135deg,#dbeafe,#bfdbfe); color:#2563eb; }
-      .success-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:600; background:linear-gradient(135deg,#d1fae5,#a7f3d0); color:#059669; }
-      .warning-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:600; background:linear-gradient(135deg,#fef3c7,#fde68a); color:#d97706; }
-      .info-badge i, .success-badge i, .warning-badge i { width:13px; height:13px; }
-
-      /* ===== ACTION BAR ===== */
-      .action-bar { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:14px 20px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; box-shadow:0 1px 3px rgba(0,0,0,.05); justify-content:space-between; }
-      .action-bar-right { display:flex; gap:10px; align-items:center; }
-      .btn { padding:9px 18px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; display:inline-flex; align-items:center; gap:7px; text-decoration:none; border:none; white-space:nowrap; }
-      .btn i { width:15px; height:15px; }
-      .btn-back { border:1px solid #d1d5db !important; background:#fff; color:#374151; }
-      .btn-back:hover { background:#f4faf5; }
-      .btn-edit { background:#064635; color:#fff; }
-      .btn-edit:hover { background:#1c5240; }
-      .btn-danger { background:#dc2626; color:#fff; }
-      .btn-danger:hover { background:#b91c1c; }
-
-      /* ===== USER TABLE ===== */
-      .aset-table { width:100%; border-collapse:collapse; font-size:13px; }
-      .aset-table thead th { padding:10px 20px; font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.4px; text-align:left; border-bottom:1px solid #f1f5f9; }
-      .aset-table tbody td { padding:12px 20px; border-bottom:1px solid #f1f5f9; color:#1e293b; }
-      .aset-table tbody tr:last-child td { border-bottom:none; }
-      .aset-table tbody tr:hover { background:#fafbfc; }
-
-      .empty-state { 
-        text-align: center !important; 
-        padding: 40px 20px; 
-        color: #94a3b8; 
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-      .empty-state i { 
-        width: 48px !important; 
-        height: 48px !important; 
-        margin: 0 auto 12px !important; 
-        opacity: 0.5; 
-        display: block !important; 
-      }
-      .empty-state p { 
-        margin: 0; 
-        font-size: 14px; 
-      }
-
-      @media (max-width: 640px) {
-        .aset-table { font-size:12px; }
-      }
     </style>
   </head>
 
-  <body>
+  <body data-pc-preset="{{ $pc_preset_theme }}" data-pc-sidebar-theme="{{ $pc_sidebar_theme ?? 'light' }}">
+    @include('layouts.notification')
     @include('layouts.modals')
     @include('layouts.layout-vertical')
 
     <div class="pc-container">
       <div class="pc-content">
-        @include('layouts.breadcrumb', ['breadcrumbItemHome' => 'Master Data', 'breadcrumbItem' => 'Bidang', 'breadcrumbItemUrl' => route('bidangs.index'), 'breadcrumbItemActive' => 'Detail Bidang'])
+        @include('layouts.breadcrumb', [
+          'breadcrumbItemHome' => 'Master Data',
+          'breadcrumbItem' => 'Manajemen Bidang',
+          'breadcrumbItemUrl' => route('bidangs.index'),
+          'breadcrumbItemActive' => 'Detail Bidang'
+        ])
 
-        <!-- Action Bar -->
-        <div class="page-center">
-        <div class="action-bar">
-          <a href="{{ route('bidangs.index') }}" class="btn btn-back">
-            <i data-feather="arrow-left"></i>
-            Kembali
+        <!-- Top Action Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <a href="{{ route('bidangs.index') }}" class="btn-sima-secondary" style="border: none !important; padding-left: 0 !important; background-color: transparent !important;" onclick="try { sessionStorage.setItem('bidang_returning', '1'); } catch(e) {} if (window.history.length > 1 && document.referrer && document.referrer.includes('/bidangs')) { window.history.back(); return false; } return true;">
+            <i data-feather="arrow-left" style="width: 14px; height: 14px;"></i>
+            <span>Kembali ke Daftar Bidang</span>
           </a>
           @canany(['update', 'delete'], $bidang)
-          <div class="action-bar-right">
+          <div style="display: flex; gap: 10px; align-items: center;">
             @can('update', $bidang)
-            <a href="{{ route('bidangs.edit', $bidang->id) }}" class="btn btn-edit">
-              <i data-feather="edit-2"></i>
-              Edit Bidang
+            <a href="{{ route('bidangs.edit', $bidang->id) }}" class="btn-sima-primary">
+              <i data-feather="edit-2" style="width: 14px; height: 14px;"></i>
+              <span>Edit Bidang</span>
             </a>
             @endcan
             @can('delete', $bidang)
             <form method="POST" action="{{ route('bidangs.destroy', $bidang->id) }}" id="delete-bidang-form" style="display:inline;">
               @csrf
               @method('DELETE')
-              <button type="button" class="btn btn-danger" onclick="confirmDeleteBidang({{ $bidang->users_count }}, '{{ $bidang->nama }}')">
-                <i data-feather="trash-2"></i>
-                Hapus Bidang
+              <button type="button" class="btn-sima-danger" onclick="confirmDeleteBidang({{ $bidang->users_count }}, '{{ addslashes($bidang->nama) }}')">
+                <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
+                <span>Hapus Bidang</span>
               </button>
             </form>
             @endcan
@@ -110,83 +51,97 @@
           @endcanany
         </div>
 
-        <!-- Informasi Bidang -->
-        <div class="d-card">
-          <div class="d-card-header">
-            <i data-feather="briefcase"></i>
-            Informasi Bidang
-          </div>
-          <ul class="detail-list">
-            <li>
-              <span class="dl-label">Nama Bidang</span>
-              <span class="dl-value">{{ $bidang->nama }}</span>
-            </li>
-            <li>
-              <span class="dl-label">Deskripsi</span>
-              <span class="dl-value {{ !$bidang->deskripsi ? 'empty' : '' }}">
-                {{ $bidang->deskripsi ?? 'Tidak ada deskripsi' }}
-              </span>
-            </li>
-            <li>
-              <span class="dl-label">Status Penggunaan</span>
-              <span class="dl-value">
-                {{ $bidang->users_count }} user
-              </span>
-            </li>
-            <li>
-              <span class="dl-label">Dibuat Pada</span>
-              <span class="dl-value">{{ $bidang->created_at->format('d F Y, H:i') }} WIB</span>
-            </li>
-            <li>
-              <span class="dl-label">Terakhir Diubah</span>
-              <span class="dl-value">{{ $bidang->updated_at->format('d F Y, H:i') }} WIB</span>
-            </li>
-          </ul>
-        </div>
+        <!-- ===== MAIN PORTAL CARD ===== -->
+        <div class="portal-card">
 
-        <!-- Daftar User di Bidang Ini -->
-        <div class="d-card">
-          <div class="d-card-header">
-            <i data-feather="users"></i>
-            Daftar User di Bidang Ini
-            <span style="margin-left:auto;color:#064635;font-size:12px;font-weight:600;text-transform:none;letter-spacing:normal;">
-              {{ $bidang->users_count }} User
-            </span>
-          </div>
-          @if($bidang->users->count() > 0)
-            <table class="aset-table">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Nama</th>
-                  <th>Role</th>
-                  <th>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach($bidang->users as $index => $user)
-                <tr>
-                  <td>{{ $index + 1 }}</td>
-                  <td>{{ $user->nama }}</td>
-                  <td>{{ $user->role ? ucwords(str_replace('_', ' ', $user->role->nama)) : '-' }}</td>
-                  <td>
-                    <a href="{{ route('users.show', $user->id) }}" style="font-size:12px;color:#064635;font-weight:600;text-decoration:none;">
-                      Lihat &rarr;
-                    </a>
-                  </td>
-                </tr>
-                @endforeach
-              </tbody>
-            </table>
-          @else
-            <div class="empty-state">
-              <i data-feather="users"></i>
-              <p>Belum ada user yang terdaftar di bidang ini</p>
+          <!-- Section: Informasi Bidang -->
+          <div class="portal-section" style="padding-top: 0; border-top: none; margin-top: 32px;">
+            <div class="portal-section-header">
+              <h2 class="portal-section-title">
+                <span>Informasi Bidang</span>
+              </h2>
             </div>
-          @endif
-        </div>
+            <div class="portal-stats-grid" style="grid-template-columns: repeat(2, 1fr); gap: 24px 36px;">
+              <div class="portal-stat-item">
+                <span class="portal-stat-label">Nama Bidang</span>
+                <span class="portal-stat-value">{{ $bidang->nama ?? '-' }}</span>
+              </div>
+              <div class="portal-stat-item">
+                <span class="portal-stat-label">Total Pengguna Terdaftar</span>
+                <span class="portal-stat-value">{{ $bidang->users_count ?? 0 }} pengguna</span>
+              </div>
+              <div class="portal-stat-item" style="grid-column: 1 / -1;">
+                <span class="portal-stat-label">Deskripsi</span>
+                <span class="portal-stat-value {{ !$bidang->deskripsi ? 'text-empty-fallback' : '' }}">
+                  {{ $bidang->deskripsi ?: 'Tidak ada deskripsi untuk bidang ini.' }}
+                </span>
+              </div>
+            </div>
+          </div>
 
-        </div>
+          <!-- Section: Daftar User di Bidang Ini -->
+          <div class="portal-section" style="border-top: none; margin-top: 0; padding-top: 36px;">
+            <div class="portal-section-header">
+              <h2 class="portal-section-title">
+                <span>Daftar User di Bidang Ini ({{ $bidang->users->count() }})</span>
+              </h2>
+            </div>
+
+            @if($bidang->users->count() > 0)
+              <div style="display: flex; flex-direction: column; margin-top: 6px;">
+                @foreach($bidang->users as $index => $user)
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; line-height: 1.5; color: var(--color-text); padding: 12px 0; border-bottom: 1px dashed var(--color-border, #cfdcc8);">
+                  <div style="display: flex; align-items: center; min-width: 0; padding-right: 12px;">
+                    <span style="color: var(--color-text-muted); font-variant-numeric: tabular-nums; min-width: 24px; font-weight: 500; flex-shrink: 0;">
+                      {{ $index + 1 }}.
+                    </span>
+                    <span style="font-weight: 600; color: var(--color-text);">
+                      {{ $user->nama }}
+                    </span>
+                    <span style="color: var(--color-text-muted); font-size: 13px; font-weight: 500; margin-left: 6px;">
+                      ({{ $user->role ? ucwords(str_replace('_', ' ', $user->role->nama)) : '-' }})
+                    </span>
+                  </div>
+                  <a href="{{ route('users.show', $user->id) }}" style="flex-shrink: 0; font-size: 12px; color: var(--color-primary); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: gap 0.15s ease, opacity 0.15s ease;" onmouseenter="this.style.opacity='0.8'; this.style.gap='6px';" onmouseleave="this.style.opacity='1'; this.style.gap='4px';">
+                    <span>Lihat detail</span>
+                    <i data-feather="chevron-right" style="width: 13px; height: 13px;"></i>
+                  </a>
+                </div>
+                @endforeach
+              </div>
+            @else
+              <div class="empty-state-sima">
+                <i data-feather="users" style="width: 42px; height: 42px; stroke-width: 1.5; color: var(--color-border-dark);"></i>
+                <p>Belum ada user yang terdaftar di bidang ini.</p>
+              </div>
+            @endif
+          </div>
+
+          <!-- Section: Audit Data -->
+          <div class="portal-section" style="border-top: none; margin-top: 0; padding-top: 36px; margin-bottom: 32px;">
+            <div class="portal-section-header">
+              <h2 class="portal-section-title">
+                <span>Informasi Sistem & Audit Data</span>
+              </h2>
+            </div>
+            <div style="display: flex; justify-content: space-evenly; gap: 36px; font-size: 12.5px; flex-wrap: wrap;">
+              <div class="portal-kv-item" style="flex: 1; min-width: 180px;">
+                <span class="portal-kv-label">ID Bidang</span>
+                <span class="portal-kv-value" style="font-family: monospace;">#{{ $bidang->id }}</span>
+              </div>
+              <div class="portal-kv-item" style="flex: 1; min-width: 180px;">
+                <span class="portal-kv-label">Tanggal Dibuat</span>
+                <span class="portal-kv-value">{{ $bidang->created_at ? $bidang->created_at->format('d M Y, H:i') : '-' }}</span>
+              </div>
+              <div class="portal-kv-item" style="flex: 1; min-width: 180px;">
+                <span class="portal-kv-label">Terakhir Diperbarui</span>
+                <span class="portal-kv-value">{{ $bidang->updated_at ? $bidang->updated_at->format('d M Y, H:i') : '-' }}</span>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /.portal-card -->
+
       </div>
     </div>
 
@@ -205,11 +160,7 @@
           document.getElementById('delete-bidang-form').submit();
         });
       }
-
-      // Initialize feather icons
-      if (typeof feather !== 'undefined') {
-        feather.replace();
-      }
+      try { sessionStorage.setItem('bidang_returning', '1'); } catch(e) {}
     </script>
   </body>
 </html>

@@ -9,7 +9,8 @@ class ExportLogPolicy
 {
     protected function canAccessExport(User $user): bool
     {
-        return $user->isSuperAdmin()
+        return $user->isSuperDeveloper()
+            || $user->isSuperAdmin()
             || $user->isSekretaris()
             || $user->isKaur()
             || $user->isKasi()

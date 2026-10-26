@@ -8,31 +8,38 @@ class UserPolicy
 {
     public function viewAny(User $user)
     {
-        return $user->isSuperAdmin() || $user->isAdmin();
+        return $user->isSuperDeveloper() || $user->isSuperAdmin() || $user->isAdmin();
     }
 
-    public function view(User $user, User $model)
+    public function view(User $user, ?User $model = null)
     {
-        return $user->isSuperAdmin() || $user->isAdmin();
+        return $user->isSuperDeveloper() || $user->isSuperAdmin() || $user->isAdmin();
     }
 
     public function create(User $user)
     {
-        return $user->isSuperAdmin();
+        return $user->isSuperDeveloper() || $user->isSuperAdmin();
     }
 
-    public function update(User $user, User $model)
+    public function update(User $user, ?User $model = null)
     {
-        return $user->isSuperAdmin();
+        if ($model && $model->isSuperDeveloper() && !$user->isSuperDeveloper()) {
+            return false;
+        }
+        return $user->isSuperDeveloper() || $user->isSuperAdmin();
     }
 
-    public function delete(User $user, User $model)
+    public function delete(User $user, ?User $model = null)
     {
-        return $user->isSuperAdmin();
+        if ($model && $model->isSuperDeveloper() && !$user->isSuperDeveloper()) {
+            return false;
+        }
+        return $user->isSuperDeveloper() || $user->isSuperAdmin();
     }
 
     public function bulkDelete(User $user): bool
     {
-        return $user->isSuperAdmin();
+        return $user->isSuperDeveloper() || $user->isSuperAdmin();
     }
+
 }
