@@ -17,6 +17,8 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/.gemini
+/.agents
 
 /public/barcodes/*.png
 /insert_kib_all.sql
